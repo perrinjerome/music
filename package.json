@@ -2,6 +2,11 @@
   "name": "testvue",
   "version": "0.0.1",
   "dependencies": {
+    "lodash": "^4.16.6",
     "vue": "^2.0.4"
+  },
+  "devDependencies": {
+    "babel-core": "^6.18.2",
+    "babel-loader": "^6.2.7"
   }
 }
