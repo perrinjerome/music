@@ -1,57 +1,71 @@
 <!doctype html>
-<html data-framework="vue">
+<html data-framework="vue" class="xxx">
   <head>
     <meta charset="utf-8">
-    <title>Vue.js • Music Player</title>
-    <script src="https:unpkg.com/director/build/director.js"></script>
-    <style>[v-cloak] { display: none; }</style>
-
+    <title>Music Player</title>
+    <style>
+      [v-cloak] { display: none; }
+    li.playing {
+      font-weight: bold;
+    }
+    .albumlist {
+      column-count: 2;
+    }
+    .album {
+      height: 100%;
+      min-height: 10em;
+      width: 100%;
+    }
+    </style>
 
     
   <template type="text/x-template" id="audio-player-template">
-    <audio ref="audio" controls preload >
-      <source :src="playHack"/>
-      Your browser does not support the audio element.
-    </audio>
-    <template v-if="currentItem">
+    <div>
+      <audio ref="audio" controls preload id="audio_player">
+        <source :src="playHack"/>
+        Your browser does not support the audio element.
+      </audio>
+      <template v-if="currentItem">
       <h1>{{ currentItem.title }}</h1>
-      <h3>{{ currentItem.artist }}</h3>
-      <h3>{{ currentItem.album }}</h3>
+      <h3>{{ currentItem.artist }} / {{ currentItem.album }}</h3>
+      </template>
+    </div>
     </template>
-    <pre>{{currentItem}}</pre>
-    </template>
+    
   </head>
   
   <body>
-
     
     <section class="player">
       <audio-player
         :current-item="current_item"
-        v-on:ended="playNext"></audio-player>
-      
+        v-on:ended="playNext"></audio-player> 
       <section class="playlist" 
                v-show="playlist.length"  v-cloak>
         <ul>
           <li v-for="item in playlist"
             :key="item.id"
             :class="{ playing: current_item && current_item.id == item.id}">
-            <label @dblclick="playSong(item)">{{ item.title }}</label>
+            <label @click="playSong(item)">{{ item.title }}</label>
           </li>
         </ul>
       </section>
 
       <section class="random_albums"  v-show="random_albums.length && !playlist.length"  v-cloak>
-        <ul>
-          <li v-for="album in random_albums">
-            <img 
+        <div class="albumlist">
+          <img v-for="album in random_albums"
+              class="album"
               @click="playAlbum(album)"
-              :key="album.id"
               :src="album.cover_url"
-              alt="{{album.album + ' ' + album.album_artist}}" />
-          </li>
-        </ul>
+              :alt="album.album + ' ' + (album.albumartist || album.artist)"
+              :title="album.album + ' ' + (album.albumartist || album.artist)"
+               />
+        </div>
       </section>
+    
+    <button @click="updateDb()">Update DB! </button>
+
+    <pre>{{ debugzone }}</pre>
     </section>
 
   <script src="https://cdn.jsdelivr.net/lodash/4.16.6/lodash.core.min.js"></script>

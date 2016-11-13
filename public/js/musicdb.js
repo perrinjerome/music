@@ -6,7 +6,7 @@ function MusicDB(url) {
   // this.beets_url = "http://" + host + ":" + port;
   this.beets_url = url;
 
-  this.db_version = 48;
+  this.db_version = 49;
   this.db_name = "beets";
 }
 
@@ -26,7 +26,7 @@ var openDatabase = function(musicdb, callback) {
         db.deleteObjectStore("items");
       }
       if (db.objectStoreNames.contains("albums")) {
-        db.deleteObjectStore("items");
+        db.deleteObjectStore("albums");
       }
       if (db.objectStoreNames.contains("artists")) {
         db.deleteObjectStore("artists");
@@ -34,7 +34,7 @@ var openDatabase = function(musicdb, callback) {
       if (!db.objectStoreNames.contains("items")) {
         objectStore = db.createObjectStore(
           "items", { keyPath: "__id", autoIncrement: true });
-        objectStore.createIndex("id", "id", { unique: true });
+        objectStore.createIndex("id", "id", { unique: false });  // XXX ??? see 1704 
         objectStore.createIndex("album", "album", { unique: false });
         objectStore.createIndex("album_id", "album_id", { unique: false });
         objectStore.createIndex("albumartist", "albumartist", { unique: false });
@@ -42,19 +42,10 @@ var openDatabase = function(musicdb, callback) {
       if (!db.objectStoreNames.contains("albums")) {
         objectStore = db.createObjectStore(
           "albums", { keyPath: "__id", autoIncrement: true });
-        objectStore.createIndex("id", "id", { unique: true });
+        objectStore.createIndex("id", "id", { unique: false });  // XXX ??? see 1704 
         objectStore.createIndex("album", "album", { unique: false });
         objectStore.createIndex("albumartist", "albumartist", { unique: false });
       }
-      
-      // TODO: how to fail during onupgradneeded in a way that it's retried next time ?
-      // ... do not do this on onupgradeneeded  !!!
-      musicdb.loadDatabase().then(alert).catch(function(e){
-        console.error("Failed loading database !", e);
-        alert("loading failed " + e);
-        event.target.transaction.abort();
-        reject(e);
-      });
     };
     
     request.onsuccess = function (event) {
@@ -109,7 +100,7 @@ MusicDB.prototype.getItemSrcUrl = function(item) {
 };
   
   
-// populate the database TODO: call back
+// populate the database TODO: progress callback ?
 MusicDB.prototype.loadDatabase = function() {
   console.log("loadDb");
   var musicdb = this;
@@ -129,7 +120,7 @@ MusicDB.prototype.loadDatabase = function() {
           try {
             if ((i % 300) == 0) {
               // start a new transaction.
-              console.log("Insertion in DB successful", i );
+              console.log("Insertion in " + storeName + " successful", i );
               insertNext(i-1, db.transaction(
                 storeName,
                 "readwrite"
@@ -169,7 +160,7 @@ MusicDB.prototype.loadDatabase = function() {
       })
   ]);
 };
-  
+
 MusicDB.prototype.countAlbums = function() {
   return openDatabase(this, function(db, resolve, reject){
     var albumStore = db.transaction(
@@ -186,7 +177,7 @@ MusicDB.prototype.countAlbums = function() {
   });
 };
 
-// return one random album from the music db
+// return a random album from the music db
 MusicDB.prototype.getRandomAlbum = function() {
   var musicdb = this;
   function getRandomInt (min, max) {
