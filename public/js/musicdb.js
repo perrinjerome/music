@@ -146,19 +146,39 @@ MusicDB.prototype.loadDatabase = function() {
       ).objectStore(storeName));
     });
   };
-  
-  return Promise.all([
-    fetch(musicdb.beets_url + "/album/")
-      .then(getJson)
-      .then(function(result){
-        return populateStore("albums", result.albums);
-      }),
-    fetch(musicdb.beets_url + "/item/")
-      .then(getJson)
-      .then(function(result){
-        return populateStore("items", result.items);
-      })
-  ]);
+    
+  return openDatabase(this, function(db, resolve, reject) {
+    var tx = db.transaction(['items', /* 'artists', */  'albums'], 'readwrite');
+    tx.onerror = reject;
+    tx.oncomplete = resolve;
+    function clearObjectStore(storeName) {
+      return new Promise(function(resolve_, reject_) {
+        var clearTransaction = tx.objectStore(storeName).clear();
+        clearTransaction.onerror = reject_;
+        clearTransaction.onsuccess = resolve_;
+      });
+    };
+    return Promise.all([
+      clearObjectStore('items'),
+      // clearObjectStore('artists'),
+      clearObjectStore('albums'),
+    ]).then(resolve) ;
+  }).then(
+    function() {
+      return Promise.all([
+        fetch(musicdb.beets_url + "/album/")
+          .then(getJson)
+          .then(function(result){
+            return populateStore("albums", result.albums);
+          }),
+
+        fetch(musicdb.beets_url + "/item/")
+          .then(getJson)
+          .then(function(result){
+            return populateStore("items", result.items);
+          })
+        ]);
+    });
 };
 
 MusicDB.prototype.countAlbums = function() {
