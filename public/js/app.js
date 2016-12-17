@@ -8,17 +8,60 @@ var pages = {
 Vue.component('audio-player', {
   template: '#audio-player-template',
   mounted: function(x){
-    var component = this;
+    this.decoded = {}; 
     this.$refs.audio.src = "./empty.mp3";
-    this.$refs.audio.addEventListener('ended', function(){ component.$emit('ended') });
+    this.$refs.audio.addEventListener('ended', e => this.$emit('ended'));
   },
   computed: {
     playHack: function() {
       if (this.currentItem) {
-        // XXX
-        // return this.currentItem.item_url;
+        var component = this;
         this.$refs.audio.src = this.currentItem.item_url;
-        this.$refs.audio.play(); 
+        this.$refs.audio.play();
+        this.$refs.audio.addEventListener ('error', function(e) {
+          if (component.decoded[component.currentItem.item_url]) {
+            console.error("already failed");
+            return;
+          }
+           // XXX do not keep all failed, just not to retry failed forever ...
+          component.decoded[component.currentItem.item_url] = 1;
+          
+          fetch(component.currentItem.item_url)
+            .then(response => response.arrayBuffer())
+            .then(function(buffer) {
+              var outData = {},
+                  fileData = {},
+                  item_url = component.currentItem.id;
+              outData[item_url + ".wav"] = {"MIME":"audio/wav"}
+              fileData[item_url + ".flac"] = new Uint8Array(buffer);
+              console.log(component.currentItem, outData, fileData);
+            
+              app.worker.postMessage( {
+                command: 'encode',
+                args: ["-d", item_url + ".flac"],
+                outData: outData ,
+                fileData: fileData } );
+              app.worker.onmessage = function(e) {
+                var fileName, blob, url;
+                if (e.data.reply == "done") {
+                  for ( fileName in e.data.values ) {
+                    blob = e.data.values[fileName].blob;
+                    if (0 && component.url) {
+                      URL.revokeObjectURL(component.url);
+                    }
+                     // Are we still playing same song or was it changed ?
+                    if (fileName === component.currentItem.id + ".wav") {
+                      component.url = URL.createObjectURL( blob );
+                      component.$refs.audio.src = component.url;
+                      component.$refs.audio.play();
+                    }
+                  }
+                } else {
+                  //console.log(e);
+                }
+              };
+          }, console.error);
+        });
       }
     }
   },
@@ -52,6 +95,9 @@ var app = new Vue({
       if (current_page == 'front') {
         return this.get4RandomAlbums();
       }
+      if (current_page == 'play') {
+         
+      }
     } 
   },
 
@@ -69,9 +115,12 @@ var app = new Vue({
     playSong: function(song) {
       this.current_item = song;
     },
-    playAlbum: function(album) {
+    route_playAlbum: function(album) {
+      location.hash = "album/" + album.id;
+    },
+    playAlbum: function(album_id) {
       var vue = this;
-      this.musicdb.getItemsFromAlbum(album.id).then(function(items) {
+      this.musicdb.getItemsFromAlbum(album_id).then(function(items) {
         vue.playlist = items;
         vue.current_item = items[0];
       });
@@ -98,19 +147,6 @@ var app = new Vue({
 
 })
 
-// handle routing
-function onHashChange () {
-  var page = window.location.hash.replace(/#\/?/, '')
-  if (pages[page]) {
-    app.current_page = page
-  } else {
-    window.location.hash = ''
-    app.current_page = 'front'
-  }
-}
-window.addEventListener('hashchange', onHashChange)
-onHashChange()
-
 
 // mount
 app.$mount(".player");
@@ -122,3 +158,28 @@ document.body.addEventListener('click', function(event){
 });
 
 app.beets_url = 'https://coralgarden.my.to/beet/api' // XXX TODO save this
+
+app.worker = new Worker('worker/EmsWorkerProxy.js');
+
+// handle routing
+function onHashChange () {
+  var page = window.location.hash.replace(/#\/?/, '')
+  if (page.indexOf('album') == 0) {
+    console.log("ok", page.split("/")); 
+    try {
+      app.playAlbum(parseInt(page.split("/")[1], 10));
+    } catch (e) {
+      console.error(e);
+    }
+    
+  } else {
+    if (pages[page]) {
+      app.current_page = page
+    } else {
+      window.location.hash = ''
+      app.current_page = 'front'
+    }
+  }
+}
+window.addEventListener('hashchange', onHashChange)
+setTimeout(onHashChange, 1);

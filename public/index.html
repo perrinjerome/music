@@ -50,12 +50,12 @@
           </li>
         </ul>
       </section>
-
-      <section class="random_albums"  v-show="random_albums.length && !playlist.length"  v-cloak>
+      <a href="#front">Choose new albums</a>
+      <section class="random_albums" v-show="random_albums.length && !playlist.length"  v-cloak>
         <div class="albumlist">
           <img v-for="album in random_albums"
               class="album"
-              @click="playAlbum(album)"
+              @click="route_playAlbum(album)"
               :src="album.cover_url"
               :alt="album.album + ' ' + (album.albumartist || album.artist)"
               :title="album.album + ' ' + (album.albumartist || album.artist)"
@@ -70,6 +70,7 @@
 
   <script src="https://cdn.jsdelivr.net/lodash/4.16.6/lodash.core.min.js"></script>
     <script src="https://cdn.jsdelivr.net/vue/2.0.5/vue.min.js"></script>
+    <script src="https://unpkg.com/vue-router/dist/vue-router.js"></script>
     <script src="js/musicdb.js"></script>
     <script src="js/app.js"></script>
   </body>
