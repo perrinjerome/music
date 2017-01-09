@@ -90,10 +90,15 @@ var app = new Vue({
       document.title = current_item.title + " ⚡ " +current_item.artist;
     },
     current_page: function(current_page) {
+      console.log("current page", current_page);
       // XXX
-      console.log("page", current_page);
       if (current_page == 'front') {
+        this.current_page = null;
         return this.get4RandomAlbums();
+      }
+      if (current_page == 'updateDb') {
+        alert("update db start");
+        return this.updateDb();
       }
       if (current_page == 'play') {
          
@@ -120,6 +125,7 @@ var app = new Vue({
     },
     playAlbum: function(album_id) {
       var vue = this;
+      this.current_page = "playing." + album_id;
       this.musicdb.getItemsFromAlbum(album_id).then(function(items) {
         vue.playlist = items;
         vue.current_item = items[0];
@@ -157,13 +163,15 @@ document.body.addEventListener('click', function(event){
   document.getElementById("audio_player").play();
 });
 
-app.beets_url = 'https://coralgarden.my.to/beet/api' // XXX TODO save this
+// app.beets_url = 'https://coralgarden.my.to/beet/api' // XXX TODO save this
+app.beets_url = 'https://coralgarden.hacked.jp/beet/api' // XXX TODO save this
 
 app.worker = new Worker('worker/EmsWorkerProxy.js');
 
 // handle routing
 function onHashChange () {
   var page = window.location.hash.replace(/#\/?/, '')
+  console.log("onHashChange", page);
   if (page.indexOf('album') == 0) {
     console.log("ok", page.split("/")); 
     try {
@@ -174,11 +182,13 @@ function onHashChange () {
     
   } else {
     if (pages[page]) {
+      console.log("page", page);
       app.current_page = page
-    } else {
       window.location.hash = ''
-      app.current_page = 'front'
+    } else {
+      app.current_page = 'front';
     }
+    // app.current_page = page
   }
 }
 window.addEventListener('hashchange', onHashChange)

@@ -50,8 +50,8 @@
           </li>
         </ul>
       </section>
-      <a href="#front">Choose new albums</a>
-      <section class="random_albums" v-show="random_albums.length && !playlist.length"  v-cloak>
+      <h2><a href="#front">Choose new albums</a></h2>
+      <section class="random_albums" v-show="random_albums.length"  v-cloak>
         <div class="albumlist">
           <img v-for="album in random_albums"
               class="album"
@@ -63,7 +63,9 @@
         </div>
       </section>
     
-    <button @click="updateDb()">Update DB! </button>
+    <div style="display:none">
+      <button @click="updateDb()"> Update DB! </button>
+    </div>
 
     <pre>{{ debugzone }}</pre>
     </section>
