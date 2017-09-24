@@ -7,19 +7,86 @@ var pages = {
 
 Vue.component('audio-player', {
   template: '#audio-player-template',
-  mounted: function(x){
-    this.decoded = {}; 
+  mounted: function(){
+    this.decoded = {};
+    this.pauseCount = 0;
     this.$refs.audio.src = "./empty.mp3";
     this.$refs.audio.addEventListener('ended', e => this.$emit('ended'));
+    // try to setup media session controls.
+    if ('mediaSession' in navigator) {
+      log("setup controls");
+      navigator.mediaSession.setActionHandler('pause', _ => {
+        this.pauseCount += 1;
+        setTimeout(_ => {this.pauseCount = 0}, 5000);
+        log('> User clicked "Pause" icon', this.pauseCount);
+        log(this.$refs.audio.paused);
+        if (this.pauseCount > 3) {
+          log("cheat code, playing another album");
+        }
+        if (this.$refs.audio.paused) {
+          this.$refs.audio.play();
+        } else {
+          this.$refs.audio.pause();
+        }
+        
+      });
+
+      navigator.mediaSession.setActionHandler('nexttrack', _ => {
+        log('> User clicked "Next Track" icon. mmmh');
+        this.$parent.playNext();
+      });
+      navigator.mediaSession.setActionHandler('previoustrack', function() {
+        log('> User clicked "Previous Track" icon. '); // TODO
+      });
+    }
+
   },
   computed: {
     playHack: function() {
       if (this.currentItem) {
         var component = this;
         this.$refs.audio.src = this.currentItem.item_url;
-        this.$refs.audio.play();
+        this.$refs.audio.play().then(
+          _ => {
+            log("playing !", this.currentItem);
+            if ('mediaSession' in navigator) {
+              this.$parent.musicdb.getAlbumCoverUrl({id: this.currentItem.album_id}).then(
+                cover_url => {
+                  log("cover_url", cover_url);
+                  navigator.mediaSession.metadata = new MediaMetadata({
+                    title: this.currentItem.title,
+                    artist: this.currentItem.artist,
+                    album: this.currentItem.album,
+                    artwork: [
+      { src: cover_url,
+        sizes: '96x96',
+       type: 'image/png' },
+      { src: cover_url,
+        sizes: '128x128',
+       type: 'image/png' },
+      { src: cover_url,
+        sizes: '192x192',
+       type: 'image/png' },
+      { src: cover_url,
+        sizes: '256x256',
+       type: 'image/png' },
+      { src: cover_url,
+        sizes: '384x384',
+       type: 'image/png' },
+      { src: cover_url,
+       sizes: '512x512',
+       type: 'image/png' }, ]
+              });
+            });
+            }
+          }
+        );
         this.$refs.audio.addEventListener ('error', function(e) {
+          /* We cannot play this source, it must be a FLAC.
+             Let's try to convert it.
+          */
           if (component.decoded[component.currentItem.item_url]) {
+            /* we could not convert */
             console.error("already failed");
             return;
           }
@@ -179,8 +246,9 @@ document.body.addEventListener('click', function(event){
   }
 });
 
-// app.beets_url = 'https://coralgarden.my.to/beet/api' // XXX TODO save this
-app.beets_url = 'https://coralgarden.hacked.jp/beet/api' // XXX TODO save this
+
+app.beets_url = 'https://coralgarden.my.to/beet/api' // XXX TODO make this configurabel
+//app.beets_url = 'https://coralgarden.hacked.jp/beet/api' // XXX TODO save this
 
 app.worker = new Worker('worker/EmsWorkerProxy.js');
 
