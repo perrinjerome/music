@@ -1,5 +1,6 @@
-/*globals $:false */
-/*globals console:false */
+/*jshint esversion: 6 */
+/*globals window, fetch, console, _ */
+(function () {
 "use strict";
 
 function MusicDB(url) {
@@ -76,8 +77,8 @@ MusicDB.prototype.getItemsFromAlbum = function(albumId) {
           return cursor.continue();
         }
         resolve(_.sortBy(itemList, ["track"]).reverse());
-      } catch (e) {
-        reject(e);
+      } catch (error) {
+        reject(error);
       }
     };
   });
@@ -107,7 +108,7 @@ MusicDB.prototype.loadDatabase = function() {
   // utility for fetch
   function getJson(response) {
     return response.json();
-  };
+  }
   // insert data in storeName, junk by junk
   function populateStore(storeName, data) { 
     return openDatabase(musicdb, function(db, resolve, reject) {
@@ -118,7 +119,7 @@ MusicDB.prototype.loadDatabase = function() {
         var req = store.add(data[i]);
         req.onsuccess = function (evt) {
           try {
-            if ((i % 300) == 0) {
+            if ((i % 300) === 0) {
               // start a new transaction.
               console.log("Insertion in " + storeName + " successful", i );
               insertNext(i-1, db.transaction(
@@ -133,9 +134,9 @@ MusicDB.prototype.loadDatabase = function() {
           }
         };
         req.onerror = function(e) {
-          reject( new Error("Error inserting " + JSON.stringify(data[i])
-                            + "\nerror: " + e.target.error));
-        }
+          reject( new Error("Error inserting " + JSON.stringify(data[i]) +
+                            "\nerror: " + e.target.error));
+        };
       }
     // start inserting
     insertNext(
@@ -145,7 +146,7 @@ MusicDB.prototype.loadDatabase = function() {
         "readwrite"
       ).objectStore(storeName));
     });
-  };
+  }
     
   return openDatabase(this, function(db, resolve, reject) {
     var tx = db.transaction(['items', /* 'artists', */  'albums'], 'readwrite');
@@ -157,7 +158,7 @@ MusicDB.prototype.loadDatabase = function() {
         clearTransaction.onerror = reject_;
         clearTransaction.onsuccess = resolve_;
       });
-    };
+    }
     return Promise.all([
       clearObjectStore('items'),
       // clearObjectStore('artists'),
@@ -190,10 +191,10 @@ MusicDB.prototype.countAlbums = function() {
     var req = albumStore.count();
     req.onsuccess = function() {
       resolve(this.result);
-    }
+    };
     req.onerror = function(e) {
       reject(e);
-    }
+    };
   });
 };
 
@@ -230,12 +231,13 @@ MusicDB.prototype.getRandomAlbum = function() {
             });
           }
           reject("Error counting albums");
-        } catch (e) {
-          reject(e);
+        } catch (error) {
+          reject(error);
         }
-      }
+      };
       req.onerror = reject;
     });
   });
-}
+};
 //module && module.exports = MusicDB;
+})();
