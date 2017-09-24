@@ -161,6 +161,22 @@ app.$mount(".player");
 // https://bugs.chromium.org/p/chromium/issues/detail?id=138132
 document.body.addEventListener('click', function(event){
   document.getElementById("audio_player").play();
+  
+  if ('wakeLock' in navigator) {
+    navigator.wakeLock.request("system").then(
+      function successFunction() {
+        // success
+        log('cool wakelock');
+      },
+      function errorFunction() {
+        // error
+        log("wake lock refused");
+      }
+    );
+  } else {
+    var noSleep = new NoSleep();
+    noSleep.enable();
+  }
 });
 
 // app.beets_url = 'https://coralgarden.my.to/beet/api' // XXX TODO save this
