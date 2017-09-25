@@ -1,11 +1,12 @@
 {
-  "url": "https://coralgarden.hacked.jp/music/public/",
   "name": "Music Player",
   "short_name": "Music",
+  "url": "https://coralgarden.my.to/music/public/",
   "start_url": ".",
   "display": "standalone",
   "background_color": "#AAF",
   "description": "Music Player.",
+  "orientation": "portrait",
   "icons": [ {
     "src": "images/touch/homescreen192.png",
     "sizes": "192x192",
