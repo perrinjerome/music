@@ -285,4 +285,17 @@
       document.querySelector('#log').textContent += line + '\n';
       console.log(Array.prototype.slice.call(arguments));
     }
+
+
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function() {
+      navigator.serviceWorker.register('js/sw.js').then(function(registration) {
+      // Registration was successful
+      log('ServiceWorker registration successful with scope: ', registration.scope);
+    }, function(err) {
+      // registration failed :(
+      log('ServiceWorker registration failed: ', err);
+    });
+  });
+}
 })();
