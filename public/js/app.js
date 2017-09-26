@@ -286,10 +286,9 @@
       console.log(Array.prototype.slice.call(arguments));
     }
 
-
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', function() {
-      navigator.serviceWorker.register('js/sw.js').then(function(registration) {
+      navigator.serviceWorker.register('./sw.js').then(function(registration) {
       // Registration was successful
       log('ServiceWorker registration successful with scope: ', registration.scope);
     }, function(err) {
