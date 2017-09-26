@@ -1,8 +1,8 @@
 {
   "name": "Music Player",
   "short_name": "Music",
-  "url": "https://coralgarden.my.to/music/public/",
-  "start_url": ".",
+  "url": "https://coralgarden.my.to/",
+  "start_url": "/music/public/",
   "display": "standalone",
   "background_color": "#AAF",
   "description": "Music Player.",
