@@ -4,6 +4,7 @@
   "url": "https://coralgarden.my.to/",
   "start_url": "/music/public/",
   "display": "standalone",
+  "theme_color": "#AAF",
   "background_color": "#AAF",
   "description": "Music Player.",
   "orientation": "portrait",
