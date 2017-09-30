@@ -21,7 +21,7 @@ const config = {
   devtool: 'eval',
   output: {
     path: path.resolve(__dirname, 'public/build'), // Path of output file
-    publicPath: "/assets/",
+    publicPath: "build/",
     filename: 'app.js',
   },
    module: {
