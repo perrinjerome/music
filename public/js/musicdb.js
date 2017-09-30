@@ -1,7 +1,7 @@
 /*jshint esversion: 6 */
 /*globals window, fetch, console, _ */
-(function () {
-"use strict";
+//(function () {
+//"use strict";
 
 function MusicDB(url) {
   // this.beets_url = "http://" + host + ":" + port;
@@ -239,5 +239,8 @@ MusicDB.prototype.getRandomAlbum = function() {
     });
   });
 };
-//module && module.exports = MusicDB;
-})();
+
+//module.exports = MusicDB;
+export {MusicDB};
+  
+//})();

@@ -1,12 +1,20 @@
 {
-  "name": "testvue",
+  "name": "musicplayer",
+  "description": "a music player for beets.io based on modern web technologies",
   "version": "0.0.1",
+  "scripts": {
+    "start": "webpack-dev-server --config webpack.config.js --progress --inline --colors"
+  },
   "dependencies": {
     "lodash": "^4.16.6",
+    "material-ui": "latest",
     "vue": "^2.0.4"
   },
   "devDependencies": {
     "babel-core": "^6.18.2",
-    "babel-loader": "^6.2.7"
+    "babel-loader": "^6.4.1",
+    "lighthouse": "^2.4.0",
+    "webpack": "^2.4.1",
+    "webpack-dev-server": "^2.4.2"
   }
 }

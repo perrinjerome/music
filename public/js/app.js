@@ -1,8 +1,11 @@
 /*jshint esversion: 6 */
 /*globals Vue, navigator, window, setTimeout, MediaMetadata, console, fetch, URL, document, confirm, alert, MusicDB, NoSleep, Worker */
-(function () {
-  "use strict";
+import {MusicDB} from "./musicdb.js";
 
+// (function () {
+  //"use strict";
+
+  
   var pages = {
     front: "front",
     play: "play"
@@ -297,4 +300,4 @@
     });
   });
 }
-})();
+// })();
