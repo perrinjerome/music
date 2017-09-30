@@ -6,6 +6,7 @@
     "start": "webpack-dev-server --config webpack.config.js --progress --inline --colors"
   },
   "dependencies": {
+    "jshint-loader": "^0.8.4",
     "lodash": "^4.16.6",
     "material-ui": "latest",
     "vue": "^2.0.4"

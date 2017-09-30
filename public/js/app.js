@@ -41,7 +41,7 @@ import {MusicDB} from "./musicdb.js";
           this.$parent.playNext();
         });
         
-        navigator.mediaSession.setActionHandler('previoustrack', function() {
+        navigator.mediaSession.setActionHandler('previoustrack', _ => {
           log('> User clicked "Previous Track" icon. '); // TODO
         });
       }
@@ -50,6 +50,7 @@ import {MusicDB} from "./musicdb.js";
       playHack: function() {
         if (this.currentItem) {
           var component = this;
+          this.$parent.current_title = this.currentItem.title;
           this.$refs.audio.src = this.currentItem.item_url;
           this.$refs.audio.play().then(
             _ => {
@@ -148,7 +149,8 @@ import {MusicDB} from "./musicdb.js";
       current_item: null,  
       musicdb: null,
       current_page: null,
-      current_title: "ahha",
+      loading: false,
+      current_title: "Music Player",
       debugzone: ""
     },
     watch: {
@@ -211,12 +213,13 @@ import {MusicDB} from "./musicdb.js";
         }
       },
       updateDb: function() {
-        if (confirm("update db")){ 
-          this.musicdb.loadDatabase()
-          .then(function() {alert('fini');})
-          .catch(function(e){
+        if (1 || confirm("update db")){ 
+          this.loading = true;
+          this.musicdb.loadDatabase(this)
+          .then(_ => {this.loading = false;  log('finish updating'); })
+          .catch(e => {
             console.error("Failed loading database !", e);
-            alert("loading failed " + e);
+            log("loading failed " + e);
           });
         }
       }

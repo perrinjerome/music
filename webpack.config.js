@@ -25,6 +25,14 @@ const config = {
     filename: 'app.js',
   },
    module: {
+     rules: [{
+      test: /\.js$/,
+      enforce: "pre",
+       exclude: /node_modules/,
+       use: [{
+         loader: "jshint-loader"
+       }]
+     }],
      loaders: [{
          test: /\.js$/,
          exclude: /node_modules/,
