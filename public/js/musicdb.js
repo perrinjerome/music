@@ -188,6 +188,7 @@ MusicDB.prototype.newloadDatabase = function(progressReporter) {
             total_items);},
         function (e) {
           console.error("Error: we have to retry one by one ...", e);
+          /* XXX no, we have 404 if no result is found */
           var promise_list = [];
           function retryOne(index) {
             //return function() {
@@ -253,14 +254,14 @@ MusicDB.prototype.newloadDatabase = function(progressReporter) {
           "albums",
           stat.albums,
           0,
-          300,
+          50,
           stat.albums),
         fechUntil(
           musicdb.beets_url + "/item/",
           "items",
           stat.items,
           0,
-          300,
+          500,
           stat.items)
       ]);
 
