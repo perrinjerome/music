@@ -169,7 +169,7 @@ MusicDB.prototype.newloadDatabase = function(progressReporter) {
     }
 
 //    console.log(url + query,  storeName, nbItems, start, end);
-    if (end > 1000000 || nbItems > 0) {
+    if (end < 100000 && nbItems > 0) {
       return fetch(url + query,
                    { credentials: 'include' })
         .then(getJson)
