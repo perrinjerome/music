@@ -186,10 +186,9 @@ document.addEventListener("DOMContentLoaded", () => {
           document.querySelector("#configure_beets_url").value = this.beets_url;
           dialog.showModal();
           dialog.querySelector('button.cancel').addEventListener(
-            'click', () => {console.log("cancelled"); dialog.close()});
+            'click', () => { dialog.close(); });
           dialog.querySelector('button.ok').addEventListener(
             'click', (e) => {
-              console.log("saving", this.beets_url);
               this.beets_url = document.querySelector("#configure_beets_url").value;
               localStorage.setItem('beets_url', this.beets_url);
               dialog.close();
@@ -233,26 +232,48 @@ document.addEventListener("DOMContentLoaded", () => {
       },
       updateDb: function() {
         if (1 || confirm("update db")){
-          var progressReporter = {
-            start: function () { this._startTime = performance.now(); },
-            totalTime: function () { return performance.now() - this._startTime; },
-            reportProgress: (storeName, progress) => {
-              document.querySelector(
-                '#progress_bar_' + storeName
-              ).MaterialProgress.setProgress(progress);
-            }
-          };
-          this.loading = true;
-          progressReporter.start();
-          this.musicdb.loadDatabase(progressReporter).then(_ => {
-            var totalTime = progressReporter.totalTime();
-            this.loading = false;
-            log('finish updating in ', totalTime);
-          })
-            .catch(e => {
-            console.error("Failed loading database !", e);
-            log("loading failed " + e);
-          });
+          var dialog = document.querySelector('#dialog-confirm-update-database');
+          if (! dialog.showModal) {
+            console.error("TODO polyfill");
+            dialogPolyfill.registerDialog(dialog);
+          }
+          dialog.showModal();
+          dialog.querySelector('button.cancel').addEventListener(
+            'click', () => { dialog.close(); });
+          dialog.querySelector('button.ok').addEventListener(
+            'click', (e) => {
+              var progressReporter = {
+                start: function () { this._startTime = performance.now(); },
+                totalTime: function () { return performance.now() - this._startTime; },
+                reportProgress: (storeName, progress) => {
+                  document.querySelector(
+                    '#progress_bar_' + storeName
+                  ).MaterialProgress.setProgress(progress);
+                }
+              };
+              this.loading = true;
+              progressReporter.start();
+              this.musicdb.loadDatabase(
+                progressReporter
+              ).then(_ => {
+                var totalTime = progressReporter.totalTime();
+                this.loading = false;
+                log('finish updating in ', totalTime);
+                var data = {
+                  message: 'Finised updating in ' + totalTime.toFixed() + " seconds",
+                  timeout: 2000,
+                  //   actionHandler: () => {},
+                  //    actionText: 'Undo'
+                };
+                snackbarContainer.MaterialSnackbar.showSnackbar(data);
+
+              }).catch(e => {
+                console.error("Failed loading database !", e);
+                log("loading failed " + e);
+              });
+
+              dialog.close();
+            });
         }
       }
     },
@@ -284,8 +305,10 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   app.beets_url = localStorage.getItem('beets_url') || 'http://localhost:8337/';
-
   app.worker = new Worker('worker/EmsWorkerProxy.js');
+
+  // XXX
+  var snackbar = document.querySelector('#demo-snackbar-example');
 
   // handle routing
   function onHashChange () {
