@@ -1,4 +1,4 @@
-/*globals self, caches, fetch, console, Request */
+/*globals self, caches, fetch */
 (function () {
   "use strict";
   var CACHE_NAME = 'music-app-v1';
@@ -18,31 +18,21 @@
     // Perform install steps
     event.waitUntil(
       caches.open(CACHE_NAME)
-        .then(function (cache) {
-          console.log('Opened cache');
-          return cache.addAll(
-            urlsToCache.map(function (urlToCache){
-              return new Request(urlToCache, { credentials: 'include' });
-            })
-          );
-        },
-          function (error) {
-            console.error("error caching", error);
-        })
-    );
+      .then(function (cache) {
+        return cache.addAll(urlsToCache);
+      }));
   });
 
   self.addEventListener('fetch', function(event) {
     event.respondWith(
       caches.match(event.request)
-        .then(function(response) {
-          // Cache hit - return response
-          if (response) {
-            return response;
-          }
-          return fetch(event.request);
+      .then(function(response) {
+        // Cache hit - return response
+        if (response) {
+          return response;
         }
-      )
+        return fetch(event.request);
+      })
     );
   });
 
