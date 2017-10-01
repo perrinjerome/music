@@ -167,7 +167,9 @@ MusicDB.prototype.newloadDatabase = function(progressReporter) {
         storeName,
         Math.floor((total_items - nbItems) / total_items * 100, 100));
     }
-
+// TODO: only tolerate 404
+    
+    
 //    console.log(url + query,  storeName, nbItems, start, end);
     if (end < 100000 && nbItems > 0) {
       return fetch(url + query,
