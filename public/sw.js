@@ -1,4 +1,4 @@
-/*globals self, caches, fetch, console */
+/*globals self, caches, fetch, console, Request */
 (function () {
   "use strict";
   var CACHE_NAME = 'music-app-v1';
@@ -20,7 +20,11 @@
       caches.open(CACHE_NAME)
         .then(function (cache) {
           console.log('Opened cache');
-          return cache.addAll(urlsToCache);
+          return cache.addAll(
+            urlsToCache.map(function (urlToCache){
+              return new Request(urlToCache, { credentials: 'include' });
+            })
+          );
         },
           function (error) {
             console.error("error caching", error);
@@ -36,7 +40,8 @@
           if (response) {
             return response;
           }
-          return fetch(event.request);
+          return fetch(event.request,
+                       { credentials: 'include' });
         }
       )
     );

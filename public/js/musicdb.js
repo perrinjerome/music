@@ -170,7 +170,8 @@ MusicDB.prototype.newloadDatabase = function(progressReporter) {
 
 //    console.log(url + query,  storeName, nbItems, start, end);
     if (end > 1000000 || nbItems > 0) {
-      return fetch(url + query)
+      return fetch(url + query,
+                   { credentials: 'include' })
         .then(getJson)
         .then(function(result){
         return populateStore(storeName, result[storeName]); 
@@ -254,11 +255,13 @@ MusicDB.prototype.newloadDatabase = function(progressReporter) {
       clearObjectStore('albums'),
     ]).then(resolve);
   }).then(function () {
-    return fetch(musicdb.beets_url + "/stats").then(getJson);
+    return fetch(
+      musicdb.beets_url + "/stats",
+      { credentials: 'include' }
+    ).then(getJson);
   }).then( 
     function(stat) {
-      console.log(stat);
-      if (1) return Promise.all([
+      return Promise.all([
         fechUntil(
           musicdb.beets_url + "/album/",
           "albums",
@@ -274,21 +277,8 @@ MusicDB.prototype.newloadDatabase = function(progressReporter) {
           500,
           stat.items)
       ]);
-
-      return Promise.all([
-        fetch(musicdb.beets_url + "/album/")
-        .then(getJson)
-        .then(function(result){
-          return populateStore("albums", result.albums);
-        }),
-
-        fetch(musicdb.beets_url + "/item/")
-        .then(getJson)
-        .then(function(result){
-          return populateStore("items", result.items);
-        })
-      ]);
-    });};
+    });
+};
 
 // populate the database TODO: progress callback ?
 MusicDB.prototype.oldloadDatabase = function() {
