@@ -1,11 +1,16 @@
-image: alpine:latest
+image: node:4.2.2
 
 pages:
-  stage: deploy
+  cache:
+    paths:
+    - node_modules/
+
   script:
-  - echo 'Nothing to do...'
+  - node -v #npm install webpack -g
+  - npm install
+  - webpack
   artifacts:
     paths:
     - public
   only:
-  - master
+    - master
