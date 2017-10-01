@@ -251,6 +251,8 @@ document.addEventListener("DOMContentLoaded", () => {
                   ).MaterialProgress.setProgress(progress);
                 }
               };
+              this.random_albums = [];
+              this.playlist = [];
               this.loading = true;
               progressReporter.start();
               this.musicdb.loadDatabase(

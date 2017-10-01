@@ -123,7 +123,6 @@
                 </li>
               </ul>
             </section>
-            <h2><a href="#front">Choose new albums</a></h2>
             <section class="random_albums" v-show="random_albums.length"  v-cloak>
               <div class="albumlist">
                 <img v-for="album in random_albums"
@@ -137,20 +136,18 @@
             </section>
 
             <div xstyle="display:none">
-              <button @click="updateDb()" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">Update DB !</button>
+              <button @click="updateDb()" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">Refresh </button>
             </div>
 
-            <div v-show="loading"
-                 v-cloak>
-              <div class="mdl-spinner mdl-js-spinner is-active"></div>
+            <div v-show="loading" style="margin-left: 3em">
               <p>Albums:
               <div id="progress_bar_albums" class="mdl-progress mdl-js-progress"></div>
               </p>
             <p>Songs:
             <div id="progress_bar_items" class="mdl-progress mdl-js-progress"></div>
             </p>
-          
-        </div>
+          </div>
+      
         <pre>{{ debugzone }}</pre>
         <pre id="log" style="overflow: scroll"></pre>
         </section>
