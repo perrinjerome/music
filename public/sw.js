@@ -40,8 +40,7 @@
           if (response) {
             return response;
           }
-          return fetch(event.request,
-                       { credentials: 'include' });
+          return fetch(event.request);
         }
       )
     );
