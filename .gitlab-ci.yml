@@ -6,8 +6,8 @@ pages:
     - node_modules/
 
   script:
-  - node -v #npm install webpack -g
   - npm install
+  - npm install webpack -g
   - webpack
   artifacts:
     paths:
