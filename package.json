@@ -3,7 +3,8 @@
   "description": "a music player for beets.io based on modern web technologies",
   "version": "0.0.1",
   "scripts": {
-    "dev": "webpack-dev-server --config webpack.config.js --progress --inline --colors",
+    "dev": "webpack-dev-server --progress --inline --colors",
+    "build": "webpack --progress --colors",
     "test": "mocha -r jsdom-global/register --compilers js:babel-core/register"
   },
   "dependencies": {
