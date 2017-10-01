@@ -5,7 +5,6 @@
   var urlsToCache = [
     './empty.mp3',
     './',
-    '/music/public/',
     './js/app.js',
     './js/musicdb.js',
     './worker/EmsArgs.js',

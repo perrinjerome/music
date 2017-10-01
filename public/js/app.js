@@ -2,13 +2,14 @@
 /*globals Vue, navigator, window, setTimeout, MediaMetadata, console, fetch, URL, document, confirm, alert, MusicDB, NoSleep, Worker */
 import {MusicDB} from "./musicdb.js";
 
-// (function () {
+document.addEventListener("DOMContentLoaded", () => {
   //"use strict";
 
-  
+
   var pages = {
     front: "front",
-    play: "play"
+    play: "play",
+    configure: "configure"
   };
 
   Vue.component('audio-player', {
@@ -40,7 +41,7 @@ import {MusicDB} from "./musicdb.js";
           log('> User clicked "Next Track" icon. mmmh');
           this.$parent.playNext();
         });
-        
+
         navigator.mediaSession.setActionHandler('previoustrack', _ => {
           log('> User clicked "Previous Track" icon. '); // TODO
         });
@@ -64,25 +65,25 @@ import {MusicDB} from "./musicdb.js";
                       album: this.currentItem.album,
                       artwork: [
                         { src: cover_url,
-                          sizes: '96x96',
+                         sizes: '96x96',
                          type: 'image/png' },
                         { src: cover_url,
-                          sizes: '128x128',
+                         sizes: '128x128',
                          type: 'image/png' },
                         { src: cover_url,
-                          sizes: '192x192',
+                         sizes: '192x192',
                          type: 'image/png' },
                         { src: cover_url,
-                          sizes: '256x256',
+                         sizes: '256x256',
                          type: 'image/png' },
                         { src: cover_url,
-                          sizes: '384x384',
+                         sizes: '384x384',
                          type: 'image/png' },
                         { src: cover_url,
                          sizes: '512x512',
                          type: 'image/png' }, ]
-                      });
-                });
+                    });
+                  });
               }
             }
           );
@@ -95,43 +96,43 @@ import {MusicDB} from "./musicdb.js";
               console.error("already failed");
               return;
             }
-             // XXX do not keep all failed, just not to retry failed forever ...
+            // XXX do not keep all failed, just not to retry failed forever ...
             component.decoded[component.currentItem.item_url] = 1;
 
             fetch(component.currentItem.item_url)
               .then(response => response.arrayBuffer())
               .then(function(buffer) {
-                var outData = {},
-                    fileData = {},
-                    item_url = component.currentItem.id;
-                outData[item_url + ".wav"] = {"MIME":"audio/wav"};
-                fileData[item_url + ".flac"] = new Uint8Array(buffer);
-                console.log(component.currentItem, outData, fileData);
+              var outData = {},
+                  fileData = {},
+                  item_url = component.currentItem.id;
+              outData[item_url + ".wav"] = {"MIME":"audio/wav"};
+              fileData[item_url + ".flac"] = new Uint8Array(buffer);
+              console.log(component.currentItem, outData, fileData);
 
-                app.worker.postMessage( {
-                  command: 'encode',
-                  args: ["-d", item_url + ".flac"],
-                  outData: outData ,
-                  fileData: fileData } );
-                app.worker.onmessage = function(e) {
-                  var fileName, blob, url;
-                  if (e.data.reply == "done") {
-                    for ( fileName in e.data.values ) {
-                      blob = e.data.values[fileName].blob;
-                      if (0 && component.url) {
-                        URL.revokeObjectURL(component.url);
-                      }
-                       // Are we still playing same song or was it changed ?
-                      if (fileName === component.currentItem.id + ".wav") {
-                        component.url = URL.createObjectURL( blob );
-                        component.$refs.audio.src = component.url;
-                        component.$refs.audio.play();
-                      }
+              app.worker.postMessage( {
+                command: 'encode',
+                args: ["-d", item_url + ".flac"],
+                outData: outData ,
+                fileData: fileData } );
+              app.worker.onmessage = function(e) {
+                var fileName, blob, url;
+                if (e.data.reply == "done") {
+                  for ( fileName in e.data.values ) {
+                    blob = e.data.values[fileName].blob;
+                    if (0 && component.url) {
+                      URL.revokeObjectURL(component.url);
                     }
-                  } else {
-                    //console.log(e);
+                    // Are we still playing same song or was it changed ?
+                    if (fileName === component.currentItem.id + ".wav") {
+                      component.url = URL.createObjectURL( blob );
+                      component.$refs.audio.src = component.url;
+                      component.$refs.audio.play();
+                    }
                   }
-                };
+                } else {
+                  //console.log(e);
+                }
+              };
             }, console.error);
           });
         }
@@ -176,6 +177,24 @@ import {MusicDB} from "./musicdb.js";
         if (current_page == 'play') {
 
         }
+        if (current_page == 'configure') {
+          var dialog = document.querySelector('#dialog-configure');
+          if (! dialog.showModal) {
+            console.error("TODO polyfill");
+            dialogPolyfill.registerDialog(dialog);
+          }
+          document.querySelector("#configure_beets_url").value = this.beets_url;
+          dialog.showModal();
+          dialog.querySelector('button.cancel').addEventListener(
+            'click', () => {console.log("cancelled"); dialog.close()});
+          dialog.querySelector('button.ok').addEventListener(
+            'click', (e) => {
+              console.log("saving", this.beets_url);
+              this.beets_url = document.querySelector("#configure_beets_url").value;
+              localStorage.setItem('beets_url', this.beets_url);
+              dialog.close();
+            });
+        }
       } 
     },
 
@@ -213,11 +232,24 @@ import {MusicDB} from "./musicdb.js";
         }
       },
       updateDb: function() {
-        if (1 || confirm("update db")){ 
+        if (1 || confirm("update db")){
+          var progressReporter = {
+            start: function () { this._startTime = performance.now(); },
+            totalTime: function () { return performance.now() - this._startTime; },
+            reportProgress: (storeName, progress) => {
+              document.querySelector(
+                '#progress_bar_' + storeName
+              ).MaterialProgress.setProgress(progress);
+            }
+          };
           this.loading = true;
-          this.musicdb.loadDatabase(this)
-          .then(_ => {this.loading = false;  log('finish updating'); })
-          .catch(e => {
+          progressReporter.start();
+          this.musicdb.loadDatabase(progressReporter).then(_ => {
+            var totalTime = progressReporter.totalTime();
+            this.loading = false;
+            log('finish updating in ', totalTime);
+          })
+            .catch(e => {
             console.error("Failed loading database !", e);
             log("loading failed " + e);
           });
@@ -251,9 +283,7 @@ import {MusicDB} from "./musicdb.js";
     }
   });
 
-
-  app.beets_url = 'https://coralgarden.my.to/beet/api'; // XXX TODO make this configurabel
-  //app.beets_url = 'https://coralgarden.hacked.jp/beet/api'; // XXX TODO save this
+  app.beets_url = localStorage.getItem('beets_url') || 'http://localhost:8337/';
 
   app.worker = new Worker('worker/EmsWorkerProxy.js');
 
@@ -271,7 +301,7 @@ import {MusicDB} from "./musicdb.js";
 
     } else {
       if (pages[page]) {
-        console.log("page", page);
+        console.log("changing page to", page);
         app.current_page = page;
         window.location.hash = '';
       } else {
@@ -284,23 +314,23 @@ import {MusicDB} from "./musicdb.js";
   setTimeout(onHashChange, 1);
 
   function log() {
-        var line = Array.prototype.slice.call(arguments).map(function(argument) {
-        return typeof argument === 'string' ? argument : JSON.stringify(argument);
-      }).join(' ');
+    var line = Array.prototype.slice.call(arguments).map(function(argument) {
+      return typeof argument === 'string' ? argument : JSON.stringify(argument);
+    }).join(' ');
 
-      document.querySelector('#log').textContent += line + '\n';
-      console.log(Array.prototype.slice.call(arguments));
-    }
+    document.querySelector('#log').textContent += line + '\n';
+    console.log(Array.prototype.slice.call(arguments));
+  }
 
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', function() {
       navigator.serviceWorker.register('./sw.js').then(function(registration) {
-      // Registration was successful
-      log('ServiceWorker registration successful with scope: ', registration.scope);
-    }, function(err) {
-      // registration failed :(
-      log('ServiceWorker registration failed: ', err);
+        // Registration was successful
+        log('ServiceWorker registration successful with scope: ', registration.scope);
+      }, function(err) {
+        // registration failed :(
+        log('ServiceWorker registration failed: ', err);
+      });
     });
-  });
-}
-// })();
+  }
+});

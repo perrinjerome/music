@@ -100,29 +100,30 @@ MusicDB.prototype.getItemSrcUrl = function(item) {
   });
 };
 
-MusicDB.prototype.loadDatabase = function(player) {
+MusicDB.prototype.loadDatabase = function(progressReporter) {
   console.log(this);
-  return this.newloadDatabase(player);
+  return this.newloadDatabase(progressReporter);
 };
 
-MusicDB.prototype.newloadDatabase = function(player) {
+MusicDB.prototype.newloadDatabase = function(progressReporter) {
   console.log("new loadDb");
   var musicdb = this;
   // utility for fetch
   function getJson(response) {
     return response.json();
   }
-  // insert data in storeName, junk by junk
-  function populateStore(storeName, data) { 
+  // insert data in storeName, chunk by chunk
+  function populateStore(storeName, data) {
+    var nbInsertions = data.length;
     return openDatabase(musicdb, function(db, resolve, reject) {
       function insertNext(i, store) {
         if (i === 0) {
-          return resolve(null);
+          return resolve(nbInsertions);
         }
         var req = store.add(data[i]);
         req.onsuccess = function (evt) {
           try {
-            if ((i % 300) === 0) {
+            if ((i % 200) === 0) {
               // start a new transaction.
               console.log("Insertion in " + storeName + " successful", i );
               insertNext(i-1, db.transaction(
@@ -158,16 +159,16 @@ MusicDB.prototype.newloadDatabase = function(player) {
     for (i = start+1; i < end; i++) {
       query = query + i + ","; 
     }
-    // i = i + 1;
     query = query + i;
-    console.log(storeName, (total_items - nbItems) / total_items * 100);
-    // XXX
-    document.querySelector(
-      '#progress_bar_' + storeName
-    ).MaterialProgress.setProgress(
-      Math.floor((total_items - nbItems) / total_items * 100, 100));
-    
-    console.log(url + query,  storeName, nbItems, start, end);
+    // console.log(storeName, (total_items - nbItems) / total_items * 100);
+
+    if (progressReporter) {
+      progressReporter.reportProgress(
+        storeName,
+        Math.floor((total_items - nbItems) / total_items * 100, 100));
+    }
+
+//    console.log(url + query,  storeName, nbItems, start, end);
     if (end > 1000000 || nbItems > 0) {
       return fetch(url + query)
         .then(getJson)
@@ -175,12 +176,13 @@ MusicDB.prototype.newloadDatabase = function(player) {
         return populateStore(storeName, result[storeName]); 
         // we use same store Name as beet key result.
       }).then(
-        function () {
+        function (inserted) {
+          console.log("yes, inserted", inserted);
           // everything succeeded, fetch the next items
           return fechUntil(
             url,
             storeName,
-            nbItems - (end - start),
+            nbItems - inserted, //(end - start),
             end,
             end + (end - start),
             total_items);},
@@ -208,7 +210,7 @@ MusicDB.prototype.newloadDatabase = function(player) {
             //console.log(result_list);
             var numberOfItemSuccessfullyInserted = result_list.reduce(
               function(sum, value) { return sum + value; }, 0);
-
+            if (numberOfItemSuccessfullyInserted) alert("useless");
             console.log("second try fetched", numberOfItemSuccessfullyInserted);
             return fechUntil(
               url,
@@ -220,8 +222,7 @@ MusicDB.prototype.newloadDatabase = function(player) {
           });
         });
     }
-    console.log("out fini");
-    player.current_title = "fini loading " + nbItems + " in " + storeName;
+    console.log("finished loading", storeName);
   }
 
   return openDatabase(this, function(db, resolve, reject) {
@@ -245,7 +246,6 @@ MusicDB.prototype.newloadDatabase = function(player) {
     return fetch(musicdb.beets_url + "/stats").then(getJson);
   }).then( 
     function(stat) {
-      player.current_title = "Updating database"; // XXX naz
       console.log(stat);
       if (1) return Promise.all([
         fechUntil(
@@ -253,14 +253,14 @@ MusicDB.prototype.newloadDatabase = function(player) {
           "albums",
           stat.albums,
           0,
-          100,
+          300,
           stat.albums),
         fechUntil(
           musicdb.beets_url + "/item/",
           "items",
           stat.items,
           0,
-          100,
+          300,
           stat.items)
       ]);
 
@@ -288,11 +288,12 @@ MusicDB.prototype.oldloadDatabase = function() {
     return response.json();
   }
   // insert data in storeName, junk by junk
-  function populateStore(storeName, data) { 
+  function populateStore(storeName, data) {
+    var insertions = data.length;
     return openDatabase(musicdb, function(db, resolve, reject) {
       function insertNext(i, store) {
         if (i === 0) {
-          return resolve(null);
+          return resolve(insertions);
         }
         var req = store.add(data[i]);
         req.onsuccess = function (evt) {

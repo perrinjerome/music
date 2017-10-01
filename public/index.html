@@ -65,14 +65,45 @@
       <div class="mdl-layout__drawer">
         <span class="mdl-layout-title" >Music Player</span>
         <nav class="mdl-navigation">
-          <a class="mdl-navigation__link" href="">All Artists</a>
-          <a class="mdl-navigation__link" href="">All Albums</a>
+          <a class="mdl-navigation__link" href="#artists">Artists</a>
+          <a class="mdl-navigation__link" href="#albums">Albums</a>
           <a class="mdl-navigation__link" href="">4 Albums</a>
-          <a class="mdl-navigation__link" href="">Configure</a>
+          <a class="mdl-navigation__link" href="#configure">Configure</a>
         </nav>
       </div>
       <main class="mdl-layout__content">
         <div class="page-content">
+          
+      
+<dialog id="dialog-confirm-update-database" class="mdl-dialog">
+  <h3 class="mdl-dialog__title">Update Database</h3>
+  <div class="mdl-dialog__content">
+    <p>
+      Update database ?
+    </p>
+  </div>
+  <div class="mdl-dialog__actions">
+    <button type="button" class="mdl-button">Cancel</button>
+    <button type="button" class="mdl-button">OK</button>
+  </div>
+</dialog>
+
+<dialog id="dialog-configure" class="mdl-dialog">
+  <h3 class="mdl-dialog__title">Configuration</h3>
+  <div class="mdl-dialog__content">
+    <p>
+  <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+    <input class="mdl-textfield__input" type="text" id="configure_beets_url">
+    <label class="mdl-textfield__label" for="beets_url">Beets API URL</label>
+  </div>
+    </p>
+  </div>
+  <div class="mdl-dialog__actions">
+    <button type="button" class="mdl-button cancel">Cancel</button>
+    <button type="button" class="mdl-button ok">OK</button>
+  </div>
+</dialog>
+
           <section>
             <audio-player
                           :current-item="current_item"
