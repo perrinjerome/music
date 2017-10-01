@@ -4,8 +4,8 @@
   "url": "https://coralgarden.my.to/",
   "start_url": "/music/public/",
   "display": "standalone",
-  "theme_color": "#AAF",
-  "background_color": "#AAF",
+  "theme_color": "#3F51B5",
+  "background_color": "#3F51B5",
   "description": "Music Player.",
   "orientation": "portrait",
   "icons": [ {
