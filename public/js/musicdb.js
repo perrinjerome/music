@@ -164,7 +164,8 @@ MusicDB.prototype.newloadDatabase = function(player) {
     // XXX
     document.querySelector(
       '#progress_bar_' + storeName
-    ).MaterialProgress.setProgress((total_items - nbItems) / total_items * 100);
+    ).MaterialProgress.setProgress(
+      Math.floor((total_items - nbItems) / total_items * 100, 100));
     
     console.log(url + query,  storeName, nbItems, start, end);
     if (end > 1000000 || nbItems > 0) {
