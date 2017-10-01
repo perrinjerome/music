@@ -260,12 +260,12 @@ document.addEventListener("DOMContentLoaded", () => {
                 this.loading = false;
                 log('finish updating in ', totalTime);
                 var data = {
-                  message: 'Finised updating in ' + totalTime.toFixed() + " seconds",
+                  message: 'Finised updating in ' + (totalTime / 1000).toFixed(2) + " seconds",
                   timeout: 2000,
                   //   actionHandler: () => {},
                   //    actionText: 'Undo'
                 };
-                snackbarContainer.MaterialSnackbar.showSnackbar(data);
+                snackbar.MaterialSnackbar.showSnackbar(data);
 
               }).catch(e => {
                 console.error("Failed loading database !", e);
