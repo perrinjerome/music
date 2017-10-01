@@ -7,7 +7,7 @@
   "theme_color": "#3F51B5",
   "background_color": "#3F51B5",
   "description": "Music Player.",
-  "orientation": "portrait",
+  "orientation": "natural",
   "icons": [ {
     "src": "images/musical-note-256.png",
     "sizes": "256x256",
