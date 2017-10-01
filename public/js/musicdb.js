@@ -167,20 +167,23 @@ MusicDB.prototype.newloadDatabase = function(progressReporter) {
         storeName,
         Math.floor((total_items - nbItems) / total_items * 100, 100));
     }
-// TODO: only tolerate 404
-    
-    
-//    console.log(url + query,  storeName, nbItems, start, end);
-    if (end < 100000 && nbItems > 0) {
+
+    if (end > 100000) {
+      throw new Error('Infinite loop prevented');
+    }
+    //console.log(url + query,  storeName, nbItems, start, end);
+    if (nbItems > 0) {
+      // console.log("not finished continuing");
       return fetch(url + query,
                    { credentials: 'include' })
         .then(getJson)
         .then(function(result){
+        // console.log('received', result);
         return populateStore(storeName, result[storeName]); 
         // we use same store Name as beet key result.
       }).then(
         function (inserted) {
-          console.log("yes, inserted", inserted);
+          // console.log(storeName, "inserted", inserted);
           // everything succeeded, fetch the next items
           return fechUntil(
             url,
@@ -190,50 +193,16 @@ MusicDB.prototype.newloadDatabase = function(progressReporter) {
             end + (end - start),
             total_items);},
         function (e) {
+          // TODO: only tolerate 404
+          console.error('oops', e);
           // advance
-          if (1)
-            return fechUntil(
-              url,
-              storeName,
-              nbItems,
-              end,
-              end + (end - start),
-              total_items);
-          
-          console.error("Error: we have to retry one by one ...", e);
-          /* XXX no, we have 404 if no result is found */
-          var promise_list = [];
-          function retryOne(index) {
-            //return function() {
-            return fetch(url + index)
-              .then(getJson)
-              .then(function(result){
-              return populateStore(storeName, result[storeName]);})
-              .then(function (){ return 1;})
-              .catch(function (e) {
-              //console.error("error while retyring ", index, e);
-              return 0;
-            });
-            //};
-          }
-          for (i = start+1; i < end; i++) {
-            promise_list.push(retryOne(i));
-          }
-
-          return Promise.all(promise_list).then(function (result_list) {
-            //console.log(result_list);
-            var numberOfItemSuccessfullyInserted = result_list.reduce(
-              function(sum, value) { return sum + value; }, 0);
-            if (numberOfItemSuccessfullyInserted) alert("useless");
-            console.log("second try fetched", numberOfItemSuccessfullyInserted);
-            return fechUntil(
-              url,
-              storeName,
-              nbItems - numberOfItemSuccessfullyInserted,
-              end,
-              end + (end - start),
-              total_items);
-          });
+          return fechUntil(
+            url,
+            storeName,
+            nbItems,
+            end,
+            end + (end - start),
+            total_items);
         });
     }
     console.log("finished loading", storeName);
