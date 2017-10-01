@@ -276,7 +276,7 @@ MusicDB.prototype.newloadDatabase = function(progressReporter) {
           "items",
           stat.items,
           0,
-          500,
+          100,
           stat.items)
       ]);
     });
