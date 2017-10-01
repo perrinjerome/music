@@ -187,6 +187,16 @@ MusicDB.prototype.newloadDatabase = function(progressReporter) {
             end + (end - start),
             total_items);},
         function (e) {
+          // advance
+          if (1)
+            return fechUntil(
+              url,
+              storeName,
+              nbItems,
+              end,
+              end + (end - start),
+              total_items);
+          
           console.error("Error: we have to retry one by one ...", e);
           /* XXX no, we have 404 if no result is found */
           var promise_list = [];
