@@ -2,7 +2,7 @@
   "name": "Music Player",
   "short_name": "Music",
   "url": "https://coralgarden.my.to/",
-  "start_url": "/music/public/",
+  "start_url": "/music/",
   "display": "standalone",
   "theme_color": "#3F51B5",
   "background_color": "#3F51B5",
