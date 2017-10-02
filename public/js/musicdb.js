@@ -117,13 +117,13 @@ MusicDB.prototype.newloadDatabase = function(progressReporter) {
     var nbInsertions = data.length;
     return openDatabase(musicdb, function(db, resolve, reject) {
       function insertNext(i, store) {
-        if (i === 0) {
+        if (i === -1) {
           return resolve(nbInsertions);
         }
         var req = store.add(data[i]);
         req.onsuccess = function (evt) {
           try {
-            if ((i % 200) === 0) {
+            if ( i > 0 && (i % 200) === 0) {
               // start a new transaction.
               console.log("Insertion in " + storeName + " successful", i );
               insertNext(i-1, db.transaction(
