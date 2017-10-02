@@ -333,21 +333,26 @@ MusicDB.prototype.oldloadDatabase = function() {
     });
 };
 
-MusicDB.prototype.countAlbums = function() {
-  return openDatabase(this, function(db, resolve, reject){
-    var albumStore = db.transaction(
-      "albums",
-      "readonly"
-    ).objectStore("albums");
-    var req = albumStore.count();
-    req.onsuccess = function() {
-      resolve(this.result);
-    };
-    req.onerror = function(e) {
-      reject(e);
-    };
-  });
-};
+function _countFromStore(storeName) {
+  return function() {
+    console.log("count", storeName);
+    return openDatabase(this, function(db, resolve, reject){
+      var store = db.transaction(
+        storeName,
+        "readonly"
+      ).objectStore(storeName);
+      var req = store.count();
+      req.onsuccess = function() {
+        resolve(this.result);
+      };
+      req.onerror = function(e) {
+        reject(e);
+      };
+    });
+  };
+}
+MusicDB.prototype.countAlbums = _countFromStore("albums");
+MusicDB.prototype.countItems = _countFromStore("items");
 
 // return a random album from the music db
 MusicDB.prototype.getRandomAlbum = function() {
