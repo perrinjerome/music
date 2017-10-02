@@ -1,7 +1,7 @@
 /*globals self, caches, fetch */
 (function () {
   "use strict";
-  var CACHE_NAME = 'music-app-v1';
+  var CACHE_NAME = 'music-app-v2';
   var urlsToCache = [
     './empty.mp3',
     './',
