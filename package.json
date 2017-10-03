@@ -15,6 +15,7 @@
   "dependencies": {
     "chai": "^4.1.2",
     "eslint": "^4.8.0",
+    "jshint": "^2.9.5",
     "jshint-loader": "^0.8.4",
     "lodash": "^4.16.6",
     "mocha": "^3.5.3",
