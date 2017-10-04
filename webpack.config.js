@@ -16,31 +16,30 @@ const config = {
   },
   devtool: 'eval',
   output: {
-    path: path.resolve(__dirname, 'public/build'), // Path of output file
-    publicPath: "build/",
+    path: path.resolve(__dirname, 'dist'),
+    //publicPath: "build/",
     filename: 'app.js',
   },
-   module: {
-     rules: [{
+  module: {
+    rules: [{
       test: /\.js$/,
       enforce: "pre",
-       exclude: /node_modules/,
-       use: [{
-         loader: "jshint-loader"
-       }]
-     }],
-     loaders: [{
-         test: /\.js$/,
-         exclude: /node_modules/,
-         loader: 'babel-loader'
-     }]
-   },
+      exclude: /node_modules/,
+      use: [{
+        loader: "jshint-loader"
+      }]
+    }],
+    loaders: [{
+      test: /\.js$/,
+      exclude: /node_modules/,
+      loader: 'babel-loader'
+    }]
+  },
 
   plugins: [
-    // Enables Hot Modules Replacement
     new webpack.HotModuleReplacementPlugin(),
     new HtmlWebpackPlugin({template: './public/index.html'})
-    ]
+  ]
 
 };
 
