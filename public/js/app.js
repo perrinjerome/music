@@ -2,6 +2,7 @@
 /*globals Vue, navigator, window, setTimeout, MediaMetadata, console, fetch, URL, document, confirm, alert, MusicDB, NoSleep, Worker */
 import {MusicDB} from "./musicdb.js";
 import {_} from "lodash";
+import {NoSleep} from "nosleep.js";
 
 document.addEventListener("DOMContentLoaded", () => {
   //"use strict";
