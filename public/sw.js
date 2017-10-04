@@ -1,7 +1,7 @@
-/*globals self, caches, fetch */
+/*globals self, caches, fetch, console */
 (function () {
   "use strict";
-  var CACHE_NAME = 'music-app-v2';
+  var CACHE_NAME = 'music-app-v3';
   var urlsToCache = [
     './empty.mp3',
     './',
@@ -15,38 +15,53 @@
   ];
 
 
-self.addEventListener('activate', function(event) {
-  var cacheWhitelist = [CACHE_NAME];
-  event.waitUntil(
-    caches.keys().then(function(cacheNames) {
-      return Promise.all(
-        cacheNames.map(function(cacheName) {
-          if (cacheWhitelist.indexOf(cacheName) === -1) {
-            return caches.delete(cacheName);
-          }
-        })
-      );
-    })
-  );
-});
+  self.addEventListener('activate', (event) => {
+    var cacheWhitelist = [CACHE_NAME];
+    event.waitUntil(
+      caches.keys().then((cacheNames) => {
+        return Promise.all(
+          cacheNames.map((cacheName) => {
+            if (cacheWhitelist.indexOf(cacheName) === -1) {
+              console.log("SW: purging old cache", cacheName);
+              return caches.delete(cacheName);
+            }
+          })
+        );
+      })
+    );
+  });
 
-  self.addEventListener('install', function (event) {
+  self.addEventListener('install', (event) => {
+    console.log("SW: installing", event);
+
     // Perform install steps
     event.waitUntil(
       caches.open(CACHE_NAME)
-      .then(function (cache) {
+      .then((cache) => {
+        console.log("SW: adding shell to cache", cache, urlsToCache);
         return cache.addAll(urlsToCache);
       }));
   });
 
-  self.addEventListener('fetch', function(event) {
+  self.addEventListener('fetch', (event) => {
     event.respondWith(
       caches.match(event.request)
-      .then(function(response) {
-        // Cache hit - return response
+      .then((response) => {
         if (response) {
+          console.log("SW: fetch serving from cache", event, response);
           return response;
         }
+        if (/\/art$/.test(event.request.url)) {
+          console.log("SW: fetching image", event.request.url);
+          return fetch(event.request).then((response) => {
+            return caches.open(CACHE_NAME).then((cache) => {
+              console.log("SW: caching image", event.request.url);
+              cache.put(event.request, response.clone());
+              return response;
+            });
+          });
+        }
+        console.log("SW: fetch cache miss, forwarding", event);
         return fetch(event.request);
       })
     );
