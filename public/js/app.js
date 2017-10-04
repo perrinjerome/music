@@ -1,6 +1,7 @@
 /*jshint esversion: 6 */
 /*globals Vue, navigator, window, setTimeout, MediaMetadata, console, fetch, URL, document, confirm, alert, MusicDB, NoSleep, Worker */
 import {MusicDB} from "./musicdb.js";
+import {_} from "lodash";
 
 document.addEventListener("DOMContentLoaded", () => {
   //"use strict";
