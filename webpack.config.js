@@ -19,7 +19,7 @@ const config = {
   output: {
     path: path.resolve(__dirname, 'dist'),
     //publicPath: "build/",
-    filename: 'app.js',
+     filename: '[name].[hash].js',
   },
   module: {
     rules: [{
