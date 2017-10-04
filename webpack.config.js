@@ -1,5 +1,6 @@
 const webpack = require('webpack');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const CleanWebpackPlugin = require('clean-webpack-plugin');
 const path = require('path');
 
 const config = {
@@ -37,6 +38,7 @@ const config = {
   },
 
   plugins: [
+    new CleanWebpackPlugin(['dist']),
     new webpack.HotModuleReplacementPlugin(),
     new HtmlWebpackPlugin({template: './public/index.html'})
   ]
