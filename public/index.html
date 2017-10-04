@@ -73,87 +73,102 @@
       </div>
       <main class="mdl-layout__content">
         <div class="page-content">
-          
-      
-<dialog id="dialog-confirm-update-database" class="mdl-dialog">
-  <h3 class="mdl-dialog__title">Update Database</h3>
-  <div class="mdl-dialog__content">
-    <p>
-      Update database.
-    </p>
-  </div>
-  <div class="mdl-dialog__actions">
-    <button type="button" class="mdl-button cancel">Cancel</button>
-    <button type="button" class="mdl-button ok">OK</button>
-  </div>
-</dialog>
 
-<dialog id="dialog-configure" class="mdl-dialog">
-  <h3 class="mdl-dialog__title">Configuration</h3>
-  <div class="mdl-dialog__content">
-    <p>
-  <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-    <input class="mdl-textfield__input" type="text" id="configure_beets_url">
-    <label class="mdl-textfield__label" for="beets_url">Beets API URL</label>
-  </div>
-    </p>
-  </div>
-  <div class="mdl-dialog__actions">
-    <button type="button" class="mdl-button cancel">Cancel</button>
-    <button type="button" class="mdl-button ok">OK</button>
-  </div>
-</dialog>
-
-<div id="demo-snackbar-example" class="mdl-js-snackbar mdl-snackbar">
-  <div class="mdl-snackbar__text"></div>
-  <button class="mdl-snackbar__action" type="button"></button>
-</div>
-  
-          <section>
-            <audio-player
-                          :current-item="current_item"
-                          v-on:ended="playNext"></audio-player> 
-            <section class="playlist" 
-                     v-show="playlist.length"  v-cloak>
-              <ul>
-                <li v-for="item in playlist"
-                    :key="item.id"
-                    :class="{ playing: current_item && current_item.id == item.id}">
-                  <label @click="playSong(item)">{{ item.title }}</label>
-                </li>
-              </ul>
-            </section>
-            <section class="random_albums" v-show="random_albums.length"  v-cloak>
-              <div class="albumlist">
-                <img v-for="album in random_albums"
-                     class="album"
-                     @click="route_playAlbum(album)"
-                     :src="album.cover_url"
-                     :alt="album.album + ' ' + (album.albumartist || album.artist)"
-                     :title="album.album + ' ' + (album.albumartist || album.artist)"
-                     />
-              </div>
-            </section>
-
-            <div xstyle="display:none">
-              <button @click="updateDb()" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">Refresh </button>
-            </div>
-
-            <div v-show="loading" style="margin-left: 3em">
-              <p>Albums:
-              <div id="progress_bar_albums" class="mdl-progress mdl-js-progress"></div>
+          <dialog id="dialog-api-login" class="mdl-dialog">
+            <h3 class="mdl-dialog__title">Error accessing API</h3>
+            <div class="mdl-dialog__content">
+              <p>
+                Unable to access API at 
+                <a
+                   target="_blank"
+                   :href="beets_url">{{ beets_url }}</a>.
               </p>
-            <p>Songs:
-            <div id="progress_bar_items" class="mdl-progress mdl-js-progress"></div>
-            </p>
+              <p>
+                You probably need to login first.
+              </p>
+            </div>
+            <div class="mdl-dialog__actions">
+              <button type="button" class="mdl-button cancel">Cancel</button>
+              <button type="button" class="mdl-button ok">OK</button>
+            </div>
+          </dialog>
+
+          <dialog id="dialog-confirm-update-database" class="mdl-dialog">
+            <h3 class="mdl-dialog__title">Update Database</h3>
+            <div class="mdl-dialog__content">
+              <p>
+                Update database.
+              </p>
+            </div>
+            <div class="mdl-dialog__actions">
+              <button type="button" class="mdl-button cancel">Cancel</button>
+              <button type="button" class="mdl-button ok">OK</button>
+            </div>
+          </dialog>
+
+          <dialog id="dialog-configure" class="mdl-dialog">
+            <h3 class="mdl-dialog__title">Configuration</h3>
+            <div class="mdl-dialog__content">
+              <p>
+              <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                <input class="mdl-textfield__input" type="text" id="configure_beets_url">
+                <label class="mdl-textfield__label" for="beets_url">Beets API URL</label>
+              </div>
+              </p>
+            </div>
+          <div class="mdl-dialog__actions">
+            <button type="button" class="mdl-button cancel">Cancel</button>
+            <button type="button" class="mdl-button ok">OK</button>
           </div>
-      
-        <pre>{{ debugzone }}</pre>
-        <pre id="log" style="overflow: scroll"></pre>
-        </section>
+          </dialog>
+
+        <div id="demo-snackbar-example" class="mdl-js-snackbar mdl-snackbar">
+          <div class="mdl-snackbar__text"></div>
+          <button class="mdl-snackbar__action" type="button"></button>
+        </div>
+
+        <section>
+          <audio-player
+                        :current-item="current_item"
+                        v-on:ended="playNext"></audio-player> 
+          <section class="playlist" 
+                   v-show="playlist.length"  v-cloak>
+            <ul>
+              <li v-for="item in playlist"
+                  :key="item.id"
+                  :class="{ playing: current_item && current_item.id == item.id}">
+                <label @click="playSong(item)">{{ item.title }}</label>
+              </li>
+            </ul>
+          </section>
+            <div class="albumlist">
+              <img v-for="album in random_albums"
+                   class="album"
+                   :src="album.cover_url"
+                   :alt="album.album + ' ' + (album.albumartist || album.artist)"
+                   :title="album.album + ' ' + (album.albumartist || album.artist)"
+                   /></div>
+          </section>
+
+          <div xstyle="display:none">
+            <button @click="updateDb()" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">Refresh </button>
+          </div>
+
+          <div v-show="loading" style="margin-left: 3em">
+            <p>Albums:
+            <div id="progress_bar_albums" class="mdl-progress mdl-js-progress"></div>
+            </p>
+          <p>Songs:
+          <div id="progress_bar_items" class="mdl-progress mdl-js-progress"></div>
+          </p>
+        </div>
+
+      <pre>{{ debugzone }}</pre>
+      <pre id="log" style="overflow: scroll"></pre>
+      </section>
     </div>
-    </main>
-  </div>
+  </main>
+</div>
 
 
 <script src="https://cdn.jsdelivr.net/lodash/4.16.6/lodash.core.min.js"></script>

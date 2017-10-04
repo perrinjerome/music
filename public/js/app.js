@@ -156,8 +156,27 @@ document.addEventListener("DOMContentLoaded", () => {
     },
     watch: {
       beets_url: function(beets_url) {
+        console.log(beets_url);
         if (beets_url) {
-          this.musicdb = new MusicDB(beets_url);
+          // check we can access it and give a chance to login ( XXX move it to DB )
+          return fetch(beets_url + '/stats', { credentials: 'include', mode: 'cors' })
+            .then((response) => { 
+            console.log("ok setting", beets_url);
+            this.musicdb = new MusicDB(beets_url);
+            this.get4RandomAlbums(); // XXX
+          })
+            .catch((e) => {
+            var dialog = document.querySelector('#dialog-api-login');
+            if (! dialog.showModal) {
+              console.error("TODO polyfill");
+              dialogPolyfill.registerDialog(dialog);
+            }
+            dialog.showModal();
+            dialog.querySelector('button.cancel').addEventListener(
+              'click', () => { dialog.close(); });
+            dialog.querySelector('button.ok').addEventListener(
+              'click', () => { dialog.close(); });
+          });
         }
       },
       current_item: function(current_item) {
