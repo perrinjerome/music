@@ -7,7 +7,7 @@ const config = {
   // Entry points to the project
   entry: {
     main: [
-      './public/js/app.js',
+      './src/app.js',
     ],
   },
   devServer: {

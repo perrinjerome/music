@@ -2,7 +2,8 @@
 /*globals Vue, navigator, window, setTimeout, MediaMetadata, console, fetch, URL, document, confirm, alert, MusicDB, NoSleep, Worker */
 import {MusicDB} from "./musicdb.js";
 import {_} from "lodash";
-import {NoSleep} from "nosleep.js";
+import NoSleep from "nosleep.js";
+import swURL from "file-loader?name=sw.js!babel-loader!./sw";
 
 document.addEventListener("DOMContentLoaded", () => {
   //"use strict";
@@ -370,10 +371,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', function() {
-      navigator.serviceWorker.register('./sw.js').then(function(registration) {
+      console.log('using swURL', swURL);
+      navigator.serviceWorker.register(swURL).then((registration) => {
         // Registration was successful
         log('ServiceWorker registration successful with scope: ', registration.scope);
-      }, function(err) {
+      }, (err) => {
         // registration failed :(
         log('ServiceWorker registration failed: ', err);
       });
