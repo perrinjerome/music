@@ -11,15 +11,14 @@ const config = {
     ],
   },
   devServer: {
-    contentBase: './public/',
+    contentBase: './static/',
     hot: true,
     inline: true,
   },
   devtool: 'eval',
   output: {
-    path: path.resolve(__dirname, 'dist'),
-    //publicPath: "build/",
-     filename: '[name].[hash].js',
+    path: path.resolve(__dirname, 'public'),
+    filename: '[name].[hash].js',
   },
   module: {
     rules: [{
@@ -30,17 +29,26 @@ const config = {
         loader: "jshint-loader"
       }]
     }],
-    loaders: [{
-      test: /\.js$/,
-      exclude: /node_modules/,
-      loader: 'babel-loader'
-    }]
+    loaders: [
+      {
+        test: /\.js$/,
+        exclude: /node_modules/,
+        loader: 'babel-loader'
+      },
+      {
+        test: /\.(png|svg|jpg|gif)$/,
+        use: [
+          'file-loader'
+        ]
+      }]
   },
 
   plugins: [
-    new CleanWebpackPlugin(['dist']),
+    new CleanWebpackPlugin(['public']),
     new webpack.HotModuleReplacementPlugin(),
-    new HtmlWebpackPlugin({template: './public/index.html'})
+    new HtmlWebpackPlugin({
+      template: './static/index.html',
+    })
   ]
 
 };

@@ -16,6 +16,6 @@ pages:
   - webpack
   artifacts:
     paths:
-    - dist
+    - public
   only:
     - master
