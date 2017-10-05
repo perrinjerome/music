@@ -101,7 +101,6 @@ MusicDB.prototype.getItemSrcUrl = function(item) {
 };
 
 MusicDB.prototype.loadDatabase = function(progressReporter) {
-  console.log(this);
   return this.newloadDatabase(progressReporter);
 };
 
@@ -335,7 +334,6 @@ MusicDB.prototype.oldloadDatabase = function() {
 
 function _countFromStore(storeName) {
   return function() {
-    console.log("count", storeName);
     return openDatabase(this, function(db, resolve, reject){
       var store = db.transaction(
         storeName,
