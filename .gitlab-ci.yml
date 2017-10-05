@@ -12,8 +12,7 @@ pages:
 
   script:
   - npm install
-  - npm install webpack -g
-  - webpack
+  - npm run build
   artifacts:
     paths:
     - public
