@@ -6,7 +6,7 @@ var nock = require("nock");
 global.fetch = require('node-fetch');
 global.window.indexedDB = require("fake-indexeddb");
 
-import {MusicDB} from "../public/js/musicdb";
+import {MusicDB} from "../src/musicdb";
 
 describe("Music Database", () => {
   describe("Basic test", () => {
