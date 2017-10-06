@@ -26,6 +26,10 @@
             width: 256px;
  */
       }
+      .album-card-image {
+        height: -webkit-fill-available;
+        margin: 1em;
+      }
       .album-card-image__album {
         color: #fff;
         text-shadow: 2px 2px #000;
@@ -157,7 +161,7 @@
             </ul>
           </section>
           <section class="random_albums" v-show="random_albums.length"  v-cloak>
-            <div class="albumlist-disabled mdl-grid">
+            <div class="mdl-grid">
               <div class="mdl-cell mdl-cell--6-col">
 
               <div v-for="album in random_albums"
