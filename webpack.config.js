@@ -16,6 +16,7 @@ const config = {
     contentBase: './static/',
     hot: true,
     inline: true,
+    host: '0.0.0.0',
   },
   devtool: 'eval',
   output: {
