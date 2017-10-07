@@ -5,18 +5,14 @@ li.playing {
 .albumlist { /* TODO: class name */
   column-count: 2;
 }
-.xalbum-card-image {
-  height: 256px;
-  width: 100%;
-  min-height: 10em;
-  /*        height: 100%;
-  width: 256px;
-  */
-}
+
 .album-card-image {
-  height: -webkit-fill-available;
-  background-size: auto;
   margin: 1em;
+  height: 300px;
+  width: 300px;
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
 }
 .album-card-image__album {
   color: #fff;

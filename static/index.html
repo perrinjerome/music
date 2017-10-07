@@ -129,12 +129,12 @@
           </section>
           <section class="random_albums" v-show="random_albums.length"  v-cloak>
             <div class="mdl-grid">
-              <div class="mdl-cell mdl-cell--6-col">
+              <div class="mdl-cell mdl-cell--1-col">
 
               <div v-for="album in random_albums"
                    @click="route_playAlbum(album)"
                    class="album-card-image mdl-card mdl-shadow--2dp"
-                   :style="'background: url(' + album.cover_url + ') center / cover;'" >
+                   :style="'background-image: url(' + album.cover_url + ');'" >
                 <div class="mdl-card__title mdl-card--expand"></div>
                 <div class="mdl-card__actions">
                   <div class="album-card-image__album">{{album.album}}</div>
@@ -143,14 +143,6 @@
               </div>
               </div>
             </div>
-            <!--
-            <div class="albumlist">
-              <img v-for="album in random_albums"
-                   class="album"
-                   :src="album.cover_url"
-                   :alt="album.album + ' ' + (album.albumartist || album.artist)"
-                   :title="album.album + ' ' + (album.albumartist || album.artist)"
-                   /></div> -->
           </section>
 
           <div xstyle="display:none">
