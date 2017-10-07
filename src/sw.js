@@ -1,7 +1,7 @@
 /*globals self, caches, fetch, console */
 (function () {
   "use strict";
-  var CACHE_NAME = 'music-app-v5';
+  var CACHE_NAME = 'music-app-v6';
   var urlsToCache = [
     './empty.mp3',
     './',
@@ -48,20 +48,20 @@
       caches.match(event.request)
       .then((response) => {
         if (response) {
-          console.log("SW: fetch serving from cache", event, response);
+          // console.log("SW: fetch serving from cache", event, response);
           return response;
         }
         if (/\/art$/.test(event.request.url)) {
-          console.log("SW: fetching image", event.request.url);
+          // console.log("SW: fetching image", event.request.url);
           return fetch(event.request).then((response) => {
             return caches.open(CACHE_NAME).then((cache) => {
-              console.log("SW: caching image", event.request.url);
+             // console.log("SW: caching image", event.request.url);
               cache.put(event.request, response.clone());
               return response;
             });
           });
         }
-        console.log("SW: fetch cache miss, forwarding", event);
+        // console.log("SW: fetch cache miss, forwarding", event);
         return fetch(event.request);
       })
     );
