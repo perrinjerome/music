@@ -30,6 +30,12 @@ const config = {
       use: [{
         loader: "jshint-loader"
       }]
+    }, {
+      test: /\.css$/,
+      use: [
+        'style-loader',
+        'css-loader'
+      ]
     }],
     loaders: [
       {

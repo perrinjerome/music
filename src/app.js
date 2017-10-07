@@ -4,6 +4,8 @@ import {MusicDB} from "./musicdb.js";
 import {_} from "lodash";
 import NoSleep from "nosleep.js";
 import swURL from "file-loader?name=sw.js!babel-loader!./sw";
+import './style.css';
+
 
 document.addEventListener("DOMContentLoaded", () => {
   //"use strict";

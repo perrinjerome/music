@@ -29,6 +29,7 @@
     "babel-register": "^6.26.0",
     "clean-webpack-plugin": "^0.1.17",
     "copy-webpack-plugin": "^4.1.1",
+    "css-loader": "^0.28.7",
     "fake-indexeddb": "^2.0.3",
     "file-loader": "^1.1.4",
     "html-webpack-plugin": "^2.30.1",
@@ -38,6 +39,7 @@
     "mock-browser": "^0.92.14",
     "nock": "^9.0.22",
     "node-fetch": "^1.7.3",
+    "style-loader": "^0.19.0",
     "webpack": "^2.4.1",
     "webpack-dev-server": "^2.4.2"
   }
