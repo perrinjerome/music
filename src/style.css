@@ -1,11 +1,14 @@
 [v-cloak] { display: none; }
-li.playing {
+.playing {
   font-weight: bold;
 }
 .albumlist { /* TODO: class name */
   column-count: 2;
 }
-
+.playlist {
+  width: 100%;
+  margin: 1em;
+}
 .album-card-image {
   margin: 1em;
   height: 300px;

@@ -116,16 +116,26 @@
         <section>
           <audio-player
                         :current-item="current_item"
-                        v-on:ended="playNext"></audio-player> 
-          <section class="playlist" 
-                   v-show="playlist.length"  v-cloak>
-            <ul>
-              <li v-for="item in playlist"
-                  :key="item.id"
-                  :class="{ playing: current_item && current_item.id == item.id}">
-                <label @click="playSong(item)">{{ item.title }}</label>
-              </li>
-            </ul>
+                        v-on:ended="playNext"></audio-player>
+
+          <section v-show="playlist.length"  v-cloak>
+            <table id="playlist" class="playlist mdl-data-table xmdl-js-data-table mdl-shadow--2dp">
+<!--  <thead>
+    <tr>
+      <th class="mdl-data-table__cell--non-numeric">Song</th>
+    </tr>
+  </thead> -->
+  <tbody>
+        <tr class=""
+            v-for="item in playlist"
+            :key="item.id"
+            :class="{ playing: current_item && current_item.id == item.id}"
+            @click="playSong(item)">
+                <td class="mdl-data-table__cell--non-numeric"
+                      >{{ item.title }}</td>
+    </tr>
+  </tbody>
+</table>
           </section>
           <section class="random_albums" v-show="random_albums.length"  v-cloak>
             <div class="mdl-grid">
