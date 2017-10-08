@@ -19,8 +19,8 @@
           Your browser does not support the audio element.
         </audio>
         <template v-if="currentItem">
-          <h1>{{ currentItem.title }}</h1>
-          <h3>{{ currentItem.artist }} / {{ currentItem.album }}</h3>
+          <div class="audio-player-artist_name">{{ currentItem.artist }}</div>
+          <div class="audio-player-album_name">{{ currentItem.album }}</div>
         </template>
       </div>
     </template>
@@ -33,7 +33,6 @@
       <header class="mdl-layout__header">
         <div class="mdl-layout__header-row">
           <span class="mdl-layout-title" id="layout-title">{{ current_title }}</span>
-
           <div class="mdl-layout-spacer"></div>
           <div class="mdl-textfield mdl-js-textfield mdl-textfield--expandable
                       mdl-textfield--floating-label mdl-textfield--align-right">
