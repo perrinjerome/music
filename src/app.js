@@ -51,7 +51,12 @@ document.addEventListener("DOMContentLoaded", () => {
         });
 
         navigator.mediaSession.setActionHandler('previoustrack', _ => {
-          log('> User clicked "Previous Track" icon. '); // TODO
+          log('> User clicked "Previous Track" icon. ', this.$refs.audio.currentTime);
+          if (this.$refs.audio.currentTime < 3) {
+            this.$parent.playPrevious();
+          } else {
+            this.$refs.audio.currentTime = 0;
+          }
         });
       }
     },
@@ -254,6 +259,14 @@ document.addEventListener("DOMContentLoaded", () => {
         for (var i=0; i<this.playlist.length - 1; i++){
           if (this.current_item.id == this.playlist[i].id) {
             this.current_item = this.playlist[i+1];
+            return;
+          }
+        }
+      },
+      playPrevious: function() {
+        for (var i=0; i<this.playlist.length - 1; i++){
+          if (this.current_item.id == this.playlist[i].id) {
+            this.current_item = this.playlist[Math.max(i-1, 0)];
             return;
           }
         }
