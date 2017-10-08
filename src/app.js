@@ -1,11 +1,14 @@
 /*jshint esversion: 6 */
-/*globals Vue, navigator, window, setTimeout, MediaMetadata, console, fetch, URL, document, confirm, alert, MusicDB, NoSleep, Worker */
+/*globals Vue, navigator, window, setTimeout, MediaMetadata, console, fetch, URL, document, confirm, alert, MusicDB, NoSleep, Worker, localStorage, performance */
 import {MusicDB} from "./musicdb.js";
 import {_} from "lodash";
 import NoSleep from "nosleep.js";
 import swURL from "file-loader?name=sw.js!babel-loader!./sw";
 import './style.css';
 
+function dialogPolyfill() {
+  console.error("TODO");
+}
 
 document.addEventListener("DOMContentLoaded", () => {
   //"use strict";
