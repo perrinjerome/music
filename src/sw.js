@@ -1,19 +1,16 @@
 /*globals self, caches, fetch, console */
 (function () {
   "use strict";
-  var CACHE_NAME = 'music-app-v6';
+  var CACHE_NAME = 'music-app-v7';
   var urlsToCache = [
     './empty.mp3',
     './',
-    //'./js/app.js',
-    //'./js/musicdb.js',
     './worker/EmsArgs.js',
     './worker/EmsWorkerProxy.js',
     './worker/flac.data.js',
     './worker/flac.js',
     './worker/FlacEncoder.js'
   ];
-
 
   self.addEventListener('activate', (event) => {
     var cacheWhitelist = [CACHE_NAME];

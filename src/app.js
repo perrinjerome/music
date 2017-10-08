@@ -376,11 +376,29 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   if ('serviceWorker' in navigator) {
-    window.addEventListener('load', function() {
+    window.addEventListener('load', () => {
       console.log('using swURL', swURL);
       navigator.serviceWorker.register(swURL).then((registration) => {
         // Registration was successful
         log('ServiceWorker registration successful with scope: ', registration.scope);
+
+        registration.onupdatefound = () => {
+          const installingWorker = registration.installing;
+          installingWorker.onstatechange = () => {
+            if (installingWorker.state === 'installed') {
+              if (navigator.serviceWorker.controller) {
+                log('New content is available; please refresh.');
+                var data = {
+                  message: 'New version available',
+                  timeout: 2000,
+                  actionHandler: () => { window.location.reload(); },
+                  actionText: 'Refresh'
+                };
+                snackbar.MaterialSnackbar.showSnackbar(data);
+              }
+            }
+          };
+        };
       }, (err) => {
         // registration failed :(
         log('ServiceWorker registration failed: ', err);
