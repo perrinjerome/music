@@ -101,6 +101,10 @@
                 <label class="mdl-textfield__label" for="beets_url">Beets API URL</label>
               </div>
               </p>
+            <p>
+              <button @click="updateDb()" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">Refresh Database</button>
+            </p>
+
             </div>
           <div class="mdl-dialog__actions">
             <button type="button" class="mdl-button cancel">Cancel</button>
@@ -120,44 +124,37 @@
 
           <section v-show="playlist.length"  v-cloak>
             <table id="playlist" class="playlist mdl-data-table xmdl-js-data-table mdl-shadow--2dp">
-<!--  <thead>
-    <tr>
-      <th class="mdl-data-table__cell--non-numeric">Song</th>
-    </tr>
-  </thead> -->
-  <tbody>
-        <tr class=""
-            v-for="item in playlist"
-            :key="item.id"
-            :class="{ playing: current_item && current_item.id == item.id}"
-            @click="playSong(item)">
-                <td class="mdl-data-table__cell--non-numeric"
+              <tbody>
+                <tr class=""
+                    v-for="item in playlist"
+                    :key="item.id"
+                    :class="{ playing: current_item && current_item.id == item.id}"
+                    @click="playSong(item)">
+                  <td class="mdl-data-table__cell--non-numeric"
                       >{{ item.title }}</td>
-    </tr>
-  </tbody>
-</table>
+                </tr>
+              </tbody>
+            </table>
           </section>
           <section class="random_albums" v-show="random_albums.length"  v-cloak>
             <div class="mdl-grid">
               <div class="mdl-cell mdl-cell--1-col">
 
-              <div v-for="album in random_albums"
-                   @click="route_playAlbum(album)"
-                   class="album-card-image mdl-card mdl-shadow--2dp"
-                   :style="'background-image: url(' + album.cover_url + ');'" >
-                <div class="mdl-card__title mdl-card--expand"></div>
-                <div class="mdl-card__actions">
-                  <div class="album-card-image__album">{{album.album}}</div>
-                  <div class="album-card-image__artist">{{ (album.albumartist || album.artist) }}</div>
+                <div v-for="album in random_albums"
+                     @click="route_playAlbum(album)"
+                     class="album-card-image mdl-card mdl-shadow--2dp"
+                     :style="'background-image: url(' + album.cover_url + ');'" >
+                  <div class="mdl-card__title mdl-card--expand"></div>
+                  <div class="mdl-card__actions">
+                    <div class="album-card-image__album">{{album.album}}</div>
+                    <div class="album-card-image__artist">{{ (album.albumartist || album.artist) }}</div>
+                  </div>
                 </div>
-              </div>
               </div>
             </div>
           </section>
 
-          <div xstyle="display:none">
-            <button @click="updateDb()" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">Refresh </button>
-          </div>
+          <button @click="get4RandomAlbums()" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">Choose new albums</button>
 
           <div v-show="loading" style="margin-left: 3em">
             <p>Albums:
