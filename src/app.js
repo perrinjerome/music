@@ -5,10 +5,8 @@ import {_} from "lodash";
 import NoSleep from "nosleep.js";
 import swURL from "file-loader?name=sw.js!babel-loader!./sw";
 import './style.css';
+import dialogPolyfill from "dialog-polyfill";
 
-function dialogPolyfill() {
-  console.error("TODO");
-}
 
 document.addEventListener("DOMContentLoaded", () => {
   //"use strict";
