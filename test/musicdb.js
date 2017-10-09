@@ -9,7 +9,7 @@ global.window.indexedDB = require("fake-indexeddb");
 import {MusicDB} from "../src/musicdb";
 
 describe("Music Database", () => {
-  describe("Basic test", () => {
+  describe("Initialisation / loading tests", () => {
     it("constructor argument is the URL of beet API", () => {
       var musicdb = new MusicDB('https://api.example.com');
       assert.isObject(musicdb);
@@ -45,5 +45,14 @@ describe("Music Database", () => {
           });
         });
     });
+  });
+
+  describe("database tests", () => {
+    var musicdb;
+    beforeEach(function(done) {
+      musicdb = new MusicDB("./");
+    });
+
+
   });
 });
