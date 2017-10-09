@@ -1,10 +1,8 @@
 /*jshint esversion: 6 */
 /*globals window, fetch, console, _ */
-//(function () {
 //"use strict";
 
 function MusicDB(url) {
-  // this.beets_url = "http://" + host + ":" + port;
   this.beets_url = url;
 
   this.db_version = 49;
@@ -250,88 +248,6 @@ MusicDB.prototype.newloadDatabase = function(progressReporter) {
     });
 };
 
-// populate the database TODO: progress callback ?
-MusicDB.prototype.oldloadDatabase = function() {
-  console.log("loadDb");
-  var musicdb = this;
-  // utility for fetch
-  function getJson(response) {
-    return response.json();
-  }
-  // insert data in storeName, junk by junk
-  function populateStore(storeName, data) {
-    var insertions = data.length;
-    return openDatabase(musicdb, function(db, resolve, reject) {
-      function insertNext(i, store) {
-        if (i === 0) {
-          return resolve(insertions);
-        }
-        var req = store.add(data[i]);
-        req.onsuccess = function (evt) {
-          try {
-            if ((i % 300) === 0) {
-              // start a new transaction.
-              console.log("Insertion in " + storeName + " successful", i );
-              insertNext(i-1, db.transaction(
-                storeName,
-                "readwrite"
-              ).objectStore(storeName));
-            } else {
-              insertNext(i-1, store);
-            }
-          } catch (e) {
-            reject(e);
-          }
-        };
-        req.onerror = function(e) {
-          reject( new Error("Error inserting " + JSON.stringify(data[i]) +
-                            "\nerror: " + e.target.error));
-        };
-      }
-      // start inserting
-      insertNext(
-        data.length - 1,
-        db.transaction(
-          storeName,
-          "readwrite"
-        ).objectStore(storeName));
-    });
-  }
-
-  return openDatabase(this, function(db, resolve, reject) {
-    var tx = db.transaction(['items', /* 'artists', */  'albums'], 'readwrite');
-    tx.onerror = reject;
-    tx.oncomplete = resolve;
-    function clearObjectStore(storeName) {
-      return new Promise(function(resolve_, reject_) {
-        var clearTransaction = tx.objectStore(storeName).clear();
-        clearTransaction.onerror = reject_;
-        clearTransaction.onsuccess = resolve_;
-      });
-    }
-    return Promise.all([
-      clearObjectStore('items'),
-      // clearObjectStore('artists'),
-      clearObjectStore('albums'),
-    ]).then(resolve) ;
-  }).then(
-    function() {
-      return Promise.all([
-        fetch(musicdb.beets_url + "/album/")
-        .then(getJson)
-        .then(function(result){
-          return populateStore("albums", result.albums);
-        }),
-
-        fetch(musicdb.beets_url + "/item/")
-        .then(getJson)
-        .then(function(result){
-          return populateStore("items", result.items);
-        })
-      ]);
-    });
-};
-
 function _countFromStore(storeName) {
   return function() {
     return openDatabase(this, function(db, resolve, reject){
@@ -394,7 +310,4 @@ MusicDB.prototype.getRandomAlbum = function() {
   });
 };
 
-//module.exports = MusicDB;
 export {MusicDB};
-
-//})();
