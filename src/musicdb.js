@@ -53,7 +53,7 @@ var openDatabase = function(musicdb, callback) {
   });
 };
 
-
+// returns all items from album
 MusicDB.prototype.getItemsFromAlbum = function(albumId) {
   var musicdb = this;
   return openDatabase(this, function(db, resolve, reject) {
@@ -98,12 +98,8 @@ MusicDB.prototype.getItemSrcUrl = function(item) {
   });
 };
 
+// refresh database from beets
 MusicDB.prototype.loadDatabase = function(progressReporter) {
-  return this.newloadDatabase(progressReporter);
-};
-
-MusicDB.prototype.newloadDatabase = function(progressReporter) {
-  console.log("new loadDb");
   var musicdb = this;
   // utility for fetch
   function getJson(response) {
@@ -310,4 +306,4 @@ MusicDB.prototype.getRandomAlbum = function() {
   });
 };
 
-export {MusicDB};
+export {MusicDB, openDatabase};
