@@ -401,7 +401,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 log('New content is available; please refresh.');
                 var data = {
                   message: 'New version available',
-                  timeout: 2000,
                   actionHandler: () => { window.location.reload(); },
                   actionText: 'Refresh'
                 };
