@@ -393,7 +393,7 @@ document.addEventListener("DOMContentLoaded", () => {
       console.log('using swURL', swURL);
       navigator.serviceWorker.register(swURL).then((registration) => {
         // Registration was successful
-        log('ServiceWorker registration successful with scope: ', registration.scope);
+        log('ServiceWorker ', swURL, ' registration successful with scope: ', registration.scope);
 
         registration.onupdatefound = () => {
           const installingWorker = registration.installing;
