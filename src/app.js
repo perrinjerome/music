@@ -272,52 +272,50 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       },
       updateDb: function() {
-        if (1 || confirm("update db")){
-          var dialog = document.querySelector('#dialog-confirm-update-database');
-          if (! dialog.showModal) {
-            console.error("TODO polyfill");
-            dialogPolyfill.registerDialog(dialog);
-          }
-          dialog.showModal();
-          dialog.querySelector('button.cancel').addEventListener(
-            'click', () => { dialog.close(); });
-          dialog.querySelector('button.ok').addEventListener(
-            'click', (e) => {
-              var progressReporter = {
-                start: function () { this._startTime = performance.now(); },
-                totalTime: function () { return performance.now() - this._startTime; },
-                reportProgress: (storeName, progress) => {
-                  document.querySelector(
-                    '#progress_bar_' + storeName
-                  ).MaterialProgress.setProgress(progress);
-                }
-              };
-              this.random_albums = [];
-              this.playlist = [];
-              this.loading = true;
-              progressReporter.start();
-              this.musicdb.loadDatabase(
-                progressReporter
-              ).then(_ => {
-                var totalTime = progressReporter.totalTime();
-                this.loading = false;
-                log('finish updating in ', totalTime);
-                var data = {
-                  message: 'Finised updating in ' + (totalTime / 1000).toFixed(2) + " seconds",
-                  timeout: 2000,
-                  //   actionHandler: () => {},
-                  //    actionText: 'Undo'
-                };
-                snackbar.MaterialSnackbar.showSnackbar(data);
-
-              }).catch(e => {
-                console.error("Failed loading database !", e);
-                log("loading failed " + e);
-              });
-
-              dialog.close();
-            });
+        var dialog = document.querySelector('#dialog-confirm-update-database');
+        if (! dialog.showModal) {
+          console.error("TODO polyfill");
+          dialogPolyfill.registerDialog(dialog);
         }
+        dialog.showModal();
+        dialog.querySelector('button.cancel').addEventListener(
+          'click', () => { dialog.close(); });
+        dialog.querySelector('button.ok').addEventListener(
+          'click', (e) => {
+            var progressReporter = {
+              start: function () { this._startTime = performance.now(); },
+              totalTime: function () { return performance.now() - this._startTime; },
+              reportProgress: (storeName, progress) => {
+                document.querySelector(
+                  '#progress_bar_' + storeName
+                ).MaterialProgress.setProgress(progress);
+              }
+            };
+            this.random_albums = [];
+            this.playlist = [];
+            this.loading = true;
+            progressReporter.start();
+            this.musicdb.loadDatabase(
+              progressReporter
+            ).then(_ => {
+              var totalTime = progressReporter.totalTime();
+              this.loading = false;
+              log('finish updating in ', totalTime);
+              var data = {
+                message: 'Finised updating in ' + (totalTime / 1000).toFixed(2) + " seconds",
+                timeout: 2000,
+                //   actionHandler: () => {},
+                //    actionText: 'Undo'
+              };
+              snackbar.MaterialSnackbar.showSnackbar(data);
+
+            }).catch(e => {
+              console.error("Failed loading database !", e);
+              log("loading failed " + e);
+            });
+
+            dialog.close();
+          });
       }
     },
   });
