@@ -1,6 +1,8 @@
-{ "env":
- { "es6": true,
-  "sourceType": "module"
- }
+{
+    "env": {
+        "es6": true
+    },
+    "parserOptions": {
+        "sourceType": "module"
+    }
 }
-

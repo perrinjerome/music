@@ -5,6 +5,11 @@ test:
   - npm install
   - npm run test
 
+lint:
+  script:
+  - npm install
+  - npm run lint
+
 pages:
   cache:
     paths:
