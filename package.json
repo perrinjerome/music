@@ -6,7 +6,7 @@
     "dev": "webpack-dev-server --progress --inline --colors",
     "build": "webpack --progress --colors",
     "lint": "jshint src/*js && eslint src/*js",
-    "test": "mocha -r babel-register -r jsdom-global/register"
+    "test": "nyc mocha -r babel-register -r jsdom-global/register"
   },
   "babel": {
     "presets": [
@@ -39,6 +39,7 @@
     "mock-browser": "^0.92.14",
     "nock": "^9.0.22",
     "node-fetch": "^1.7.3",
+    "nyc": "^11.2.1",
     "style-loader": "^0.19.0",
     "webpack": "^2.4.1",
     "webpack-dev-server": "^2.4.2"
