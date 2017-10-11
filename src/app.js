@@ -4,13 +4,15 @@ import {MusicDB} from "./musicdb.js";
 import {_} from "lodash";
 import NoSleep from "nosleep.js";
 import swURL from "file-loader?name=sw.js!babel-loader!./sw";
-import './style.css';
+import 'material-design-lite';
+// import 'material-design-lite/material.css'; TODO
 import dialogPolyfill from "dialog-polyfill";
 
+import 'material-design-lite/dist/material.indigo-deep_purple.min.css';
+import './style.css';
 
 document.addEventListener("DOMContentLoaded", () => {
   //"use strict";
-
 
   var pages = {
     front: "front",
