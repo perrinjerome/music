@@ -180,7 +180,6 @@ document.addEventListener("DOMContentLoaded", () => {
             .catch((e) => {
             var dialog = document.querySelector('#dialog-api-login');
             if (! dialog.showModal) {
-              console.error("TODO polyfill");
               dialogPolyfill.registerDialog(dialog);
             }
             dialog.showModal();
@@ -211,7 +210,6 @@ document.addEventListener("DOMContentLoaded", () => {
         if (current_page == 'configure') {
           var dialog = document.querySelector('#dialog-configure');
           if (! dialog.showModal) {
-            console.error("TODO polyfill");
             dialogPolyfill.registerDialog(dialog);
           }
           document.querySelector("#configure_beets_url").value = this.beets_url;
@@ -273,7 +271,6 @@ document.addEventListener("DOMContentLoaded", () => {
       updateDb: function() {
         var dialog = document.querySelector('#dialog-confirm-update-database');
         if (! dialog.showModal) {
-          console.error("TODO polyfill");
           dialogPolyfill.registerDialog(dialog);
         }
         dialog.showModal();
