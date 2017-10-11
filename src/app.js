@@ -30,7 +30,6 @@ document.addEventListener("DOMContentLoaded", () => {
       this.$refs.audio.addEventListener('ended', e => this.$emit('ended'));
       // try to setup media session controls.
       if ('mediaSession' in navigator) {
-        log("setup controls");
         navigator.mediaSession.setActionHandler('pause', _ => {
           this.pauseCount += 1;
           setTimeout(_ => {this.pauseCount = 0;}, 5000);
@@ -166,7 +165,6 @@ document.addEventListener("DOMContentLoaded", () => {
       current_page: null,
       loading: false,
       current_title: "Music Player",
-      debugzone: ""
     },
     watch: {
       beets_url: function(beets_url) {
@@ -389,7 +387,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-      console.log('using swURL', swURL);
       navigator.serviceWorker.register(swURL).then((registration) => {
         // Registration was successful
         log('ServiceWorker ', swURL, ' registration successful with scope: ', registration.scope);
