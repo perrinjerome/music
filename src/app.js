@@ -2,6 +2,7 @@
 /*globals Vue, navigator, window, setTimeout, MediaMetadata, console, fetch, URL, document, confirm, alert, MusicDB, NoSleep, Worker, localStorage, performance */
 import {MusicDB} from "./musicdb.js";
 import {_} from "lodash";
+import Vue from 'vue/dist/vue.esm.js';
 import NoSleep from "nosleep.js";
 import swURL from "file-loader?name=sw.js!babel-loader!./sw";
 import 'material-design-lite';
