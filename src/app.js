@@ -223,6 +223,11 @@ document.addEventListener("DOMContentLoaded", () => {
               localStorage.setItem('beets_url', this.beets_url);
               dialog.close();
             });
+          dialog.querySelector('button.action-refresh-database').addEventListener(
+            'click', (e) => {
+              dialog.querySelector('button.action-ok').click();
+              this.refreshDatabase();
+            });
         }
       } 
     },
@@ -268,8 +273,8 @@ document.addEventListener("DOMContentLoaded", () => {
           }
         }
       },
-      updateDb: function() {
-        var dialog = document.querySelector('#dialog-confirm-update-database');
+      refreshDatabase: function() {
+        var dialog = document.querySelector('#dialog-confirm-refresh-database');
         if (! dialog.showModal) {
           dialogPolyfill.registerDialog(dialog);
         }

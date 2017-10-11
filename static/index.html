@@ -84,11 +84,11 @@
             </div>
           </dialog>
 
-          <dialog id="dialog-confirm-update-database" class="mdl-dialog">
-            <h3 class="mdl-dialog__title">Update Database</h3>
+          <dialog id="dialog-confirm-refresh-database" class="mdl-dialog">
+            <h3 class="mdl-dialog__title">Refresh Database</h3>
             <div class="mdl-dialog__content">
               <p>
-                Update database.
+                Refresh database using {{ beets_url }} ?
               </p>
             </div>
             <div class="mdl-dialog__actions">
@@ -107,7 +107,7 @@
               </div>
               </p>
             <p>
-              <button @click="updateDb()" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">Refresh Database</button>
+              <button class="action-refresh-database mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">Refresh Database</button>
             </p>
             <p>This is version <%= webpack.hash %> </p>
 
