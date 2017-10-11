@@ -184,9 +184,9 @@ document.addEventListener("DOMContentLoaded", () => {
               dialogPolyfill.registerDialog(dialog);
             }
             dialog.showModal();
-            dialog.querySelector('button.cancel').addEventListener(
+            dialog.querySelector('button.action-cancel').addEventListener(
               'click', () => { dialog.close(); });
-            dialog.querySelector('button.ok').addEventListener(
+            dialog.querySelector('button.action-ok').addEventListener(
               'click', () => { dialog.close(); });
           });
         }
@@ -216,9 +216,9 @@ document.addEventListener("DOMContentLoaded", () => {
           }
           document.querySelector("#configure_beets_url").value = this.beets_url;
           dialog.showModal();
-          dialog.querySelector('button.cancel').addEventListener(
+          dialog.querySelector('button.action-cancel').addEventListener(
             'click', () => { dialog.close(); });
-          dialog.querySelector('button.ok').addEventListener(
+          dialog.querySelector('button.action-ok').addEventListener(
             'click', (e) => {
               this.beets_url = document.querySelector("#configure_beets_url").value;
               log("updated beets_url", this.beets_url);
@@ -277,9 +277,9 @@ document.addEventListener("DOMContentLoaded", () => {
           dialogPolyfill.registerDialog(dialog);
         }
         dialog.showModal();
-        dialog.querySelector('button.cancel').addEventListener(
+        dialog.querySelector('button.action-cancel').addEventListener(
           'click', () => { dialog.close(); });
-        dialog.querySelector('button.ok').addEventListener(
+        dialog.querySelector('button.action-ok').addEventListener(
           'click', (e) => {
             var progressReporter = {
               start: function () { this._startTime = performance.now(); },
