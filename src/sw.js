@@ -1,7 +1,7 @@
 /*globals self, caches, fetch, console */
 (function () {
   "use strict";
-  var CACHE_NAME = 'music-app-<%= BUILD %>';
+  var CACHE_NAME = 'music-app-GIT_HASH';
   var urlsToCache = [
     './empty.mp3',
     './',

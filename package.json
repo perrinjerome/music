@@ -4,7 +4,7 @@
   "version": "0.0.1",
   "scripts": {
     "dev": "webpack-dev-server --progress --inline --colors",
-    "build": "webpack --progress --colors",
+    "build": "webpack --progress --colors && sed -i .old s/GIT_HASH/$(git rev-parse --short HEAD)/g public/sw.js",
     "lint": "jshint src/*js && eslint src/*js",
     "test": "nyc mocha -r babel-register -r jsdom-global/register"
   },
