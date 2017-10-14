@@ -4,7 +4,7 @@ import {MusicDB} from "./musicdb.js";
 import {_} from "lodash";
 import Vue from 'vue/dist/vue.esm.js';
 import NoSleep from "nosleep.js";
-import swURL from "file-loader?name=sw.js!babel-loader!./sw";
+import registerServiceWorker from "service-worker-loader!./sw.js";
 import 'material-design-lite';
 // import 'material-design-lite/material.css'; TODO
 import dialogPolyfill from "dialog-polyfill";
@@ -389,9 +389,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-      navigator.serviceWorker.register(swURL).then((registration) => {
+      registerServiceWorker({ scope: '/' })
+        .then((registration) => {
         // Registration was successful
-        log('ServiceWorker ', swURL, ' registration successful with scope: ', registration.scope);
+        log('ServiceWorker registration successful with scope: ', registration.scope);
 
         registration.onupdatefound = () => {
           const installingWorker = registration.installing;
