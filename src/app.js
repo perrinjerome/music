@@ -1,16 +1,17 @@
 /*jshint esversion: 6 */
 /*globals Vue, navigator, window, setTimeout, MediaMetadata, console, fetch, URL, document, confirm, alert, MusicDB, NoSleep, Worker, localStorage, performance */
-import {MusicDB} from "./musicdb.js";
 import {_} from "lodash";
 import Vue from 'vue/dist/vue.esm.js';
 import NoSleep from "nosleep.js";
-import registerServiceWorker from "service-worker-loader!./sw.js";
 import 'material-design-lite';
 // import 'material-design-lite/material.css'; TODO
 import dialogPolyfill from "dialog-polyfill";
-
 import 'material-design-lite/dist/material.indigo-deep_purple.min.css';
+
 import './style.css';
+import {MusicDB} from "./musicdb.js";
+import registerServiceWorker from "service-worker-loader?filename=sw.js!./sw.js";
+
 
 document.addEventListener("DOMContentLoaded", () => {
   //"use strict";
