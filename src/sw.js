@@ -1,4 +1,5 @@
 /*globals self, caches, fetch, console */
+import {MusicDB} from "./musicdb.js";
 
 const CACHE_NAME = 'music-app-GIT_HASH';
 const urlsToCache = [
