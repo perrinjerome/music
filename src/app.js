@@ -19,7 +19,7 @@ import Hammer from 'hammerjs';
 document.addEventListener("DOMContentLoaded", () => {
   //"use strict";
 
-  var pages = {
+  const pages = {
     front: "front",
     play: "play",
     configure: "configure"
@@ -50,12 +50,10 @@ document.addEventListener("DOMContentLoaded", () => {
         });
 
         navigator.mediaSession.setActionHandler('nexttrack', _ => {
-          log('> User clicked "Next Track" icon. mmmh');
           this.$parent.playNext();
         });
 
         navigator.mediaSession.setActionHandler('previoustrack', _ => {
-          log('> User clicked "Previous Track" icon. ', this.$refs.audio.currentTime);
           if (this.$refs.audio.currentTime < 3) {
             this.$parent.playPrevious();
           } else {
@@ -65,13 +63,13 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     },
     computed: {
-      playHack: function() {
+      playHack: () => {
         if (this.currentItem) {
-          var component = this;
+          const component = this;
           this.$parent.current_title = this.currentItem.title;
           this.$refs.audio.src = this.currentItem.item_url;
           this.$refs.audio.play().then(
-            _ => {
+            () => {
               if ('mediaSession' in navigator) {
                 this.$parent.musicdb.getAlbumCoverUrl({id: this.currentItem.album_id}).then(
                   cover_url => {
@@ -104,7 +102,7 @@ document.addEventListener("DOMContentLoaded", () => {
               }
             }
           );
-          this.$refs.audio.addEventListener ('error', function(e) {
+          this.$refs.audio.addEventListener ('error', (e) => {
             /* We cannot play this source, it must be a FLAC.
                Let's try to convert it.
             */
@@ -118,10 +116,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
             fetch(component.currentItem.item_url)
               .then(response => response.arrayBuffer())
-              .then(function(buffer) {
-              var outData = {},
-                  fileData = {},
-                  item_url = component.currentItem.id;
+              .then(buffer => {
+              const outData = {},
+                    fileData = {},
+                    item_url = component.currentItem.id;
               outData[item_url + ".wav"] = {"MIME":"audio/wav"};
               fileData[item_url + ".flac"] = new Uint8Array(buffer);
               console.log(component.currentItem, outData, fileData);
@@ -131,7 +129,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 args: ["-d", item_url + ".flac"],
                 outData: outData ,
                 fileData: fileData } );
-              app.worker.onmessage = function(e) {
+              app.worker.onmessage = e => {
                 var fileName, blob, url;
                 if (e.data.reply == "done") {
                   for ( fileName in e.data.values ) {
@@ -159,7 +157,7 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   // app Vue instance
-  var app = new Vue({
+  const app = new Vue({
     data: {
       beets_url: '',
       playlist: [],
@@ -171,18 +169,17 @@ document.addEventListener("DOMContentLoaded", () => {
       current_title: "Music Player",
     },
     watch: {
-      beets_url: function(beets_url) {
-        log(beets_url);
+      beets_url: (beets_url) => {
         if (beets_url) {
           // check we can access it and give a chance to login ( XXX move it to DB )
           return fetch(beets_url + '/stats', { credentials: 'include', mode: 'cors' })
             .then((response) => { 
-            log("ok setting", beets_url);
-            this.musicdb = new MusicDB(beets_url);
-            this.get4RandomAlbums(); // XXX
+            log("ok setting", this, beets_url);
+            app.musicdb = new MusicDB(beets_url);
+            app.get4RandomAlbums(); // XXX
           })
             .catch((e) => {
-            var dialog = document.querySelector('#dialog-api-login');
+            const dialog = document.querySelector('#dialog-api-login');
             if (! dialog.showModal) {
               dialogPolyfill.registerDialog(dialog);
             }
@@ -194,91 +191,93 @@ document.addEventListener("DOMContentLoaded", () => {
           });
         }
       },
-      current_item: function(current_item) {
+      current_item: (current_item) => {
         document.title = current_item.title + " ⚡ " +current_item.artist;
       },
-      current_page: function(current_page) {
-        console.log("current page", current_page);
+      current_page: (current_page) => {
+        console.log("current page", current_page, this);
         // XXX
         if (current_page == 'front') {
-          this.current_page = null;
-          return this.get4RandomAlbums();
+          app.current_page = null;
+          return app.get4RandomAlbums();
         }
         if (current_page == 'updateDb') {
           alert("update db start");
-          return this.updateDb();
+          return app.updateDb();
         }
         if (current_page == 'play') {
 
         }
         if (current_page == 'configure') {
-          var dialog = document.querySelector('#dialog-configure');
+          const dialog = document.querySelector('#dialog-configure');
           if (! dialog.showModal) {
             dialogPolyfill.registerDialog(dialog);
           }
-          document.querySelector("#configure_beets_url").value = this.beets_url;
+          document.querySelector("#configure_beets_url").value = app.beets_url;
           dialog.showModal();
           dialog.querySelector('button.action-cancel').addEventListener(
             'click', () => { dialog.close(); });
           dialog.querySelector('button.action-ok').addEventListener(
             'click', (e) => {
-              this.beets_url = document.querySelector("#configure_beets_url").value;
-              log("updated beets_url", this.beets_url);
-              localStorage.setItem('beets_url', this.beets_url);
+              app.beets_url = document.querySelector("#configure_beets_url").value;
+              log("updated beets_url", app.beets_url);
+              localStorage.setItem('beets_url', app.beets_url);
               dialog.close();
             });
           dialog.querySelector('button.action-refresh-database').addEventListener(
             'click', (e) => {
               dialog.querySelector('button.action-ok').click();
-              this.refreshDatabase();
+              app.refreshDatabase();
             });
         }
       } 
     },
 
     methods: {
-      get4RandomAlbums: function () {
-        var vue = this, db = this.musicdb;
+      init: () => {
+      },
+      get4RandomAlbums: () => {
+        const db = app.musicdb;
         if (db) {
           Promise.all(
             [db.getRandomAlbum(), db.getRandomAlbum(), db.getRandomAlbum(), db.getRandomAlbum()]
-          ).then(function(albums){
-            vue.random_albums = albums;
+          ).then((albums) => {
+            app.random_albums = albums;
           });
         }
       },
-      playSong: function(song) {
-        this.current_item = song;
+      playSong: (song) => {
+        app.current_item = song;
       },
-      route_playAlbum: function(album) {
+      route_playAlbum: (album) => {
         window.location.hash = "album/" + album.id;
       },
-      playAlbum: function(album_id) {
-        var vue = this;
-        this.current_page = "playing." + album_id;
-        this.musicdb.getItemsFromAlbum(album_id).then(function(items) {
-          vue.playlist = items;
-          vue.current_item = items[0];
+      playAlbum: (album_id) => {
+        app.current_page = "playing." + album_id;
+        app.musicdb.getItemsFromAlbum(album_id).then((items) => {
+          app.playlist = items;
+          app.current_item = items[0];
         });
       },
-      playNext: function() {
-        for (var i=0; i<this.playlist.length - 1; i++){
-          if (this.current_item.id == this.playlist[i].id) {
-            this.current_item = this.playlist[i+1];
+      playNext: () => {
+        for (var i=0; i<app.playlist.length - 1; i++){
+          if (app.current_item.id == app.playlist[i].id) {
+            app.current_item = app.playlist[i+1];
             return;
           }
         }
       },
-      playPrevious: function() {
-        for (var i=0; i<this.playlist.length - 1; i++){
-          if (this.current_item.id == this.playlist[i].id) {
-            this.current_item = this.playlist[Math.max(i-1, 0)];
+      playPrevious: () => {
+        for (var i=0; i<app.playlist.length - 1; i++){
+          if (app.current_item.id == app.playlist[i].id) {
+            app.current_item = app.playlist[Math.max(i-1, 0)];
             return;
           }
         }
       },
-      refreshDatabase: function() {
-        var dialog = document.querySelector('#dialog-confirm-refresh-database');
+      refreshDatabase: () => {
+        // TODO: init
+        const dialog = document.querySelector('#dialog-confirm-refresh-database');
         if (! dialog.showModal) {
           dialogPolyfill.registerDialog(dialog);
         }
@@ -287,7 +286,7 @@ document.addEventListener("DOMContentLoaded", () => {
           'click', () => { dialog.close(); });
         dialog.querySelector('button.action-ok').addEventListener(
           'click', (e) => {
-            var progressReporter = {
+            const progressReporter = {
               start: function () { this._startTime = performance.now(); },
               totalTime: function () { return performance.now() - this._startTime; },
               reportProgress: (storeName, progress) => {
@@ -296,17 +295,17 @@ document.addEventListener("DOMContentLoaded", () => {
                 ).MaterialProgress.setProgress(progress);
               }
             };
-            this.random_albums = [];
-            this.playlist = [];
-            this.loading = true;
+            app.random_albums = [];
+            app.playlist = [];
+            app.loading = true;
             progressReporter.start();
-            this.musicdb.loadDatabase(
+            app.musicdb.loadDatabase(
               progressReporter
             ).then(_ => {
-              var totalTime = progressReporter.totalTime();
-              this.loading = false;
+              const totalTime = progressReporter.totalTime();
+              app.loading = false;
               log('finish updating in ', totalTime);
-              var data = {
+              const data = {
                 message: 'Finised updating in ' + (totalTime / 1000).toFixed(2) + " seconds",
                 timeout: 2000,
                 //   actionHandler: () => {},
@@ -328,24 +327,26 @@ document.addEventListener("DOMContentLoaded", () => {
   // mount
   app.$mount(".player");
 
+  app.init();
+  
   // On chrome mobile we can only start playing in an event handler.
   // https://bugs.chromium.org/p/chromium/issues/detail?id=138132
-  document.body.addEventListener('click', function(event){
+  document.body.addEventListener('click', (event) => {
     document.getElementById("audio_player").play();
 
     if ('wakeLock' in navigator) {
       navigator.wakeLock.request("system").then(
-        function successFunction() {
+        () => {
           // success
           log('cool wakelock');
         },
-        function errorFunction() {
+        () => {
           // error
           log("wake lock refused");
         }
       );
     } else {
-      var noSleep = new NoSleep();
+      const noSleep = new NoSleep();
       noSleep.enable();
     }
   });
@@ -354,10 +355,10 @@ document.addEventListener("DOMContentLoaded", () => {
   app.worker = new Worker('worker/EmsWorkerProxy.js');
 
   // XXX
-  var snackbar = document.querySelector('#demo-snackbar-example');
+  const snackbar = document.querySelector('#demo-snackbar-example');
 
   // handle routing
-  function onHashChange () {
+  const onHashChange = () => {
     var page = window.location.hash.replace(/#\/?/, '');
     console.log("onHashChange", page);
     if (page.indexOf('album') === 0) {
@@ -378,7 +379,8 @@ document.addEventListener("DOMContentLoaded", () => {
       }
       // app.current_page = page
     }
-  }
+  };
+  
   window.addEventListener('hashchange', onHashChange);
   setTimeout(onHashChange, 1);
 
@@ -391,12 +393,12 @@ document.addEventListener("DOMContentLoaded", () => {
     console.log(Array.prototype.slice.call(arguments));
   }
 
-  var hammer = new Hammer(document.querySelector(".player"));
-  hammer.on('panleft', function(ev) {
+  const hammer = new Hammer(document.querySelector(".player"));
+  hammer.on('panleft', (ev) => {
     document.querySelector(".playlist").style.display = "none";
-    document.querySelector(".random-albums").style.display = ""
+    document.querySelector(".random-albums").style.display = "";
   });
-  hammer.on('panright', function(ev) {
+  hammer.on('panright', (ev) => {
     document.querySelector(".playlist").style.display = "";
     document.querySelector(".random-albums").style.display = "none";
   });
