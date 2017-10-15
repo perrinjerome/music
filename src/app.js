@@ -12,6 +12,9 @@ import './style.css';
 import {MusicDB} from "./musicdb.js";
 import registerServiceWorker from "service-worker-loader?filename=sw.js!./sw.js";
 
+import Hammer from 'hammerjs';
+
+
 
 document.addEventListener("DOMContentLoaded", () => {
   //"use strict";
@@ -387,6 +390,16 @@ document.addEventListener("DOMContentLoaded", () => {
     document.querySelector('#log').textContent += line + '\n';
     console.log(Array.prototype.slice.call(arguments));
   }
+
+  var hammer = new Hammer(document.querySelector(".player"));
+  hammer.on('panleft', function(ev) {
+    document.querySelector(".playlist").style.display = "none";
+    document.querySelector(".random-albums").style.display = ""
+  });
+  hammer.on('panright', function(ev) {
+    document.querySelector(".playlist").style.display = "";
+    document.querySelector(".random-albums").style.display = "none";
+  });
 
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {

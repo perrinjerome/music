@@ -124,12 +124,11 @@
         </div>
 
         <section>
-          <audio-player
-                        :current-item="current_item"
+          <audio-player :current-item="current_item"
                         v-on:ended="playNext"></audio-player>
 
-          <section v-show="playlist.length"  v-cloak>
-            <table id="playlist" class="playlist mdl-data-table xmdl-js-data-table mdl-shadow--2dp">
+          <section class="playlist" v-show="playlist.length"  v-cloak>
+            <table id="playlist" class="playlist-table mdl-data-table xmdl-js-data-table mdl-shadow--2dp">
               <tbody>
                 <tr class=""
                     v-for="item in playlist"
@@ -142,7 +141,8 @@
               </tbody>
             </table>
           </section>
-          <section class="random_albums" v-show="random_albums.length"  v-cloak>
+          
+          <section class="random-albums" v-show="random_albums.length" v-cloak>
             <div class="mdl-grid">
               <div v-for="album in random_albums"
                   class="mdl-cell mdl-cell--4-col">

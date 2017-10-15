@@ -5,7 +5,7 @@
 .albumlist { /* TODO: class name */
   column-count: 2;
 }
-.playlist {
+.playlist-table {
   width: calc(100% - 2em);
   margin: 1em;
 }
