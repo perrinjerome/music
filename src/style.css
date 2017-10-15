@@ -6,9 +6,13 @@
   column-count: 2;
 }
 .playlist {
-  width: 100%;
+  width: calc(100% - 2em);
   margin: 1em;
 }
+.currently-playing {
+  margin: 1em;
+}
+
 .album-card-image {
   margin: 1em;
   height: 300px;
