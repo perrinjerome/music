@@ -33,3 +33,12 @@
   font-size: 10px;
   font-weight: 200;
 }
+
+.mdl-button--floating-action {
+position: fixed;
+right: 24px;
+bottom: 24px;
+padding-top: 24px;
+margin-bottom: 0;
+z-index: 998;
+}

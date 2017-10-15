@@ -29,6 +29,7 @@ self.addEventListener('activate', (event) => {
   );
 });
 
+
 self.addEventListener('install', (event) => {
   console.log("SW: installing", event);
 

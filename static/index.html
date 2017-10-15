@@ -160,7 +160,9 @@
             </div>
           </section>
 
-          <button @click="get4RandomAlbums()" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">Choose new albums</button>
+          <button @click="get4RandomAlbums()" class="mdl-button mdl-js-button mdl-button--colored mdl-button--raised mdl-js-ripple-effect mdl-button--fab mdl-button--floating-action">
+              <i class="material-icons">refresh</i>
+          </button>
 
           <div v-show="loading" style="margin-left: 3em">
             <p>Albums:
