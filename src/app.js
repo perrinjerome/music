@@ -174,7 +174,22 @@ document.addEventListener("DOMContentLoaded", () => {
       app.worker = new Worker('worker/EmsWorkerProxy.js');
 
       // utility
-      app.snackbar = document.querySelector('#demo-snackbar-example');
+      app.private = {};
+      app.private.snackbar = document.querySelector('#demo-snackbar-example');
+      app.private.dialogs = {};
+      const dialogSelectors = [
+        '#dialog-api-login',
+        '#dialog-configure',
+        '#dialog-confirm-refresh-database'];
+      for (var selector in dialogSelectors) {
+        let dialog = document.querySelector(dialogSelectors[selector]);
+        if (! dialog.showModal) {
+          dialogPolyfill.registerDialog(dialog);
+        }
+        app.private.dialogs[dialogSelectors[selector]] = dialog;
+      }
+
+
 
       // setup touch control
       const hammer = new Hammer(document.querySelector(".player"));
@@ -252,7 +267,7 @@ document.addEventListener("DOMContentLoaded", () => {
                       actionHandler: () => { window.location.reload(); },
                       actionText: 'Refresh'
                     };
-                    app.snackbar.MaterialSnackbar.showSnackbar(data);
+                    app.private.snackbar.MaterialSnackbar.showSnackbar(data);
                   }
                 }
               };
@@ -274,10 +289,7 @@ document.addEventListener("DOMContentLoaded", () => {
             app.get4RandomAlbums(); // XXX
           })
             .catch((e) => {
-            const dialog = document.querySelector('#dialog-api-login');
-            if (! dialog.showModal) {
-              dialogPolyfill.registerDialog(dialog);
-            }
+            const dialog = app.private.dialogs['#dialog-api-login'];
             dialog.showModal();
             dialog.querySelector('button.action-cancel').addEventListener(
               'click', () => { dialog.close(); });
@@ -303,10 +315,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         }
         if (current_page == 'configure') {
-          const dialog = document.querySelector('#dialog-configure');
-          if (! dialog.showModal) {
-            dialogPolyfill.registerDialog(dialog);
-          }
+          const dialog = app.private.dialogs['#dialog-configure'];
           document.querySelector("#configure_beets_url").value = app.beets_url;
           dialog.showModal();
           dialog.querySelector('button.action-cancel').addEventListener(
@@ -368,11 +377,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       },
       refreshDatabase: () => {
-        // TODO: init
-        const dialog = document.querySelector('#dialog-confirm-refresh-database');
-        if (! dialog.showModal) {
-          dialogPolyfill.registerDialog(dialog);
-        }
+        const dialog = app.private.dialogs['#dialog-confirm-refresh-database'];
         dialog.showModal();
         dialog.querySelector('button.action-cancel').addEventListener(
           'click', () => { dialog.close(); });
@@ -400,10 +405,8 @@ document.addEventListener("DOMContentLoaded", () => {
               const data = {
                 message: 'Finised updating in ' + (totalTime / 1000).toFixed(2) + " seconds",
                 timeout: 2000,
-                //   actionHandler: () => {},
-                //    actionText: 'Undo'
               };
-              app.snackbar.MaterialSnackbar.showSnackbar(data);
+              app.private.snackbar.MaterialSnackbar.showSnackbar(data);
 
             }).catch(e => {
               console.error("Failed loading database !", e);
