@@ -5,7 +5,9 @@ import Vue from 'vue/dist/vue.esm.js';
 import NoSleep from "nosleep.js";
 import 'material-design-lite';
 // import 'material-design-lite/material.css'; TODO
-import dialogPolyfill from "dialog-polyfill";
+import dialogPolyfill from 'dialog-polyfill';
+import 'dialog-polyfill/dialog-polyfill.css';
+
 import 'material-design-lite/dist/material.indigo-deep_purple.min.css';
 
 import './style.css';
