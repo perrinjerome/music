@@ -19,7 +19,6 @@ import Hammer from 'hammerjs';
 
 
 document.addEventListener("DOMContentLoaded", () => {
-  //"use strict";
 
   const pages = {
     front: "front",
@@ -65,7 +64,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     },
     computed: {
-      playHack: () => {
+      playHack: function () {
         if (this.currentItem) {
           const component = this;
           this.$parent.current_title = this.currentItem.title;
