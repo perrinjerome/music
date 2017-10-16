@@ -45,6 +45,30 @@ describe("Music Database", () => {
           });
         });
     });
+
+    it("reports progress during loading", () => {
+      var musicdb = new MusicDB('http://api.example.com');
+      var api = nock('http://api.example.com')
+      .filteringPath(/[\d,]/g, '')
+      .get('/stats')
+      .reply(200, {'items': 1, 'albums': 1})
+      .get('/album/')
+      .reply(200, {'albums': [
+        {id: 1, album: "album1"}
+      ]})
+      .get('/item/')
+      .reply(200, {'items': [
+        {id: 1, album_id: 1, artist: "artist1", album: "album1", title: "1"}
+      ]});
+      let progressReport = [];
+      const progressReporter = {};
+      progressReporter.reportProgress = () => progressReport.push(arguments);
+      return musicdb.loadDatabase(progressReporter).then(() => {
+        api.done();
+        expect(progressReport).to.have.lengthOf.at.least(1);
+      });
+    });
+
   });
 
   describe("database tests", () => {
