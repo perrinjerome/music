@@ -168,13 +168,108 @@ document.addEventListener("DOMContentLoaded", () => {
       loading: false,
       current_title: "Music Player",
     },
+    mounted: () => {
+      // initialize properties
+      app.beets_url = localStorage.getItem('beets_url') || 'http://localhost:8337/';
+      app.worker = new Worker('worker/EmsWorkerProxy.js');
+
+      // utility
+      app.snackbar = document.querySelector('#demo-snackbar-example');
+
+      // setup touch control
+      const hammer = new Hammer(document.querySelector(".player"));
+      hammer.on('panleft', (ev) => {
+        console.log(ev);
+        document.querySelector(".playlist").style.display = "none";
+        document.querySelector(".random-albums").style.display = "";
+      });
+      hammer.on('panright', (ev) => {
+        document.querySelector(".playlist").style.display = "";
+        document.querySelector(".random-albums").style.display = "none";
+      });
+
+      // setup routing system
+      const onHashChange = () => {
+        const page = window.location.hash.replace(/#\/?/, '');
+        console.log("onHashChange", page);
+        if (page.indexOf('album') === 0) {
+          console.log("ok", page.split("/")); 
+          try {
+            app.playAlbum(parseInt(page.split("/")[1], 10));
+          } catch (e) {
+            console.error(e);
+          }
+
+        } else {
+          if (pages[page]) {
+            console.log("changing page to", page);
+            app.current_page = page;
+            window.location.hash = '';
+          } else {
+            app.current_page = 'front';
+          }
+          // app.current_page = page
+        }
+      };
+      window.addEventListener('hashchange', onHashChange);
+      // setTimeout(onHashChange, 1);
+
+
+      // Add event handler for first user interaction
+      // On chrome mobile we can only start playing in an event handler.
+      // https://bugs.chromium.org/p/chromium/issues/detail?id=138132
+      document.body.addEventListener('click', (event) => {
+        document.getElementById("audio_player").play();
+
+        if ('wakeLock' in navigator) {
+          navigator.wakeLock.request("system").then(
+            () => { log('wake lock granted'); },
+            () => { log("wake lock refused"); } );
+        } else {
+          // fallback to nosleep
+          const noSleep = new NoSleep();
+          noSleep.enable();
+        }
+      });
+
+
+      // register Service Worker
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          registerServiceWorker({ scope: './' })
+            .then((registration) => {
+            // Registration was successful
+            log('ServiceWorker registration successful with scope: ', registration.scope);
+
+            registration.onupdatefound = () => {
+              const installingWorker = registration.installing;
+              installingWorker.onstatechange = () => {
+                if (installingWorker.state === 'installed') {
+                  if (navigator.serviceWorker.controller) {
+                    log('New content is available; please refresh.');
+                    const data = {
+                      message: 'New version available',
+                      actionHandler: () => { window.location.reload(); },
+                      actionText: 'Refresh'
+                    };
+                    app.snackbar.MaterialSnackbar.showSnackbar(data);
+                  }
+                }
+              };
+            };
+          }, (err) => {
+            log('ServiceWorker registration failed: ', err);
+          });
+        });
+      }
+    },
+
     watch: {
       beets_url: (beets_url) => {
         if (beets_url) {
           // check we can access it and give a chance to login ( XXX move it to DB )
           return fetch(beets_url + '/stats', { credentials: 'include', mode: 'cors' })
             .then((response) => { 
-            log("ok setting", this, beets_url);
             app.musicdb = new MusicDB(beets_url);
             app.get4RandomAlbums(); // XXX
           })
@@ -195,7 +290,6 @@ document.addEventListener("DOMContentLoaded", () => {
         document.title = current_item.title + " ⚡ " +current_item.artist;
       },
       current_page: (current_page) => {
-        console.log("current page", current_page, this);
         // XXX
         if (current_page == 'front') {
           app.current_page = null;
@@ -234,8 +328,6 @@ document.addEventListener("DOMContentLoaded", () => {
     },
 
     methods: {
-      init: () => {
-      },
       get4RandomAlbums: () => {
         const db = app.musicdb;
         if (db) {
@@ -311,7 +403,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 //   actionHandler: () => {},
                 //    actionText: 'Undo'
               };
-              snackbar.MaterialSnackbar.showSnackbar(data);
+              app.snackbar.MaterialSnackbar.showSnackbar(data);
 
             }).catch(e => {
               console.error("Failed loading database !", e);
@@ -324,112 +416,17 @@ document.addEventListener("DOMContentLoaded", () => {
     },
   });
 
-  // mount
+
   app.$mount(".player");
 
-  app.init();
-  
-  // On chrome mobile we can only start playing in an event handler.
-  // https://bugs.chromium.org/p/chromium/issues/detail?id=138132
-  document.body.addEventListener('click', (event) => {
-    document.getElementById("audio_player").play();
-
-    if ('wakeLock' in navigator) {
-      navigator.wakeLock.request("system").then(
-        () => {
-          // success
-          log('cool wakelock');
-        },
-        () => {
-          // error
-          log("wake lock refused");
-        }
-      );
-    } else {
-      const noSleep = new NoSleep();
-      noSleep.enable();
-    }
-  });
-
-  app.beets_url = localStorage.getItem('beets_url') || 'http://localhost:8337/';
-  app.worker = new Worker('worker/EmsWorkerProxy.js');
-
-  // XXX
-  const snackbar = document.querySelector('#demo-snackbar-example');
-
-  // handle routing
-  const onHashChange = () => {
-    var page = window.location.hash.replace(/#\/?/, '');
-    console.log("onHashChange", page);
-    if (page.indexOf('album') === 0) {
-      console.log("ok", page.split("/")); 
-      try {
-        app.playAlbum(parseInt(page.split("/")[1], 10));
-      } catch (e) {
-        console.error(e);
-      }
-
-    } else {
-      if (pages[page]) {
-        console.log("changing page to", page);
-        app.current_page = page;
-        window.location.hash = '';
-      } else {
-        app.current_page = 'front';
-      }
-      // app.current_page = page
-    }
-  };
-  
-  window.addEventListener('hashchange', onHashChange);
-  setTimeout(onHashChange, 1);
-
+  // XXX stolen from chrome samples
   function log() {
     var line = Array.prototype.slice.call(arguments).map(function(argument) {
       return typeof argument === 'string' ? argument : JSON.stringify(argument);
     }).join(' ');
-
     document.querySelector('#log').textContent += line + '\n';
     console.log(Array.prototype.slice.call(arguments));
   }
 
-  const hammer = new Hammer(document.querySelector(".player"));
-  hammer.on('panleft', (ev) => {
-    document.querySelector(".playlist").style.display = "none";
-    document.querySelector(".random-albums").style.display = "";
-  });
-  hammer.on('panright', (ev) => {
-    document.querySelector(".playlist").style.display = "";
-    document.querySelector(".random-albums").style.display = "none";
-  });
 
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-      registerServiceWorker({ scope: './' })
-        .then((registration) => {
-        // Registration was successful
-        log('ServiceWorker registration successful with scope: ', registration.scope);
-
-        registration.onupdatefound = () => {
-          const installingWorker = registration.installing;
-          installingWorker.onstatechange = () => {
-            if (installingWorker.state === 'installed') {
-              if (navigator.serviceWorker.controller) {
-                log('New content is available; please refresh.');
-                var data = {
-                  message: 'New version available',
-                  actionHandler: () => { window.location.reload(); },
-                  actionText: 'Refresh'
-                };
-                snackbar.MaterialSnackbar.showSnackbar(data);
-              }
-            }
-          };
-        };
-      }, (err) => {
-        // registration failed :(
-        log('ServiceWorker registration failed: ', err);
-      });
-    });
-  }
 });
