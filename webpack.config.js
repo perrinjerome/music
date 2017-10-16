@@ -18,7 +18,7 @@ const config = {
     inline: true,
     host: '0.0.0.0',
   },
-  devtool: 'eval',
+  devtool: 'inline-source-map',
   output: {
     path: path.resolve(__dirname, 'public'),
     filename: '[name].[hash].js',
