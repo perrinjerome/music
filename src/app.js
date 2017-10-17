@@ -169,6 +169,20 @@ document.addEventListener("DOMContentLoaded", () => {
       loading: false,
       current_title: "Music Player",
     },
+    showFrame(frame) {
+      switch (frame){
+        case 'PLAYLIST':
+          document.querySelector(".playlist").style.display = "";
+          document.querySelector(".random-albums").style.display = "none";
+          break;
+        case 'ALBUMS':
+          document.querySelector(".playlist").style.display = "none";
+          document.querySelector(".random-albums").style.display = "";
+          break;
+        default:
+          console.error("unknown frame", frame);
+      }
+    },
     mounted: () => {
       // initialize properties
       app.beets_url = localStorage.getItem('beets_url') || 'http://localhost:8337/';
@@ -190,18 +204,12 @@ document.addEventListener("DOMContentLoaded", () => {
         app.private.dialogs[dialogSelectors[selector]] = dialog;
       }
 
-
-
-      // setup touch control
-      const hammer = new Hammer(document.querySelector(".player"));
-      hammer.on('panleft', (ev) => {
-        console.log(ev);
-        document.querySelector(".playlist").style.display = "none";
-        document.querySelector(".random-albums").style.display = "";
+      const hammer = new Hammer(document);
+      hammer.on('swipeleft', (ev) => {
+        app.showFrame('ALBUMS');
       });
-      hammer.on('panright', (ev) => {
-        document.querySelector(".playlist").style.display = "";
-        document.querySelector(".random-albums").style.display = "none";
+      hammer.on('swiperight', (ev) => {
+        app.showFrame('PLAYLIST');
       });
 
       // setup routing system
