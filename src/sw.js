@@ -3,6 +3,7 @@ import {MusicDB} from "./musicdb.js";
 import {ServiceWorkerMessages} from './actions.js';
 
 const CACHE_NAME = 'music-app-GIT_HASH';
+const IMAGES_CACHE_NAME = 'music-app-images';
 const urlsToCache = [
   './empty.mp3',
   './',
@@ -55,7 +56,7 @@ self.addEventListener('fetch', (event) => {
       if (/\/art$/.test(event.request.url)) {
         // console.log("SW: fetching image", event.request.url);
         return fetch(event.request).then((response) => {
-          return caches.open(CACHE_NAME).then((cache) => {
+          return caches.open(IMAGES_CACHE_NAME).then((cache) => {
             // console.log("SW: caching image", event.request.url);
             cache.put(event.request, response.clone());
             return response;
