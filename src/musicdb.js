@@ -1,5 +1,5 @@
 /*jshint esversion: 6 */
-/*globals window, fetch, console, _ */
+/*globals indexedDB, fetch, console, _ */
 //"use strict";
 
 function MusicDB(url) {
@@ -13,7 +13,7 @@ function MusicDB(url) {
 // callback is called with db, resolve, reject
 var openDatabase = function(musicdb, callback) {
   return new Promise(function(resolve, reject) {   
-    var request = window.indexedDB.open(musicdb.db_name, musicdb.db_version);
+    var request = indexedDB.open(musicdb.db_name, musicdb.db_version);
 
     request.onerror = reject;
 

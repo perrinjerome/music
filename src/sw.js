@@ -1,5 +1,6 @@
 /*globals self, caches, fetch, console */
 import {MusicDB} from "./musicdb.js";
+import {ServiceWorkerMessages} from './actions.js';
 
 const CACHE_NAME = 'music-app-GIT_HASH';
 const urlsToCache = [
@@ -67,3 +68,37 @@ self.addEventListener('fetch', (event) => {
   );
 });
 
+function broadCastMessage(action, payload) {
+  self.clients.matchAll()
+    .then(clients => {
+    clients.forEach(client => client.postMessage({action, payload}));
+  });
+}
+
+self.addEventListener('message', function(event) {
+  console.log('SW Handling message event:', event);
+
+  switch (event.data.action) {
+    case ServiceWorkerMessages.REFRESH_DATABASE:
+      console.log('SW refreshing DB with', event.data.payload.beets_url);
+      const startTime = performance.now();
+      const musicdb = new MusicDB(event.data.payload.beets_url);
+      const progressReporter = {
+        reportProgress: (storeName, progress) => broadCastMessage(
+            ServiceWorkerMessages.REFRESH_DATABASE_PROGRESS_REPORT,
+             {storeName, progress})
+      };
+      return musicdb.loadDatabase(progressReporter).then(
+        () => broadCastMessage(
+          ServiceWorkerMessages.REFRESH_DATABASE_COMPLETED,
+          performance.now() - startTime)
+      ).catch(e => {
+        console.error(e); 
+        throw new Error("Error loading database", e);
+      });
+      break;
+    default:
+      throw new Error("Incorrect message");
+  }
+
+});

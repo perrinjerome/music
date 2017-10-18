@@ -4,7 +4,7 @@ import {expect, assert, fail} from "chai";
 var nock = require("nock");
 
 global.fetch = require('node-fetch');
-global.window.indexedDB = require("fake-indexeddb");
+global.indexedDB = require("fake-indexeddb");
 
 import {MusicDB} from "../src/musicdb";
 

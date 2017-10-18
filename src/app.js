@@ -12,6 +12,8 @@ import 'material-design-lite/dist/material.indigo-deep_purple.min.css';
 
 import './style.css';
 import {MusicDB} from "./musicdb.js";
+import {ServiceWorkerMessages} from './actions.js';
+
 import registerServiceWorker from "service-worker-loader?filename=sw.js!./sw.js";
 
 import Hammer from 'hammerjs';
@@ -264,6 +266,11 @@ document.addEventListener("DOMContentLoaded", () => {
             .then((registration) => {
             // Registration was successful
             log('ServiceWorker registration successful with scope: ', registration.scope);
+            navigator.serviceWorker.addEventListener('message', (event) => {
+              app._onServiceWorkerMessageReceived(
+                event.data.action,
+                event.data.payload);
+            });
 
             registration.onupdatefound = () => {
               const installingWorker = registration.installing;
@@ -392,40 +399,42 @@ document.addEventListener("DOMContentLoaded", () => {
           'click', () => { dialog.close(); });
         dialog.querySelector('button.action-ok').addEventListener(
           'click', (e) => {
-            const progressReporter = {
-              start: function () { this._startTime = performance.now(); },
-              totalTime: function () { return performance.now() - this._startTime; },
-              reportProgress: (storeName, progress) => {
-                document.querySelector(
-                  '#progress_bar_' + storeName
-                ).MaterialProgress.setProgress(progress);
-              }
-            };
             app.random_albums = [];
             app.playlist = [];
             app.loading = true;
-            progressReporter.start();
-            app.musicdb.loadDatabase(
-              progressReporter
-            ).then(_ => {
-              const totalTime = progressReporter.totalTime();
-              app.loading = false;
-              log('finish updating in ', totalTime);
-              const data = {
-                message: 'Finised updating in ' + (totalTime / 1000).toFixed(2) + " seconds",
-                timeout: 2000,
-              };
-              app.private.snackbar.MaterialSnackbar.showSnackbar(data);
-
-            }).catch(e => {
-              console.error("Failed loading database !", e);
-              log("loading failed " + e);
-            });
-
+            app.sendMessageToServiceWorker(
+              ServiceWorkerMessages.REFRESH_DATABASE,
+              {beets_url: app.beets_url});
             dialog.close();
           });
+      },
+      sendMessageToServiceWorker: (action, payload) => {
+        /** XXX only available once SW is active */
+        console.assert( navigator.serviceWorker.controller);
+        navigator.serviceWorker.controller.postMessage(
+          {action, payload});
+      },
+      _onServiceWorkerMessageReceived: (action, payload) => {
+        switch (action) {
+          case ServiceWorkerMessages.REFRESH_DATABASE_PROGRESS_REPORT:
+            app.loading = true;
+            document.querySelector(
+              '#progress_bar_' + payload.storeName
+            ).MaterialProgress.setProgress(payload.progress);
+            break;
+          case ServiceWorkerMessages.REFRESH_DATABASE_COMPLETED: 
+            const data = {
+              message: 'Finised updating in ' + (payload / 1000).toFixed(2) + " seconds",
+              timeout: 2000,
+            };
+            app.private.snackbar.MaterialSnackbar.showSnackbar(data);
+            app.loading = false;
+            break;
+          default:
+            throw new Error("Unknown action");
+        }
       }
-    },
+    }
   });
 
 
