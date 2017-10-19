@@ -103,6 +103,9 @@ MusicDB.prototype.loadDatabase = function(progressReporter) {
   var musicdb = this;
   // utility for fetch
   function getJson(response) {
+    if (!response.ok) {
+      throw response;
+    }
     return response.json();
   }
   // insert data in storeName, chunk by chunk
@@ -186,8 +189,9 @@ MusicDB.prototype.loadDatabase = function(progressReporter) {
             end + (end - start),
             total_items);},
         function (e) {
-          // TODO: only tolerate 404
-          console.error('oops', e);
+          if (e.status !== 404) {
+            throw e;
+          }
           // advance
           return fechUntil(
             url,
