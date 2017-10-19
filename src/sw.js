@@ -105,9 +105,9 @@ self.addEventListener('message', function(event) {
         console.error(e); 
         throw new Error("Error loading database", e);
       });
-      break;
     default:
-      throw new Error("Incorrect message");
+      console.warn("Incorrect Message Received in SW", event);
+      break;
   }
 
 });
