@@ -6,7 +6,8 @@
     "dev": "webpack-dev-server --progress --inline --colors",
     "build": "webpack --progress --colors && sed -i s/GIT_HASH/$(git rev-parse --short HEAD)/g public/sw.js || echo 'ignoring sed warning'",
     "lint": "jshint src/*js && eslint src/*js",
-    "test": "nyc mocha -r babel-register -r jsdom-global/register"
+    "test": "nyc mocha -r babel-register -r jsdom-global/register",
+    "debug": "mocha -r babel-register --inspect --debug-brk -r jsdom-global/register"
   },
   "babel": {
     "presets": [
