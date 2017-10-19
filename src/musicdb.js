@@ -158,9 +158,8 @@ MusicDB.prototype.loadDatabase = function(progressReporter) {
     query = query + i;
     // console.log(storeName, (total_items - nbItems) / total_items * 100);
 
-    if (progressReporter) {
+    if (progressReporter && storeName === 'items') {
       progressReporter.reportProgress(
-        storeName,
         Math.floor((total_items - nbItems) / total_items * 100, 100));
     }
 

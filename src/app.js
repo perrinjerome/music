@@ -419,8 +419,8 @@ document.addEventListener("DOMContentLoaded", () => {
           case ServiceWorkerMessages.REFRESH_DATABASE_PROGRESS_REPORT:
             app.loading = true;
             document.querySelector(
-              '#progress_bar_' + payload.storeName
-            ).MaterialProgress.setProgress(payload.progress);
+              '#loading__progressbar'
+            ).MaterialProgress.setProgress(payload);
             break;
           case ServiceWorkerMessages.REFRESH_DATABASE_COMPLETED: 
             const data = {

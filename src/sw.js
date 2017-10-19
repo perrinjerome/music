@@ -93,9 +93,9 @@ self.addEventListener('message', function(event) {
       const startTime = performance.now();
       const musicdb = new MusicDB(event.data.payload.beets_url);
       const progressReporter = {
-        reportProgress: (storeName, progress) => broadCastMessage(
+        reportProgress: progress => broadCastMessage(
             ServiceWorkerMessages.REFRESH_DATABASE_PROGRESS_REPORT,
-             {storeName, progress})
+            progress)
       };
       return musicdb.loadDatabase(progressReporter).then(
         () => broadCastMessage(
