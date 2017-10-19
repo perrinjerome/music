@@ -76,6 +76,14 @@ function broadCastMessage(action, payload) {
   });
 }
 
+// TODO: signal previous loading of database and reset when REFRESH_DATABASE is called again
+let loadingController;
+try {
+  loadingController = new AbortController();
+} catch (e) {
+  console.warn("AbortController not supported", e);
+}
+
 self.addEventListener('message', function(event) {
   console.log('SW Handling message event:', event);
 
