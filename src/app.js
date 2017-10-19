@@ -185,7 +185,7 @@ document.addEventListener("DOMContentLoaded", () => {
           console.error("unknown frame", frame);
       }
     },
-    mounted: () => {
+    mounted: () => { // TODO function for this
       // initialize properties
       app.beets_url = localStorage.getItem('beets_url') || 'http://localhost:8337/';
       app.worker = new Worker('worker/EmsWorkerProxy.js');
