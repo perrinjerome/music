@@ -409,10 +409,27 @@ document.addEventListener("DOMContentLoaded", () => {
           });
       },
       sendMessageToServiceWorker: (action, payload) => {
-        /** XXX only available once SW is active */
-        console.assert( navigator.serviceWorker.controller);
-        navigator.serviceWorker.controller.postMessage(
-          {action, payload});
+        if ("serviceWorker" in navigator) {
+          /** XXX only available once SW is active */
+          console.assert( navigator.serviceWorker.controller);
+          navigator.serviceWorker.controller.postMessage({action, payload});
+        } else {
+          console.log('no service worker, refreshing in app DB with', app.beets_url);
+          const startTime = performance.now();
+          const progressReporter = {
+            reportProgress: (progress) => app._onServiceWorkerMessageReceived(
+              ServiceWorkerMessages.REFRESH_DATABASE_PROGRESS_REPORT,
+              progress)
+          };
+          return app.musicdb.loadDatabase(progressReporter).then(
+            () => app._onServiceWorkerMessageReceived(
+              ServiceWorkerMessages.REFRESH_DATABASE_COMPLETED,
+              performance.now() - startTime)
+          ).catch(e => {
+            console.error(e);
+            throw new Error("Error loading database", e);
+          });
+        }
       },
       _onServiceWorkerMessageReceived: (action, payload) => {
         switch (action) {

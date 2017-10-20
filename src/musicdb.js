@@ -98,9 +98,12 @@ MusicDB.prototype.getItemSrcUrl = function(item) {
   });
 };
 
+
 // refresh database from beets
 MusicDB.prototype.loadDatabase = function(progressReporter) {
-  var musicdb = this;
+  const musicdb = this;
+  const albumSet = new Set([]);
+
   // utility for fetch
   function getJson(response) {
     if (!response.ok) {
@@ -108,6 +111,7 @@ MusicDB.prototype.loadDatabase = function(progressReporter) {
     }
     return response.json();
   }
+
   // insert data in storeName, chunk by chunk
   function populateStore(storeName, data) {
     var nbInsertions = data.length;
@@ -148,17 +152,16 @@ MusicDB.prototype.loadDatabase = function(progressReporter) {
     });
   }
 
-  function fechUntil(url, storeName, nbItems, start, end, total_items) {
-    // fetch until we get nbItems
-    var i;
-    var query = "";
+  function fetchItems(url, nbItems, start, end, total_items) {
+    // fetch from items until we get nbItems.
+    let i;
+    let query = "";
     for (i = start+1; i < end; i++) {
       query = query + i + ","; 
     }
     query = query + i;
-    // console.log(storeName, (total_items - nbItems) / total_items * 100);
 
-    if (progressReporter && storeName === 'items') {
+    if (progressReporter) {
       progressReporter.reportProgress(
         Math.floor((total_items - nbItems) / total_items * 100, 100));
     }
@@ -166,24 +169,35 @@ MusicDB.prototype.loadDatabase = function(progressReporter) {
     if (end > 100000) {
       throw new Error('Infinite loop prevented');
     }
-    //console.log(url + query,  storeName, nbItems, start, end);
+    if (albumSet.size && (albumSet.size > 30 || nbItems === 0)) {
+      // fetch albums and populate album store.
+
+      // XXX bug: we can query and insert same album if we reset albumSet
+      // in the middle of two items loading.
+      let albumQuery = "";
+      albumSet.forEach(album_id => {albumQuery = albumQuery + album_id + ",";});
+      albumQuery.substring(0, albumQuery.length - 1);
+      return fetch(url + "/album/" + albumQuery, { credentials: 'include' })
+        .then(getJson)
+        .then((albumResult) => {
+          console.log("received albums", albumResult);
+          albumSet.clear(); // reset. XXX is this race cond. safe ?
+          return populateStore('albums', albumResult.albums);
+        }).then(() => fetchItems(url, nbItems, start, end, total_items));
+    }
+
     if (nbItems > 0) {
-      // console.log("not finished continuing");
-      return fetch(url + query,
-                   { credentials: 'include' })
+      return fetch(url + "/item/" + query, { credentials: 'include' })
         .then(getJson)
         .then(function(result){
-        // console.log('received', result);
-        return populateStore(storeName, result[storeName]); 
-        // we use same store Name as beet key result.
+        result.items.forEach(item => albumSet.add(item.album_id));
+        return populateStore('items', result.items);
       }).then(
         function (inserted) {
-          // console.log(storeName, "inserted", inserted);
           // everything succeeded, fetch the next items
-          return fechUntil(
+          return fetchItems(
             url,
-            storeName,
-            nbItems - inserted, //(end - start),
+            nbItems - inserted,
             end,
             end + (end - start),
             total_items);},
@@ -192,16 +206,14 @@ MusicDB.prototype.loadDatabase = function(progressReporter) {
             throw e;
           }
           // advance
-          return fechUntil(
+          return fetchItems(
             url,
-            storeName,
             nbItems,
             end,
             end + (end - start),
             total_items);
         });
     }
-    console.log("finished loading", storeName);
   }
 
   return openDatabase(this, function(db, resolve, reject) {
@@ -215,36 +227,24 @@ MusicDB.prototype.loadDatabase = function(progressReporter) {
         clearTransaction.onsuccess = resolve_;
       });
     }
-
     return Promise.all([
       clearObjectStore('items'),
       // clearObjectStore('artists'),
       clearObjectStore('albums'),
     ]).then(resolve);
-  }).then(function () {
+  }).then(() => {
     return fetch(
       musicdb.beets_url + "/stats",
       { credentials: 'include' }
     ).then(getJson);
   }).then( 
-    function(stat) {
-      return Promise.all([
-        fechUntil(
-          musicdb.beets_url + "/album/",
-          "albums",
-          stat.albums,
-          0,
-          50,
-          stat.albums),
-        fechUntil(
-          musicdb.beets_url + "/item/",
-          "items",
-          stat.items,
-          0,
-          100,
-          stat.items)
-      ]);
-    });
+    stat => fetchItems(
+      musicdb.beets_url,
+      stat.items,
+      0,
+      100,
+      stat.items)
+  );
 };
 
 function _countFromStore(storeName) {
