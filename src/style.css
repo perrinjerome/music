@@ -1,3 +1,7 @@
+/* TODO:
+http://getbem.com/naming/
+*/
+
 [v-cloak] { display: none; }
 .playing {
   font-weight: bold;
