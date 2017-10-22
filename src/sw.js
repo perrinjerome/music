@@ -1,7 +1,8 @@
 /*globals self, caches, fetch, console */
-import {MusicDB} from "./musicdb.js";
+import {MusicDB} from './musicdb.js';
 import {ServiceWorkerMessages} from './actions.js';
-import 'abortcontroller-polyfill';
+import './abortcontroller-polyfill-light.js';
+
 
 const CACHE_NAME = 'music-app-GIT_HASH';
 const IMAGES_CACHE_NAME = 'music-app-images';
@@ -78,14 +79,12 @@ function broadCastMessage(action, payload) {
 }
 
 let loadingController;
-// = new AbortController();
 
 self.addEventListener('message', function(event) {
   console.log('SW Handling message event:', event);
 
   switch (event.data.action) {
     case ServiceWorkerMessages.REFRESH_DATABASE:
-      console.log('SW refreshing DB with', event.data.payload.beets_url);
       if (loadingController !== undefined) {
         loadingController.abort();
       }
@@ -107,7 +106,6 @@ self.addEventListener('message', function(event) {
       ).catch(e => {
         console.error(e);
         broadCastMessage(ServiceWorkerMessages.REFRESH_DATABASE_ERROR, e);
-        //throw new Error("Error loading database", e);
       });
     default:
       console.warn("Incorrect Message Received in SW", event);

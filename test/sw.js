@@ -15,5 +15,10 @@ describe("Service Worker", () => {
       // TODO
       expect(1).to.equal(1);
     });
+    it("aborts previous loading operation if still running", () => {
+      // TODO
+      expect(1).to.equal(1);
+    });
+
   });
 });

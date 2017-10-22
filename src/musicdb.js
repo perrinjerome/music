@@ -2,8 +2,6 @@
 /*globals indexedDB, fetch, console, _ */
 //"use strict";
 
-import 'abortcontroller-polyfill';
-
 function MusicDB(url) {
   this.beets_url = url;
 
@@ -169,7 +167,7 @@ MusicDB.prototype.loadDatabase = function(progressReporter, signal) {
         Math.floor((total_items - nbItems) / total_items * 100, 100));
     }
 
-    if (signal.aborted) {
+    if (signal && signal.aborted) {
       console.log("OK, aborted");
       return;
     }

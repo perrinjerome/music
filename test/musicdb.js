@@ -6,7 +6,8 @@ var nock = require("nock");
 global.fetch = require('node-fetch');
 global.indexedDB = require("fake-indexeddb");
 
-import {MusicDB} from "../src/musicdb";
+import {MusicDB} from '../src/musicdb';
+import '../src/abortcontroller-polyfill-light.js';
 
 describe("Music Database", () => {
   describe("Initialisation / loading tests", () => {
@@ -15,7 +16,7 @@ describe("Music Database", () => {
       assert.isObject(musicdb);
     });
 
-    it("Music db can be loaded", () => {
+    it("can be loaded", () => {
       var musicdb = new MusicDB('http://api.example.com');
       var api = nock('http://api.example.com')
       .filteringPath(/[\d,]/g, '')
@@ -61,11 +62,28 @@ describe("Music Database", () => {
         {id: 1, album_id: 1, artist: "artist1", album: "album1", title: "1"}
       ]});
       let progressReport = [];
-      const progressReporter = {};
+      const progressReporter = {}; // TODO mock library
       progressReporter.reportProgress = () => progressReport.push(arguments);
       return musicdb.loadDatabase(progressReporter).then(() => {
         api.done();
         expect(progressReport).to.have.lengthOf.at.least(1);
+      });
+    });
+
+    it("can be aborted during loading", () => {
+      var musicdb = new MusicDB('http://api.example.com');
+      var api = nock('http://api.example.com')
+          .get('/stats')
+          .reply(200, {'items': 1, 'albums': 1});
+
+      const progressReporter = {reportProgress: () => {}};  // TODO mock library
+      const abortController = new AbortController();
+
+      const load = musicdb.loadDatabase(progressReporter, abortController.signal);
+      abortController.abort();
+
+      return load.then(() => {
+        api.done();
       });
     });
 
