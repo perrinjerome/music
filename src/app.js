@@ -439,7 +439,7 @@ document.addEventListener("DOMContentLoaded", () => {
               '#loading__progressbar'
             ).MaterialProgress.setProgress(payload);
             break;
-          case ServiceWorkerMessages.REFRESH_DATABASE_COMPLETED: 
+          case ServiceWorkerMessages.REFRESH_DATABASE_COMPLETED:
             const data = {
               message: 'Finised updating in ' + (payload / 1000).toFixed(2) + " seconds",
               timeout: 2000,
@@ -447,7 +447,11 @@ document.addEventListener("DOMContentLoaded", () => {
             app.private.snackbar.MaterialSnackbar.showSnackbar(data);
             app.loading = false;
             break;
+          case ServiceWorkerMessages.REFRESH_DATABASE_ERROR:
+            log("Error refreshing DB", payload);
+            break;
           default:
+            log("Unknown message received", action, payload);
             throw new Error("Unknown action");
         }
       }

@@ -102,8 +102,9 @@ self.addEventListener('message', function(event) {
           ServiceWorkerMessages.REFRESH_DATABASE_COMPLETED,
           performance.now() - startTime)
       ).catch(e => {
-        console.error(e); 
-        throw new Error("Error loading database", e);
+        console.error(e);
+        broadCastMessage(ServiceWorkerMessages.REFRESH_DATABASE_ERROR, e);
+        //throw new Error("Error loading database", e);
       });
     default:
       console.warn("Incorrect Message Received in SW", event);

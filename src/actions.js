@@ -2,5 +2,6 @@ const ServiceWorkerMessages = {};
 ServiceWorkerMessages.REFRESH_DATABASE = "REFRESH_DATABASE";
 ServiceWorkerMessages.REFRESH_DATABASE_PROGRESS_REPORT = "REFRESH_DATABASE_PROGRESS_REPORT";
 ServiceWorkerMessages.REFRESH_DATABASE_COMPLETED = "REFRESH_DATABASE_COMPLETED";
+ServiceWorkerMessages.REFRESH_DATABASE_ERROR = "REFRESH_DATABASE_ERROR";
 
 export {ServiceWorkerMessages};
