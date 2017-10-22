@@ -7,6 +7,7 @@ import 'material-design-lite';
 // import 'material-design-lite/material.css'; TODO
 import dialogPolyfill from 'dialog-polyfill';
 import 'dialog-polyfill/dialog-polyfill.css';
+import 'abortcontroller-polyfill';
 
 import 'material-design-lite/dist/material.indigo-deep_purple.min.css';
 
@@ -421,7 +422,9 @@ document.addEventListener("DOMContentLoaded", () => {
               ServiceWorkerMessages.REFRESH_DATABASE_PROGRESS_REPORT,
               progress)
           };
-          return app.musicdb.loadDatabase(progressReporter).then(
+          const controller = new AbortController();
+          const signal = controller.signal;
+          return app.musicdb.loadDatabase(progressReporter, {signal}).then(
             () => app._onServiceWorkerMessageReceived(
               ServiceWorkerMessages.REFRESH_DATABASE_COMPLETED,
               performance.now() - startTime)

@@ -2,6 +2,8 @@
 /*globals indexedDB, fetch, console, _ */
 //"use strict";
 
+import 'abortcontroller-polyfill';
+
 function MusicDB(url) {
   this.beets_url = url;
 
@@ -100,7 +102,7 @@ MusicDB.prototype.getItemSrcUrl = function(item) {
 
 
 // refresh database from beets
-MusicDB.prototype.loadDatabase = function(progressReporter) {
+MusicDB.prototype.loadDatabase = function(progressReporter, signal) {
   const musicdb = this;
   const albumSet = new Set([]);
 
@@ -167,6 +169,10 @@ MusicDB.prototype.loadDatabase = function(progressReporter) {
         Math.floor((total_items - nbItems) / total_items * 100, 100));
     }
 
+    if (signal.aborted) {
+      console.log("OK, aborted");
+      return;
+    }
     if (end > 100000) {
       throw new Error('Infinite loop prevented');
     }
@@ -178,17 +184,16 @@ MusicDB.prototype.loadDatabase = function(progressReporter) {
       let albumQuery = "";
       albumSet.forEach(album_id => {albumQuery = albumQuery + album_id + ",";});
       albumQuery.substring(0, albumQuery.length - 1);
-      return fetch(url + "/album/" + albumQuery, { credentials: 'include' })
+      return fetch(url + "/album/" + albumQuery, { credentials: 'include', signal })
         .then(getJson)
         .then((albumResult) => {
-          console.log("received albums", albumResult);
           albumSet.clear(); // reset. XXX is this race cond. safe ?
           return populateStore('albums', albumResult.albums);
         }).then(() => fetchItems(url, nbItems, start, end, total_items));
     }
 
     if (nbItems > 0) {
-      return fetch(url + "/item/" + query, { credentials: 'include' })
+      return fetch(url + "/item/" + query, { credentials: 'include', signal })
         .then(getJson)
         .then(function(result){
         result.items.forEach(item => albumSet.add(item.album_id));

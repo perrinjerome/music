@@ -1,6 +1,7 @@
 /*globals self, caches, fetch, console */
 import {MusicDB} from "./musicdb.js";
 import {ServiceWorkerMessages} from './actions.js';
+import 'abortcontroller-polyfill';
 
 const CACHE_NAME = 'music-app-GIT_HASH';
 const IMAGES_CACHE_NAME = 'music-app-images';
@@ -76,13 +77,8 @@ function broadCastMessage(action, payload) {
   });
 }
 
-// TODO: signal previous loading of database and reset when REFRESH_DATABASE is called again
 let loadingController;
-try {
-  loadingController = new AbortController();
-} catch (e) {
-  console.warn("AbortController not supported", e);
-}
+// = new AbortController();
 
 self.addEventListener('message', function(event) {
   console.log('SW Handling message event:', event);
@@ -90,6 +86,11 @@ self.addEventListener('message', function(event) {
   switch (event.data.action) {
     case ServiceWorkerMessages.REFRESH_DATABASE:
       console.log('SW refreshing DB with', event.data.payload.beets_url);
+      if (loadingController !== undefined) {
+        loadingController.abort();
+      }
+      loadingController = new AbortController();
+
       const startTime = performance.now();
       const musicdb = new MusicDB(event.data.payload.beets_url);
       const progressReporter = {
@@ -97,7 +98,9 @@ self.addEventListener('message', function(event) {
             ServiceWorkerMessages.REFRESH_DATABASE_PROGRESS_REPORT,
             progress)
       };
-      return musicdb.loadDatabase(progressReporter).then(
+      return musicdb.loadDatabase(
+          progressReporter,
+          {signal: loadingController.signal}).then(
         () => broadCastMessage(
           ServiceWorkerMessages.REFRESH_DATABASE_COMPLETED,
           performance.now() - startTime)
