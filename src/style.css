@@ -1,7 +1,6 @@
 /* TODO:
 http://getbem.com/naming/
 */
-
 [v-cloak] { display: none; }
 .playing {
   font-weight: bold;
@@ -29,7 +28,7 @@ http://getbem.com/naming/
   color: #fff;
   text-shadow: 2px 2px #000;
   font-size: 14px;
-  font-weight: 500; 
+  font-weight: 500;
 }
 .album-card-image__artist {
   color: #fff;

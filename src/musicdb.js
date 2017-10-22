@@ -12,7 +12,7 @@ function MusicDB(url) {
 // helper method to open a database and make a promise.
 // callback is called with db, resolve, reject
 var openDatabase = function(musicdb, callback) {
-  return new Promise(function(resolve, reject) {   
+  return new Promise(function(resolve, reject) {
     var request = indexedDB.open(musicdb.db_name, musicdb.db_version);
 
     request.onerror = reject;
@@ -33,7 +33,7 @@ var openDatabase = function(musicdb, callback) {
       if (!db.objectStoreNames.contains("items")) {
         objectStore = db.createObjectStore(
           "items", { keyPath: "__id", autoIncrement: true });
-        objectStore.createIndex("id", "id", { unique: false });  // XXX ??? see 1704 
+        objectStore.createIndex("id", "id", { unique: false });  // XXX ??? see 1704
         objectStore.createIndex("album", "album", { unique: false });
         objectStore.createIndex("album_id", "album_id", { unique: false });
         objectStore.createIndex("albumartist", "albumartist", { unique: false });
@@ -41,7 +41,7 @@ var openDatabase = function(musicdb, callback) {
       if (!db.objectStoreNames.contains("albums")) {
         objectStore = db.createObjectStore(
           "albums", { keyPath: "__id", autoIncrement: true });
-        objectStore.createIndex("id", "id", { unique: false });  // XXX ??? see 1704 
+        objectStore.createIndex("id", "id", { unique: false });  // XXX ??? see 1704
         objectStore.createIndex("album", "album", { unique: false });
         objectStore.createIndex("albumartist", "albumartist", { unique: false });
       }
@@ -85,7 +85,7 @@ MusicDB.prototype.getItemsFromAlbum = function(albumId) {
 // return URL for cover image data
 MusicDB.prototype.getAlbumCoverUrl = function(album) {
   var musicdb = this;
-  return new Promise(function(resolve, reject){ 
+  return new Promise(function(resolve, reject){
     return resolve(musicdb.beets_url + "/album/" + album.id + "/art");
   });
 };
@@ -113,6 +113,7 @@ MusicDB.prototype.loadDatabase = function(progressReporter) {
   }
 
   // insert data in storeName, chunk by chunk
+  // ( XXX but the "chunk by chunk" is not used anymore, now we insert small batches)
   function populateStore(storeName, data) {
     var nbInsertions = data.length;
     return openDatabase(musicdb, function(db, resolve, reject) {
@@ -157,7 +158,7 @@ MusicDB.prototype.loadDatabase = function(progressReporter) {
     let i;
     let query = "";
     for (i = start+1; i < end; i++) {
-      query = query + i + ","; 
+      query = query + i + ",";
     }
     query = query + i;
 
@@ -237,7 +238,7 @@ MusicDB.prototype.loadDatabase = function(progressReporter) {
       musicdb.beets_url + "/stats",
       { credentials: 'include' }
     ).then(getJson);
-  }).then( 
+  }).then(
     stat => fetchItems(
       musicdb.beets_url,
       stat.items,

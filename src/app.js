@@ -165,7 +165,7 @@ document.addEventListener("DOMContentLoaded", () => {
       beets_url: '',
       playlist: [],
       random_albums: [],
-      current_item: null,  
+      current_item: null,
       musicdb: null,
       current_page: null,
       loading: false,
@@ -217,9 +217,9 @@ document.addEventListener("DOMContentLoaded", () => {
       // setup routing system
       const onHashChange = () => {
         const page = window.location.hash.replace(/#\/?/, '');
-        console.log("onHashChange", page);
+        //console.log("onHashChange", page);
         if (page.indexOf('album') === 0) {
-          console.log("ok", page.split("/")); 
+          //console.log("ok", page.split("/"));
           try {
             app.playAlbum(parseInt(page.split("/")[1], 10));
           } catch (e) {
@@ -228,7 +228,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         } else {
           if (pages[page]) {
-            console.log("changing page to", page);
+            //console.log("changing page to", page);
             app.current_page = page;
             window.location.hash = '';
           } else {
@@ -300,7 +300,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (beets_url) {
           // check we can access it and give a chance to login ( XXX move it to DB )
           return fetch(beets_url + '/stats', { credentials: 'include', mode: 'cors' })
-            .then((response) => { 
+            .then((response) => {
             app.musicdb = new MusicDB(beets_url);
             app.get4RandomAlbums(); // XXX
           })
@@ -349,7 +349,7 @@ document.addEventListener("DOMContentLoaded", () => {
               app.refreshDatabase();
             });
         }
-      } 
+      }
     },
 
     methods: {
@@ -469,6 +469,5 @@ document.addEventListener("DOMContentLoaded", () => {
     document.querySelector('#log').textContent += line + '\n';
     console.log(Array.prototype.slice.call(arguments));
   }
-
 
 });
