@@ -23,7 +23,8 @@ self.addEventListener('activate', (event) => {
     caches.keys().then((cacheNames) => {
       return Promise.all(
         cacheNames.map((cacheName) => {
-          if (cacheWhitelist.indexOf(cacheName) === -1) {
+          if (cacheWhitelist.indexOf(cacheName) === -1 &&
+              cacheWhitelist.indexOf(IMAGES_CACHE_NAME) == -1) {
             console.log("SW: purging old cache", cacheName);
             return caches.delete(cacheName);
           }
