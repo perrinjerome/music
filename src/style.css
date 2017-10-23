@@ -1,11 +1,14 @@
 /* TODO:
 http://getbem.com/naming/
 */
-[v-cloak] { display: none; }
+[v-cloak] {
+  display: none;
+}
 .playing {
   font-weight: bold;
 }
-.albumlist { /* TODO: class name */
+.albumlist {
+  /* TODO: class name */
   column-count: 2;
 }
 .playlist-table {
@@ -15,7 +18,6 @@ http://getbem.com/naming/
 .currently-playing {
   margin: 1em;
 }
-
 .album-card-image {
   margin: 1em;
   height: 300px;
