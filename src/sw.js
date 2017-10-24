@@ -3,7 +3,7 @@ import { MusicDB } from './musicdb.js';
 import { ServiceWorkerMessages } from './actions.js';
 import './abortcontroller-polyfill-light.js';
 
-const CACHE_NAME = 'music-app-GIT_HASH';
+const CACHE_NAME = 'music-app-' + VERSION;
 const IMAGES_CACHE_NAME = 'music-app-images';
 const urlsToCache = [
   './empty.mp3',
