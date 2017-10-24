@@ -38,6 +38,9 @@ http://getbem.com/naming/
   font-size: 10px;
   font-weight: 200;
 }
+.loading__wrapper {
+  margin: 1em;
+}
 
 .mdl-button--floating-action {
   position: fixed;
