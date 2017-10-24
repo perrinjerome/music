@@ -412,7 +412,7 @@ document.addEventListener('DOMContentLoaded', () => {
       get4RandomAlbums: () => {
         const db = app.musicdb;
         if (db) {
-          Promise.all([
+          return Promise.all([
             db.getRandomAlbum(),
             db.getRandomAlbum(),
             db.getRandomAlbum(),
