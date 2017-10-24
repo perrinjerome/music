@@ -1,6 +1,5 @@
 /*globals require, global, console, window, describe, it, beforeEach */
 
-import { expect, assert, fail } from 'chai';
 var nock = require('nock');
 
 global.fetch = require('node-fetch');
@@ -11,12 +10,12 @@ import '../src/abortcontroller-polyfill-light.js';
 
 describe('Music Database', () => {
   describe('Initialisation / loading tests', () => {
-    it('constructor argument is the URL of beet API', () => {
+    test('constructor argument is the URL of beet API', () => {
       var musicdb = new MusicDB('https://api.example.com');
-      assert.isObject(musicdb);
+      expect(musicdb.beets_url).toEqual('https://api.example.com');
     });
 
-    it('can be loaded', () => {
+    test('can be loaded', () => {
       var musicdb = new MusicDB('http://api.example.com');
       var api = nock('http://api.example.com')
         .filteringPath(/[\d,]/g, '')
@@ -54,20 +53,21 @@ describe('Music Database', () => {
         });
       return musicdb.loadDatabase().then(() => {
         api.done();
+        expect.assertions(2);
         return musicdb
           .countAlbums()
           .then(albumCount => {
-            return expect(albumCount).to.equals(2);
+            return expect(albumCount).toEqual(2);
           })
           .then(() => {
             return musicdb.countItems().then(itemCount => {
-              return expect(itemCount).to.equals(3);
+              return expect(itemCount).toEqual(3);
             });
           });
       });
     });
 
-    it('reports progress during loading', () => {
+    test('reports progress during loading', () => {
       var musicdb = new MusicDB('http://api.example.com');
       var api = nock('http://api.example.com')
         .filteringPath(/[\d,]/g, '')
@@ -92,13 +92,14 @@ describe('Music Database', () => {
       let progressReport = [];
       const progressReporter = {}; // TODO mock library
       progressReporter.reportProgress = () => progressReport.push(arguments);
+      expect.assertions(1);
       return musicdb.loadDatabase(progressReporter).then(() => {
         api.done();
-        expect(progressReport).to.have.lengthOf.at.least(1);
+        return expect(progressReport.length).toBeGreaterThanOrEqual(1);
       });
     });
 
-    it('can be aborted during loading', () => {
+    test('can be aborted during loading', () => {
       var musicdb = new MusicDB('http://api.example.com');
       var api = nock('http://api.example.com')
         .get('/stats')
@@ -113,8 +114,9 @@ describe('Music Database', () => {
       );
       abortController.abort();
 
+      expect.assertions(1);
       return load.then(() => {
-        api.done();
+        return expect(api.isDone()).toBeTruthy();
       });
     });
   });

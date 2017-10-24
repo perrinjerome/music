@@ -1,6 +1,5 @@
 /*globals require, global, console, window, describe, it, beforeEach */
 
-import { expect, assert, fail } from 'chai';
 var nock = require('nock');
 
 global.fetch = require('node-fetch');
@@ -11,13 +10,13 @@ import { ServiceWorkerMessages } from '../src/actions';
 
 describe('Service Worker', () => {
   describe('Database control', () => {
-    it('refreshs database in background', () => {
+    test('refreshs database in background', () => {
       // TODO
-      expect(1).to.equal(1);
+      expect(1).toEqual(1);
     });
-    it('aborts previous loading operation if still running', () => {
+    test('aborts previous loading operation if still running', () => {
       // TODO
-      expect(1).to.equal(1);
+      expect(1).toEqual(1);
     });
   });
 });
