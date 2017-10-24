@@ -366,29 +366,44 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         if (current_page == 'configure') {
           const dialog = app.private.dialogs['#dialog-configure'];
-          document.querySelector('#configure_beets_url').value = app.beets_url;
-          dialog.showModal();
-          dialog
-            .querySelector('button.action-cancel')
-            .addEventListener('click', () => {
-              dialog.close();
-            });
-          dialog
-            .querySelector('button.action-ok')
-            .addEventListener('click', e => {
-              app.beets_url = document.querySelector(
-                '#configure_beets_url'
-              ).value;
-              log('updated beets_url', app.beets_url);
-              localStorage.setItem('beets_url', app.beets_url);
-              dialog.close();
-            });
-          dialog
-            .querySelector('button.action-refresh-database')
-            .addEventListener('click', e => {
-              dialog.querySelector('button.action-ok').click();
-              app.refreshDatabase();
-            });
+          const itemsAndAlbums = Promise.all([
+            app.musicdb.countItems(),
+            app.musicdb.countAlbums()
+          ]).then(([itemCount, albumCount]) => {
+            // XXX this is not how to do Vue ...
+            // TODO: this dialog have to be a component
+            document.querySelector('#configure_beets_url').value =
+              app.beets_url;
+            document.querySelector(
+              '#configure_itemCount'
+            ).innerText = itemCount;
+            document.querySelector(
+              '#configure_albumCount'
+            ).innerText = albumCount;
+
+            dialog.showModal();
+            dialog
+              .querySelector('button.action-cancel')
+              .addEventListener('click', () => {
+                dialog.close();
+              });
+            dialog
+              .querySelector('button.action-ok')
+              .addEventListener('click', e => {
+                app.beets_url = document.querySelector(
+                  '#configure_beets_url'
+                ).value;
+                log('updated beets_url', app.beets_url);
+                localStorage.setItem('beets_url', app.beets_url);
+                dialog.close();
+              });
+            dialog
+              .querySelector('button.action-refresh-database')
+              .addEventListener('click', e => {
+                dialog.querySelector('button.action-ok').click();
+                app.refreshDatabase();
+              });
+          });
         }
       }
     },
