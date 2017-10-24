@@ -6,9 +6,7 @@
     "dev": "webpack-dev-server --progress --inline --colors",
     "build": "webpack --progress --colors",
     "lint": "jshint src/*js && eslint src/*js",
-    "test": "nyc mocha -r babel-register -r jsdom-global/register",
-    "debug":
-      "mocha -r babel-register --inspect --debug-brk -r jsdom-global/register"
+    "test": "jest --globals='{\"VERSION\": \"TEST\"}'"
   },
   "babel": {
     "presets": ["env"]
@@ -20,7 +18,6 @@
     "hammerjs": "^2.0.8",
     "lodash": "^4.17.4",
     "material-design-lite": "^1.3.0",
-    "mocha": "^3.5.3",
     "nosleep.js": "^0.7.0",
     "vue": "^2.0.5"
   },
@@ -37,6 +34,7 @@
     "file-loader": "^1.1.4",
     "git-revision-webpack-plugin": "^2.5.1",
     "html-webpack-plugin": "^2.30.1",
+    "jest": "^21.2.1",
     "jsdom": "11.3.0",
     "jsdom-global": "3.0.2",
     "jshint": "^2.9.5",
