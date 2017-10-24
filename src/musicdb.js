@@ -285,13 +285,13 @@ class MusicDB {
   }
 
   // return a random album from the music db
-  getRandomAlbumfunction() {
-    var musicdb = this;
+  getRandomAlbum() {
+    const musicdb = this;
     function getRandomInt(min, max) {
       return Math.floor(Math.random() * (max - min + 1)) + min;
     }
 
-    return this.countAlbums().then(function(albumCount) {
+    return this.countAlbums().then(albumCount => {
       return openDatabase(musicdb, function(db, resolve, reject) {
         var albumStore = db
           .transaction('albums', 'readonly')
@@ -299,7 +299,7 @@ class MusicDB {
         var req = albumStore.openCursor();
         var alreadyAdvanced = false;
 
-        req.onsuccess = function(e) {
+        req.onsuccess = e => {
           try {
             var cursor = e.target.result;
             if (!alreadyAdvanced) {
