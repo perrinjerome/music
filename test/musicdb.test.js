@@ -5,7 +5,7 @@ var nock = require('nock');
 global.fetch = require('node-fetch');
 global.indexedDB = require('fake-indexeddb');
 
-import { MusicDB } from '../src/musicdb';
+import { MusicDB, openDatabase, clearObjectStores } from '../src/musicdb';
 import '../src/abortcontroller-polyfill-light.js';
 
 describe('Music Database', () => {
@@ -15,7 +15,7 @@ describe('Music Database', () => {
       expect(musicdb.beets_url).toEqual('https://api.example.com');
     });
 
-    test('can be loaded', () => {
+    test('musicdb can be loaded', () => {
       var musicdb = new MusicDB('http://api.example.com');
       var api = nock('http://api.example.com')
         .filteringPath(/[\d,]/g, '')
@@ -122,9 +122,70 @@ describe('Music Database', () => {
   });
 
   describe('database tests', () => {
-    var musicdb;
-    beforeEach(function(done) {
+    let musicdb;
+    beforeEach(done => {
       musicdb = new MusicDB('./');
+      const insert = (storeName, objects) => {
+        return openDatabase(musicdb, (db, resolve, reject) => {
+          const transaction = db.transaction(storeName, 'readwrite');
+          const store = transaction.objectStore(storeName);
+          transaction.onerror = reject;
+          transaction.oncomplete = () => resolve();
+          objects.forEach(obj => store.add(obj));
+        });
+      };
+
+      return clearObjectStores(musicdb)
+        .then(() => {
+          return insert('albums', [
+            { id: 1, album: 'album1' },
+            { id: 2, album: 'album2' }
+          ]);
+        })
+        .then(() => {
+          // album 1 has 2 items
+          return insert('items', [
+            {
+              id: 1,
+              album_id: 1,
+              artist: 'artist1',
+              album: 'album1',
+              title: 'title1'
+            },
+            {
+              id: 2,
+              album_id: 1,
+              artist: 'artist1',
+              album: 'album1',
+              title: 'title2'
+            }
+          ]);
+        })
+        .then(() => {
+          // album 2 has 12 items
+          const items = [];
+          for (let i = 1; i < 13; i++) {
+            items.push({
+              id: i + 2,
+              album_id: 2,
+              artist: 'artist2',
+              album: 'album2',
+              title: 'title' + i,
+              track: i
+            });
+          }
+          return insert('items', items);
+        })
+        .then(done);
+    });
+
+    test('countAlbums', () => {
+      expect.assertions(1);
+      return expect(musicdb.countAlbums()).resolves.toEqual(2);
+    });
+    test('countItems', () => {
+      expect.assertions(1);
+      return expect(musicdb.countItems()).resolves.toEqual(2 + 12);
     });
   });
 });

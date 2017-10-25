@@ -1,17 +1,15 @@
 /*jshint esversion: 6 */
 /*globals indexedDB, fetch, console, _ */
 
-// helper method to open a database and make a promise.
+// helper function to open a database and make a promise.
 // callback is called with db, resolve, reject
 function openDatabase(musicdb, callback) {
   return new Promise(function(resolve, reject) {
     var request = indexedDB.open(musicdb.db_name, musicdb.db_version);
-
     request.onerror = reject;
 
     request.onupgradeneeded = event => {
-      var objectStore,
-        db = event.target.result;
+      const db = event.target.result;
 
       if (db.objectStoreNames.contains('items')) {
         db.deleteObjectStore('items');
@@ -23,7 +21,7 @@ function openDatabase(musicdb, callback) {
         db.deleteObjectStore('artists');
       }
       if (!db.objectStoreNames.contains('items')) {
-        objectStore = db.createObjectStore('items', {
+        let objectStore = db.createObjectStore('items', {
           keyPath: '__id',
           autoIncrement: true
         });
@@ -35,7 +33,7 @@ function openDatabase(musicdb, callback) {
         });
       }
       if (!db.objectStoreNames.contains('albums')) {
-        objectStore = db.createObjectStore('albums', {
+        let objectStore = db.createObjectStore('albums', {
           keyPath: '__id',
           autoIncrement: true
         });
@@ -51,6 +49,17 @@ function openDatabase(musicdb, callback) {
   });
 }
 
+// clear the database stores
+function clearObjectStores(musicdb) {
+  return openDatabase(musicdb, function(db, resolve, reject) {
+    var tx = db.transaction(['items', /* 'artists', */ 'albums'], 'readwrite');
+    tx.onerror = reject;
+    tx.oncomplete = resolve;
+    tx.objectStore('items').clear();
+    tx.objectStore('albums').clear();
+  });
+}
+
 class MusicDB {
   constructor(url) {
     this.beets_url = url;
@@ -58,17 +67,18 @@ class MusicDB {
     this.db_version = 49;
     this.db_name = 'beets';
 
+    /* dynamically defined methods */
     const _countFromStore = storeName => {
       return () => {
         return openDatabase(this, (db, resolve, reject) => {
-          var store = db
-            .transaction(storeName, 'readonly')
-            .objectStore(storeName);
-          var req = store.count();
+          const transaction = db.transaction(storeName, 'readonly');
+          transaction.onerror = reject;
+          const store = transaction.objectStore(storeName);
+          const req = store.count();
           req.onsuccess = function() {
             resolve(this.result);
           };
-          req.onerror = e => reject(e);
+          req.onerror = reject;
         });
       };
     };
@@ -79,7 +89,7 @@ class MusicDB {
   // returns all items from album
   getItemsFromAlbum(albumId) {
     var musicdb = this;
-    return openDatabase(this, function(db, resolve, reject) {
+    return openDatabase(this, (db, resolve, reject) => {
       var albumStore = db.transaction('items', 'readonly').objectStore('items');
       var req = albumStore.index('album_id').openCursor(albumId),
         itemList = [];
@@ -88,7 +98,7 @@ class MusicDB {
         try {
           var cursor = e.target.result;
           if (cursor) {
-            musicdb.getItemSrcUrl(cursor.value).then(function(url) {
+            musicdb.getItemSrcUrl(cursor.value).then(url => {
               cursor.value.item_url = url;
               itemList.push(cursor.value);
             });
@@ -121,7 +131,6 @@ class MusicDB {
     const musicdb = this;
     const albumSet = new Set([]);
 
-    console.log('loadDatabase', progressReporter, signal);
     // utility for fetch
     function getJson(response) {
       if (!response.ok) {
@@ -254,26 +263,7 @@ class MusicDB {
       }
     }
 
-    return openDatabase(this, function(db, resolve, reject) {
-      var tx = db.transaction(
-        ['items', /* 'artists', */ 'albums'],
-        'readwrite'
-      );
-      tx.onerror = reject;
-      tx.oncomplete = resolve;
-      function clearObjectStore(storeName) {
-        return new Promise(function(resolve_, reject_) {
-          var clearTransaction = tx.objectStore(storeName).clear();
-          clearTransaction.onerror = reject_;
-          clearTransaction.onsuccess = resolve_;
-        });
-      }
-      return Promise.all([
-        clearObjectStore('items'),
-        // clearObjectStore('artists'),
-        clearObjectStore('albums')
-      ]).then(resolve);
-    })
+    return clearObjectStores(musicdb)
       .then(() => {
         return fetch(musicdb.beets_url + '/stats', {
           credentials: 'include'
@@ -328,4 +318,4 @@ class MusicDB {
   }
 }
 
-export { MusicDB, openDatabase };
+export { MusicDB, openDatabase, clearObjectStores };
