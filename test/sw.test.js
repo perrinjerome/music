@@ -6,17 +6,11 @@ global.fetch = require('node-fetch');
 global.indexedDB = require('fake-indexeddb');
 
 import { sw } from '../src/sw';
-import { ServiceWorkerMessages } from '../src/actions';
+import { DatabaseLoadingMessages } from '../src/actions';
 
 describe('Service Worker', () => {
-  describe('Database control', () => {
-    test('refreshs database in background', () => {
-      // TODO
-      expect(1).toEqual(1);
-    });
-    test('aborts previous loading operation if still running', () => {
-      // TODO
-      expect(1).toEqual(1);
-    });
+  /* nothing yet ... */
+  test('TODO', () => {
+    expect(1).toBe(1);
   });
 });

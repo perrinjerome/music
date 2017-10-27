@@ -11,7 +11,8 @@ const gitVersion = JSON.stringify(new GitRevisionPlugin().version());
 const config = {
   // Entry points to the project
   entry: {
-    main: ['./src/app.js']
+    main: './src/app.js',
+    loadWorker: './src/databaseLoadingWorker.js'
   },
   devServer: {
     contentBase: './static/',

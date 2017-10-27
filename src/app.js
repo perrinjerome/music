@@ -13,7 +13,8 @@ import 'material-design-lite/dist/material.indigo-deep_purple.min.css';
 
 import './style.css';
 import { MusicDB } from './musicdb.js';
-import { ServiceWorkerMessages } from './actions.js';
+import { DatabaseLoadingMessages } from './actions.js';
+import DataBaseLoadingWorker from 'worker-loader!./databaseLoadingWorker.js';
 
 import registerServiceWorker from 'service-worker-loader?filename=sw.js!./sw.js';
 
@@ -277,6 +278,15 @@ document.addEventListener('DOMContentLoaded', () => {
         }
       });
 
+      // loading Worker
+      app.private.dbLoadWorker = new DataBaseLoadingWorker();
+      app.private.dbLoadWorker.addEventListener('message', event => {
+        app._onDatabaseLoadingWorkerMessageReceived(
+          event.data.action,
+          event.data.payload
+        );
+      });
+
       // register Service Worker
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
@@ -287,12 +297,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 'ServiceWorker registration successful with scope: ',
                 registration.scope
               );
-              navigator.serviceWorker.addEventListener('message', event => {
-                app._onServiceWorkerMessageReceived(
-                  event.data.action,
-                  event.data.payload
-                );
-              });
 
               registration.onupdatefound = () => {
                 const installingWorker = registration.installing;
@@ -465,28 +469,23 @@ document.addEventListener('DOMContentLoaded', () => {
             app.random_albums = [];
             app.playlist = [];
             app.loading = true;
-            app.sendMessageToServiceWorker(
-              ServiceWorkerMessages.REFRESH_DATABASE,
+            app.sendMessageToDatabaseLoadingWorker(
+              DatabaseLoadingMessages.REFRESH_DATABASE,
               { beets_url: app.beets_url }
             );
             dialog.close();
           });
       },
-      sendMessageToServiceWorker: (action, payload) => {
-        if ('serviceWorker' in navigator) {
-          /** XXX only available once SW is active */
-          console.assert(navigator.serviceWorker.controller);
-          navigator.serviceWorker.controller.postMessage({ action, payload });
+      sendMessageToDatabaseLoadingWorker: (action, payload) => {
+        if (true) {
+          app.private.dbLoadWorker.postMessage({ action, payload });
         } else {
-          console.log(
-            'no service worker, refreshing in app DB with',
-            app.beets_url
-          );
+          console.log('no worker, refreshing in app DB with', app.beets_url);
           const startTime = performance.now();
           const progressReporter = {
             reportProgress: progress =>
-              app._onServiceWorkerMessageReceived(
-                ServiceWorkerMessages.REFRESH_DATABASE_PROGRESS_REPORT,
+              app._onDatabaseLoadingWorkerMessageReceived(
+                DatabaseLoadingMessages.REFRESH_DATABASE_PROGRESS_REPORT,
                 progress
               )
           };
@@ -495,8 +494,8 @@ document.addEventListener('DOMContentLoaded', () => {
           return app.musicdb
             .loadDatabase(progressReporter, { signal })
             .then(() =>
-              app._onServiceWorkerMessageReceived(
-                ServiceWorkerMessages.REFRESH_DATABASE_COMPLETED,
+              app._onDatabaseLoadingWorkerMessageReceived(
+                DatabaseLoadingMessages.REFRESH_DATABASE_COMPLETED,
                 performance.now() - startTime
               )
             )
@@ -506,15 +505,15 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
       },
-      _onServiceWorkerMessageReceived: (action, payload) => {
+      _onDatabaseLoadingWorkerMessageReceived: (action, payload) => {
         switch (action) {
-          case ServiceWorkerMessages.REFRESH_DATABASE_PROGRESS_REPORT:
+          case DatabaseLoadingMessages.REFRESH_DATABASE_PROGRESS_REPORT:
             app.loading = true;
             document
               .querySelector('#loading__progressbar')
               .MaterialProgress.setProgress(payload);
             break;
-          case ServiceWorkerMessages.REFRESH_DATABASE_COMPLETED:
+          case DatabaseLoadingMessages.REFRESH_DATABASE_COMPLETED:
             const data = {
               message:
                 'Finised updating in ' +
@@ -525,7 +524,7 @@ document.addEventListener('DOMContentLoaded', () => {
             app.private.snackbar.MaterialSnackbar.showSnackbar(data);
             app.loading = false;
             break;
-          case ServiceWorkerMessages.REFRESH_DATABASE_ERROR:
+          case DatabaseLoadingMessages.REFRESH_DATABASE_ERROR:
             log('Error refreshing DB', payload);
             break;
           default:
