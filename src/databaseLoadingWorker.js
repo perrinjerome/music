@@ -7,8 +7,11 @@ let loadingController;
 
 self.addEventListener('message', function(event) {
   console.log('Loading Worker Handling message event:', event);
-
+  let resumeInfo = null;
   switch (event.data.action) {
+    case DatabaseLoadingMessages.RESUME_REFRESH_DATABASE:
+      resumeInfo = event.data.payload.resumeInfo;
+    /* falls through */
     case DatabaseLoadingMessages.REFRESH_DATABASE:
       if (loadingController !== undefined) {
         loadingController.abort();
@@ -25,7 +28,11 @@ self.addEventListener('message', function(event) {
           })
       };
       return musicdb
-        .loadDatabase(progressReporter, { signal: loadingController.signal })
+        .loadDatabase(
+          progressReporter,
+          { signal: loadingController.signal },
+          resumeInfo
+        )
         .then(() =>
           self.postMessage({
             action: DatabaseLoadingMessages.REFRESH_DATABASE_COMPLETED,
@@ -40,7 +47,7 @@ self.addEventListener('message', function(event) {
           });
         });
     default:
-      console.warn('Incorrect Message Received in SW', event);
+      console.warn('Incorrect Message Received in Loading Worker', event);
       break;
   }
 });

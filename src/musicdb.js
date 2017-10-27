@@ -138,7 +138,7 @@ class MusicDB {
   }
 
   // refresh database from beets
-  loadDatabase(progressReporter, signal) {
+  loadDatabase(progressReporter, signal, resumeInfo) {
     const musicdb = this;
     const albumSet = new Set([]);
 
@@ -195,7 +195,9 @@ class MusicDB {
       });
     }
 
-    function fetchItems(url, nbItems, start, end, total_items) {
+    /* why 4 parameters ? */
+    function fetchItems(url, nbItems, start, end, totalItems) {
+      console.log('fetchItems', nbItems, start, end, totalItems);
       // fetch from items until we get nbItems.
       let i;
       let query = '';
@@ -205,13 +207,17 @@ class MusicDB {
       query = query + i;
 
       if (progressReporter) {
-        progressReporter.reportProgress(
-          Math.floor((total_items - nbItems) / total_items * 100, 100)
-        );
+        progressReporter.reportProgress({
+          resumeInfo: {
+            totalItems: totalItems,
+            currentItem: end
+          },
+          beets_url: url,
+          progress: Math.floor((totalItems - nbItems) / totalItems * 100, 100)
+        });
       }
 
       if (signal && signal.aborted) {
-        console.log('OK, aborted');
         return;
       }
       if (end > 100000) {
@@ -219,6 +225,7 @@ class MusicDB {
       }
       if (albumSet.size && (albumSet.size > 30 || nbItems === 0)) {
         // fetch albums and populate album store.
+        // XXX bug: we loose albums if intrrupted. Just query albums each time ?
 
         // XXX bug: we can query and insert same album if we reset albumSet
         // in the middle of two items loading.
@@ -236,7 +243,7 @@ class MusicDB {
             albumSet.clear(); // reset. XXX is this race cond. safe ?
             return populateStore('albums', albumResult.albums);
           })
-          .then(() => fetchItems(url, nbItems, start, end, total_items));
+          .then(() => fetchItems(url, nbItems, start, end, totalItems));
       }
 
       if (nbItems > 0) {
@@ -254,7 +261,7 @@ class MusicDB {
                 nbItems - inserted,
                 end,
                 end + (end - start),
-                total_items
+                totalItems
               );
             },
             function(e) {
@@ -267,13 +274,23 @@ class MusicDB {
                 nbItems,
                 end,
                 end + (end - start),
-                total_items
+                totalItems
               );
             }
           );
       }
     }
 
+    if (resumeInfo) {
+      console.log('resuming', musicdb.beets_url, resumeInfo);
+      return fetchItems(
+        musicdb.beets_url,
+        resumeInfo.totalItems - resumeInfo.currentItem,
+        resumeInfo.currentItem,
+        resumeInfo.currentItem + 100,
+        resumeInfo.totalItems
+      );
+    }
     return clearObjectStores(musicdb)
       .then(() => {
         return fetch(musicdb.beets_url + '/stats', {

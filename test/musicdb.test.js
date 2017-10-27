@@ -99,6 +99,10 @@ describe('Music Database', () => {
       });
     });
 
+    test('can resume loading', () => {
+      expect(1).toBe('TODO');
+    });
+
     test('can be aborted during loading', () => {
       var musicdb = new MusicDB('http://api.example.com');
       var api = nock('http://api.example.com')

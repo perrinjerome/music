@@ -286,7 +286,13 @@ document.addEventListener('DOMContentLoaded', () => {
           event.data.payload
         );
       });
-
+      // are we resuming a load
+      if (localStorage.getItem('loadingResumeInfo')) {
+        app.private.dbLoadWorker.postMessage({
+          action: DatabaseLoadingMessages.RESUME_REFRESH_DATABASE,
+          payload: JSON.parse(localStorage.getItem('loadingResumeInfo'))
+        });
+      }
       // register Service Worker
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
@@ -510,9 +516,10 @@ document.addEventListener('DOMContentLoaded', () => {
         switch (action) {
           case DatabaseLoadingMessages.REFRESH_DATABASE_PROGRESS_REPORT:
             app.loading = true;
+            localStorage.setItem('loadingResumeInfo', JSON.stringify(payload));
             document
               .querySelector('#loading__progressbar')
-              .MaterialProgress.setProgress(payload);
+              .MaterialProgress.setProgress(payload.progress);
             break;
           case DatabaseLoadingMessages.REFRESH_DATABASE_COMPLETED:
             const data = {
@@ -523,6 +530,7 @@ document.addEventListener('DOMContentLoaded', () => {
               timeout: 2000
             };
             app.private.snackbar.MaterialSnackbar.showSnackbar(data);
+            localStorage.removeItem('loadingResumeInfo');
             app.loading = false;
             break;
           case DatabaseLoadingMessages.REFRESH_DATABASE_ERROR:
