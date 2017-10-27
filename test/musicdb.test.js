@@ -124,7 +124,7 @@ describe('Music Database', () => {
   describe('database tests', () => {
     let musicdb;
     beforeEach(done => {
-      musicdb = new MusicDB('./');
+      musicdb = new MusicDB('https://example.org');
       const insert = (storeName, objects) => {
         return openDatabase(musicdb, (db, resolve, reject) => {
           const transaction = db.transaction(storeName, 'readwrite');
@@ -138,8 +138,8 @@ describe('Music Database', () => {
       return clearObjectStores(musicdb)
         .then(() => {
           return insert('albums', [
-            { id: 1, album: 'album1' },
-            { id: 2, album: 'album2' }
+            { id: '1', album: 'album1' },
+            { id: '2', album: 'album2' }
           ]);
         })
         .then(() => {
@@ -147,14 +147,14 @@ describe('Music Database', () => {
           return insert('items', [
             {
               id: 1,
-              album_id: 1,
+              album_id: '1',
               artist: 'artist1',
               album: 'album1',
               title: 'title1'
             },
             {
               id: 2,
-              album_id: 1,
+              album_id: '1',
               artist: 'artist1',
               album: 'album1',
               title: 'title2'
@@ -167,7 +167,7 @@ describe('Music Database', () => {
           for (let i = 1; i < 13; i++) {
             items.push({
               id: i + 2,
-              album_id: 2,
+              album_id: '2',
               artist: 'artist2',
               album: 'album2',
               title: 'title' + i,
@@ -186,6 +186,71 @@ describe('Music Database', () => {
     test('countItems', () => {
       expect.assertions(1);
       return expect(musicdb.countItems()).resolves.toEqual(2 + 12);
+    });
+    test('getItemSrcUrl', () => {
+      expect.assertions(1);
+      return expect(musicdb.getItemSrcUrl({ id: '1' })).resolves.toEqual(
+        'https://example.org/item/1/file'
+      );
+    });
+    test('getAlbumCoverUrl', () => {
+      expect.assertions(1);
+      return expect(musicdb.getAlbumCoverUrl({ id: '1' })).resolves.toEqual(
+        'https://example.org/album/1/art'
+      );
+    });
+    test('getItemsFromAlbum', () => {
+      expect.assertions(3);
+      // XXX API of getItemsFromAlbum is different it's not {id: '1'} ...
+      return musicdb.getItemsFromAlbum('1').then(items => {
+        expect(items.length).toBe(2);
+        expect(items).toContainEqual(
+          expect.objectContaining({
+            album: 'album1',
+            album_id: '1',
+            artist: 'artist1',
+            id: 2,
+            title: 'title2'
+          })
+        );
+        expect(items).toContainEqual(
+          expect.objectContaining({
+            album: 'album1',
+            album_id: '1',
+            artist: 'artist1',
+            id: 2,
+            title: 'title2'
+          })
+        );
+      });
+    });
+    test('getItemsFromAlbum contain object URL', () => {
+      expect.assertions(1);
+      return musicdb.getItemsFromAlbum('1').then(items => {
+        expect(items).toContainEqual(
+          expect.objectContaining({
+            item_url: 'https://example.org/item/2/file'
+          })
+        );
+      });
+    });
+    test('getItemsFromAlbum are sorted', () => {
+      expect.assertions(13);
+      return musicdb.getItemsFromAlbum('2').then(items => {
+        expect(items.length).toBe(12);
+        expect(items[0].title).toBe('title1');
+        expect(items[1].title).toBe('title2');
+        expect(items[2].title).toBe('title3');
+        expect(items[3].title).toBe('title4');
+        expect(items[4].title).toBe('title5');
+        expect(items[5].title).toBe('title6');
+        expect(items[6].title).toBe('title7');
+        expect(items[7].title).toBe('title8');
+        expect(items[8].title).toBe('title9');
+        expect(items[9].title).toBe('title10');
+        expect(items[10].title).toBe('title11');
+        expect(items[11].title).toBe('title12');
+      });
     });
   });
 });

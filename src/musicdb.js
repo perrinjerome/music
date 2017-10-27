@@ -1,6 +1,8 @@
 /*jshint esversion: 6 */
 /*globals indexedDB, fetch, console, _ */
 
+import { sortBy, zip } from 'lodash';
+
 // helper function to open a database and make a promise.
 // callback is called with db, resolve, reject
 function openDatabase(musicdb, callback) {
@@ -90,21 +92,30 @@ class MusicDB {
   getItemsFromAlbum(albumId) {
     var musicdb = this;
     return openDatabase(this, (db, resolve, reject) => {
-      var albumStore = db.transaction('items', 'readonly').objectStore('items');
-      var req = albumStore.index('album_id').openCursor(albumId),
-        itemList = [];
+      const albumStore = db
+        .transaction('items', 'readonly')
+        .objectStore('items');
+      const req = albumStore.index('album_id').openCursor(albumId);
+      const itemList = [];
+
       req.onerror = reject;
-      req.onsuccess = function(e) {
+      req.onsuccess = e => {
         try {
           var cursor = e.target.result;
           if (cursor) {
-            musicdb.getItemSrcUrl(cursor.value).then(url => {
-              cursor.value.item_url = url;
-              itemList.push(cursor.value);
-            });
+            itemList.push(cursor.value);
             return cursor.continue();
           }
-          resolve(_.sortBy(itemList, ['track']).reverse());
+          const getItemSrcUrlPromises = [];
+          itemList.forEach(item => {
+            getItemSrcUrlPromises.push(musicdb.getItemSrcUrl(item));
+          });
+          return Promise.all(getItemSrcUrlPromises).then(itemSrcUrls => {
+            zip(itemList, itemSrcUrls).forEach(([item, srcUrl]) => {
+              item.item_url = srcUrl;
+            });
+            resolve(sortBy(itemList, [item => Number(item.track)]));
+          }, reject);
         } catch (error) {
           reject(error);
         }
