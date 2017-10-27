@@ -309,7 +309,8 @@ document.addEventListener('DOMContentLoaded', () => {
                         actionHandler: () => {
                           window.location.reload();
                         },
-                        actionText: 'Refresh'
+                        actionText: 'Refresh',
+                        timeout: Infinity
                       };
                       app.private.snackbar.MaterialSnackbar.showSnackbar(data);
                     }
