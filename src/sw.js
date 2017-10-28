@@ -16,15 +16,12 @@ const urlsToCache = [
 
 self.addEventListener('activate', event => {
   console.log('activated ');
-  var cacheWhitelist = [CACHE_NAME];
+  var cacheWhitelist = [CACHE_NAME, IMAGES_CACHE_NAME];
   event.waitUntil(
     caches.keys().then(cacheNames => {
       return Promise.all(
         cacheNames.map(cacheName => {
-          if (
-            cacheWhitelist.indexOf(cacheName) === -1 &&
-            cacheWhitelist.indexOf(IMAGES_CACHE_NAME) == -1
-          ) {
+          if (cacheWhitelist.indexOf(cacheName) === -1) {
             console.log('SW: purging old cache', cacheName);
             return caches.delete(cacheName);
           }
