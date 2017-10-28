@@ -284,7 +284,6 @@ class MusicDB {
     }
 
     if (resumeInfo) {
-      console.log('resuming', musicdb.beets_url, resumeInfo);
       return fetchItems(
         musicdb.beets_url,
         resumeInfo.totalItems - resumeInfo.currentItem,

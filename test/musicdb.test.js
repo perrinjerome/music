@@ -45,7 +45,7 @@ describe('Music Database', () => {
             },
             {
               id: 3,
-              album_id: 1,
+              album_id: 2,
               artist: 'artist1',
               album: 'album2',
               title: '3'
@@ -103,7 +103,32 @@ describe('Music Database', () => {
     });
 
     test('can resume loading', () => {
-      expect(1).toBe(1); // TODO
+      const musicdb = new MusicDB('http://api.example.com');
+      const api = nock('http://api.example.com')
+        .filteringPath(/[\d,]/g, '')
+        .get('/album/')
+        .reply(200, {
+          albums: [{ id: 2, album: 'album2' }]
+        })
+        .get('/item/')
+        .reply(200, {
+          items: [
+            {
+              id: 3,
+              album_id: 2,
+              artist: 'artist1',
+              album: 'album2',
+              title: '3'
+            }
+          ]
+        });
+      // there will be one item left
+      const resumeInfo = { currentItem: 2, totalItems: 3 };
+      return musicdb
+        .loadDatabase({
+          resumeInfo
+        })
+        .then(() => api.done());
     });
 
     test('can be aborted during loading', () => {
