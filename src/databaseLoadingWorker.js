@@ -1,6 +1,7 @@
 /*globals self, caches, fetch, console */
 import { MusicDB } from './musicdb.js';
 import { DatabaseLoadingMessages } from './actions.js';
+import { DatabaseLoadingAbort } from './errors.js';
 import './abortcontroller-polyfill-light.js';
 
 let loadingController;
@@ -40,6 +41,9 @@ self.addEventListener('message', function(event) {
           })
         )
         .catch(e => {
+          if (e instanceof DatabaseLoadingAbort) {
+            return;
+          }
           console.error(e);
           self.postMessage({
             action: DatabaseLoadingMessages.REFRESH_DATABASE_ERROR,
