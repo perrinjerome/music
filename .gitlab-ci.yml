@@ -18,6 +18,8 @@ pages:
   script:
   - npm install
   - npm run build
+  - du -hs public/*
+  - grep -o version.* public/index.html
   artifacts:
     paths:
     - public
