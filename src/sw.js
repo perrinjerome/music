@@ -15,14 +15,12 @@ const urlsToCache = [
 ];
 
 self.addEventListener('activate', event => {
-  console.log('activated ');
   var cacheWhitelist = [CACHE_NAME, IMAGES_CACHE_NAME];
   event.waitUntil(
     caches.keys().then(cacheNames => {
       return Promise.all(
         cacheNames.map(cacheName => {
           if (cacheWhitelist.indexOf(cacheName) === -1) {
-            console.log('SW: purging old cache', cacheName);
             return caches.delete(cacheName);
           }
         })
@@ -32,12 +30,9 @@ self.addEventListener('activate', event => {
 });
 
 self.addEventListener('install', event => {
-  console.log('SW: installing', event);
-
   // Perform install steps
   event.waitUntil(
     caches.open(CACHE_NAME).then(cache => {
-      console.log('SW: adding shell to cache', cache, urlsToCache);
       return cache.addAll(urlsToCache);
     })
   );
