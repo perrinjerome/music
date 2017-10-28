@@ -1,6 +1,6 @@
 /*globals require, global, console, window, describe, it, beforeEach */
 
-var nock = require('nock');
+const nock = require('nock');
 
 global.fetch = require('node-fetch');
 global.indexedDB = require('fake-indexeddb');
@@ -90,13 +90,15 @@ describe('Music Database', () => {
             }
           ]
         });
-      let progressReport = [];
-      const progressReporter = {}; // TODO mock library
-      progressReporter.reportProgress = () => progressReport.push(arguments);
+      const progressReporter = {
+        reportProgress: jest.fn()
+      };
       expect.assertions(1);
       return musicdb.loadDatabase({ progressReporter }).then(() => {
         api.done();
-        return expect(progressReport.length).toBeGreaterThanOrEqual(1);
+        return expect(
+          progressReporter.reportProgress.mock.calls.length
+        ).toBeGreaterThanOrEqual(1);
       });
     });
 
@@ -110,11 +112,9 @@ describe('Music Database', () => {
         .get('/stats')
         .reply(200, { items: 1, albums: 1 });
 
-      const progressReporter = { reportProgress: () => {} }; // TODO mock library
       const abortController = new AbortController();
 
       const load = musicdb.loadDatabase({
-        progressReporter,
         signal: abortController.signal
       });
       abortController.abort();
