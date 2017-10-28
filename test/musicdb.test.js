@@ -12,13 +12,13 @@ import '../src/abortcontroller-polyfill-light';
 describe('Music Database', () => {
   describe('Initialisation / loading tests', () => {
     test('constructor argument is the URL of beet API', () => {
-      var musicdb = new MusicDB('https://api.example.com');
+      const musicdb = new MusicDB('https://api.example.com');
       expect(musicdb.beets_url).toEqual('https://api.example.com');
     });
 
     test('musicdb can be loaded', () => {
-      var musicdb = new MusicDB('http://api.example.com');
-      var api = nock('http://api.example.com')
+      const musicdb = new MusicDB('http://api.example.com');
+      const api = nock('http://api.example.com')
         .filteringPath(/[\d,]/g, '')
         .get('/stats')
         .reply(200, { items: 3, albums: 2 })
@@ -69,8 +69,8 @@ describe('Music Database', () => {
     });
 
     test('reports progress during loading', () => {
-      var musicdb = new MusicDB('http://api.example.com');
-      var api = nock('http://api.example.com')
+      const musicdb = new MusicDB('http://api.example.com');
+      const api = nock('http://api.example.com')
         .filteringPath(/[\d,]/g, '')
         .get('/stats')
         .reply(200, { items: 1, albums: 1 })
@@ -107,8 +107,8 @@ describe('Music Database', () => {
     });
 
     test('can be aborted during loading', () => {
-      var musicdb = new MusicDB('http://api.example.com');
-      var api = nock('http://api.example.com')
+      const musicdb = new MusicDB('http://api.example.com');
+      const api = nock('http://api.example.com')
         .get('/stats')
         .reply(200, { items: 1, albums: 1 });
 
