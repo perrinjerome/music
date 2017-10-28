@@ -2,6 +2,7 @@
 /*globals indexedDB, fetch, console, _ */
 
 import { sortBy, zip } from 'lodash';
+import { DatabaseLoadingAbort } from './errors';
 
 // helper function to open a database and make a promise.
 // callback is called with db, resolve, reject
@@ -138,10 +139,10 @@ class MusicDB {
   }
 
   // refresh database from beets
-  loadDatabase(progressReporter, signal, resumeInfo) {
+  loadDatabase(options = {}) {
     const musicdb = this;
     const albumSet = new Set([]);
-
+    let { progressReporter, signal, resumeInfo } = options;
     // utility for fetch
     function getJson(response) {
       if (!response.ok) {
@@ -197,7 +198,7 @@ class MusicDB {
 
     /* why 4 parameters ? */
     function fetchItems(url, nbItems, start, end, totalItems) {
-      console.log('fetchItems', nbItems, start, end, totalItems);
+      //console.log('fetchItems', nbItems, start, end, totalItems, signal);
       // fetch from items until we get nbItems.
       let i;
       let query = '';
@@ -205,6 +206,10 @@ class MusicDB {
         query = query + i + ',';
       }
       query = query + i;
+
+      if (signal && signal.aborted) {
+        throw new DatabaseLoadingAbort();
+      }
 
       if (progressReporter) {
         progressReporter.reportProgress({
@@ -217,9 +222,6 @@ class MusicDB {
         });
       }
 
-      if (signal && signal.aborted) {
-        return;
-      }
       if (end > 100000) {
         throw new Error('Infinite loop prevented');
       }

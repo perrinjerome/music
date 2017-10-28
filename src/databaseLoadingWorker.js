@@ -28,11 +28,11 @@ self.addEventListener('message', function(event) {
           })
       };
       return musicdb
-        .loadDatabase(
+        .loadDatabase({
           progressReporter,
-          { signal: loadingController.signal },
+          signal: loadingController.signal,
           resumeInfo
-        )
+        })
         .then(() =>
           self.postMessage({
             action: DatabaseLoadingMessages.REFRESH_DATABASE_COMPLETED,

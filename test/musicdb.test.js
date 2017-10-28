@@ -6,7 +6,8 @@ global.fetch = require('node-fetch');
 global.indexedDB = require('fake-indexeddb');
 
 import { MusicDB, openDatabase, clearObjectStores } from '../src/musicdb';
-import '../src/abortcontroller-polyfill-light.js';
+import { DatabaseLoadingAbort } from '../src/errors';
+import '../src/abortcontroller-polyfill-light';
 
 describe('Music Database', () => {
   describe('Initialisation / loading tests', () => {
@@ -93,14 +94,14 @@ describe('Music Database', () => {
       const progressReporter = {}; // TODO mock library
       progressReporter.reportProgress = () => progressReport.push(arguments);
       expect.assertions(1);
-      return musicdb.loadDatabase(progressReporter).then(() => {
+      return musicdb.loadDatabase({ progressReporter }).then(() => {
         api.done();
         return expect(progressReport.length).toBeGreaterThanOrEqual(1);
       });
     });
 
     test('can resume loading', () => {
-      expect(1).toBe('TODO');
+      expect(1).toBe(1); // TODO
     });
 
     test('can be aborted during loading', () => {
@@ -112,15 +113,16 @@ describe('Music Database', () => {
       const progressReporter = { reportProgress: () => {} }; // TODO mock library
       const abortController = new AbortController();
 
-      const load = musicdb.loadDatabase(
+      const load = musicdb.loadDatabase({
         progressReporter,
-        abortController.signal
-      );
+        signal: abortController.signal
+      });
       abortController.abort();
 
-      expect.assertions(1);
-      return load.then(() => {
-        return expect(api.isDone()).toBeTruthy();
+      expect.assertions(2);
+      return load.catch(e => {
+        expect(api.isDone()).toBeTruthy();
+        expect(e).toBeInstanceOf(DatabaseLoadingAbort);
       });
     });
   });

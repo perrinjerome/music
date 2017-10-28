@@ -499,7 +499,7 @@ document.addEventListener('DOMContentLoaded', () => {
           const controller = new AbortController();
           const signal = controller.signal;
           return app.musicdb
-            .loadDatabase(progressReporter, { signal })
+            .loadDatabase({ progressReporter, signal })
             .then(() =>
               app._onDatabaseLoadingWorkerMessageReceived(
                 DatabaseLoadingMessages.REFRESH_DATABASE_COMPLETED,
