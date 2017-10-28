@@ -316,7 +316,7 @@ document.addEventListener('DOMContentLoaded', () => {
                           window.location.reload();
                         },
                         actionText: 'Refresh',
-                        timeout: Infinity
+                        timeout: 1000000
                       };
                       app.private.snackbar.MaterialSnackbar.showSnackbar(data);
                     }
