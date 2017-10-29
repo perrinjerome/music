@@ -377,10 +377,14 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         if (current_page == 'configure') {
           const dialog = app.private.dialogs['#dialog-configure'];
-          const itemsAndAlbums = Promise.all([
-            app.musicdb.countItems(),
-            app.musicdb.countAlbums()
-          ]).then(([itemCount, albumCount]) => {
+          let itemsAndAlbums = Promise.resolve([0, 0]);
+          if (app.musicdb) {
+            itemsAndAlbums = Promise.all([
+              app.musicdb.countItems(),
+              app.musicdb.countAlbums()
+            ]);
+          }
+          itemsAndAlbums.then(([itemCount, albumCount]) => {
             // XXX this is not how to do Vue ...
             // TODO: this dialog have to be a component
             document.querySelector('#configure_beets_url').value =
