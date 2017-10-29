@@ -9,7 +9,11 @@ import {
 } from './swConstants.js';
 
 self.addEventListener('activate', event => {
-  var cacheWhitelist = [APP_CACHE_NAME, IMAGES_CACHE_NAME, FLAC_WORKER_CACHE_NAME];
+  var cacheWhitelist = [
+    APP_CACHE_NAME,
+    IMAGES_CACHE_NAME,
+    FLAC_WORKER_CACHE_NAME
+  ];
   event.waitUntil(
     caches.keys().then(cacheNames => {
       return Promise.all(
@@ -25,16 +29,14 @@ self.addEventListener('activate', event => {
 
 self.addEventListener('install', event => {
   const cachesPromises = [];
-  urlsToCache.forEach([cacheName, urls] => {
+  Object.entries(urlsToCache).forEach(([cacheName, urls]) => {
     return event.waitUntil(
       caches.open(cacheName).then(cache => {
         return cache.addAll(urls);
       })
-    )
+    );
   });
-  return Promise.all(
-    urlsToCache
-  );
+  return Promise.all(urlsToCache);
 });
 
 self.addEventListener('fetch', event => {

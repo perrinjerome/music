@@ -9,7 +9,7 @@ import {
   IMAGES_CACHE_NAME,
   FLAC_WORKER_CACHE_NAME,
   urlsToCache
-} from './swConstants.js';
+} from '../src/swConstants.js';
 import { sw } from '../src/sw';
 import { DatabaseLoadingMessages } from '../src/actions';
 
