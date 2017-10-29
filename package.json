@@ -50,6 +50,7 @@
     "uglifyjs-webpack-plugin": "^1.0.1",
     "webpack": "^2.4.1",
     "webpack-dev-server": "^2.9.2",
+    "webworker-threads": "^0.7.13",
     "worker-loader": "^1.1.0"
   }
 }
