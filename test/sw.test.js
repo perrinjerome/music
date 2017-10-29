@@ -4,6 +4,12 @@ const nock = require('nock');
 global.fetch = require('node-fetch');
 const URL = require('dom-urls');
 
+import {
+  APP_CACHE_NAME,
+  IMAGES_CACHE_NAME,
+  FLAC_WORKER_CACHE_NAME,
+  urlsToCache
+} from './swConstants.js';
 import { sw } from '../src/sw';
 import { DatabaseLoadingMessages } from '../src/actions';
 
@@ -23,11 +29,11 @@ describe('Service Worker', () => {
   });
   test('activate keep old image cache', () => {
     require('../src/sw.js');
-    return self.caches.open('music-app-images').then(() => {
+    return self.caches.open(IMAGES_CACHE_NAME).then(() => {
       return self
         .trigger('activate')
         .then(() =>
-          expect(self.snapshot().caches['music-app-images']).toBeTruthy()
+          expect(self.snapshot().caches[IMAGES_CACHE_NAME]).toBeTruthy()
         );
     });
   });
@@ -36,11 +42,12 @@ describe('Service Worker', () => {
     // we cannot use node fetch + nock, because SW use relative URLs.
     const fetcher = jest.fn(() => Promise.resolve());
     global.fetch = fetcher;
-    expect.assertions(3);
+    expect.assertions(4);
     return self.trigger('install').then(() => {
       expect(fetcher).toBeCalledWith('./worker/EmsArgs.js');
       expect(fetcher).toBeCalledWith('./');
-      expect(self.snapshot().caches['music-app-' + VERSION]).toBeTruthy();
+      expect(self.snapshot().caches[APP_CACHE_NAME]).toBeTruthy();
+      expect(self.snapshot().caches[FLAC_WORKER_CACHE_NAME]).toBeTruthy();
     });
   });
 
@@ -53,7 +60,7 @@ describe('Service Worker', () => {
       .trigger('fetch', new Request('./album/123/art'))
       .then(response => {
         return self.caches
-          .open('music-app-images')
+          .open(IMAGES_CACHE_NAME)
           .then(cache => cache.match(new Request('./album/123/art')))
           .then(match => expect(match).toBe('response'));
       });

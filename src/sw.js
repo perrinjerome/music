@@ -1,21 +1,15 @@
 /*globals self, caches, fetch, console */
 import { MusicDB } from './musicdb.js';
 import { DatabaseLoadingMessages } from './actions.js';
-
-const CACHE_NAME = 'music-app-' + VERSION;
-const IMAGES_CACHE_NAME = 'music-app-images';
-const urlsToCache = [
-  './empty.mp3',
-  './',
-  './worker/EmsArgs.js',
-  './worker/EmsWorkerProxy.js',
-  './worker/flac.data.js',
-  './worker/flac.js',
-  './worker/FlacEncoder.js'
-];
+import {
+  APP_CACHE_NAME,
+  IMAGES_CACHE_NAME,
+  FLAC_WORKER_CACHE_NAME,
+  urlsToCache
+} from './swConstants.js';
 
 self.addEventListener('activate', event => {
-  var cacheWhitelist = [CACHE_NAME, IMAGES_CACHE_NAME];
+  var cacheWhitelist = [APP_CACHE_NAME, IMAGES_CACHE_NAME, FLAC_WORKER_CACHE_NAME];
   event.waitUntil(
     caches.keys().then(cacheNames => {
       return Promise.all(
@@ -30,11 +24,16 @@ self.addEventListener('activate', event => {
 });
 
 self.addEventListener('install', event => {
-  // Perform install steps
-  event.waitUntil(
-    caches.open(CACHE_NAME).then(cache => {
-      return cache.addAll(urlsToCache);
-    })
+  const cachesPromises = [];
+  urlsToCache.forEach([cacheName, urls] => {
+    return event.waitUntil(
+      caches.open(cacheName).then(cache => {
+        return cache.addAll(urls);
+      })
+    )
+  });
+  return Promise.all(
+    urlsToCache
   );
 });
 
