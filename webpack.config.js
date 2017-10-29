@@ -24,7 +24,7 @@ const config = {
   devtool: 'inline-source-map',
   output: {
     path: path.resolve(__dirname, 'public'),
-    filename: '[name].[hash].js'
+    filename: '[name].js'
   },
   module: {
     rules: [
@@ -32,11 +32,7 @@ const config = {
         test: /\.js$/,
         enforce: 'pre',
         exclude: /node_modules/,
-        use: [
-          {
-            loader: 'jshint-loader'
-          }
-        ]
+        use: ['jshint-loader']
       },
       {
         test: /\.css$/,
@@ -47,7 +43,7 @@ const config = {
       {
         test: /\.js$/,
         exclude: /node_modules/,
-        loader: 'babel-loader'
+        use: ['babel-loader']
       },
       {
         test: /\.(png|svg|jpg|gif)$/,
@@ -61,11 +57,13 @@ const config = {
     new webpack.DefinePlugin({
       VERSION: gitVersion
     }),
+    /*
     new webpack.optimize.CommonsChunkPlugin({
       name: 'common'
     }),
     new UglifyJSPlugin(),
-    // new webpack.HotModuleReplacementPlugin(),
+    */
+    new webpack.HotModuleReplacementPlugin(),
     new HtmlWebpackPlugin({
       template: './static/index.html',
       VERSION: gitVersion
