@@ -1,22 +1,32 @@
 /*globals require, global, console, window, describe, it, beforeEach */
 
 var nock = require('nock');
-global.Worker = require('webworker-threads').Worker;
+//global.Worker = require('webworker-threads').Worker;
 
 global.fetch = require('node-fetch');
 global.indexedDB = require('fake-indexeddb');
 
-import { databaseLoadingWorker } from '../src/databaseLoadingWorker';
+import { onMessage } from '../src/databaseLoadingWorker';
 import { DatabaseLoadingMessages } from '../src/actions';
 
-console.log(databaseLoadingWorker);
+//console.log('dbWorker', onMessage);
+
 describe('Database Loading Worker', () => {
+  beforeEach(() => {
+    jest.resetModules();
+  });
+
   test('refreshs database in background', () => {
-    // TODO
-    //    const worker = new Worker('../src/databaseLoadingWorker');
-    worker.onmessage = jest.fn();
-    worker.postMessage({ action: DataBaseLoadingWorker.REFRESH_DATABASE });
-    return expect(worker.onmessage).toBeCalledWith(2);
+    global.postMessage = jest.fn();
+    global.performance = { now: () => 0 };
+    onMessage({
+      data: {
+        action: DatabaseLoadingMessages.REFRESH_DATABASE,
+        payload: { beets_url: './' }
+      }
+    });
+    expect.assertions(1);
+    setTimeout(() => expect(global.postMessage).toBeCalled(), 1000);
   });
   test('aborts previous loading operation if still running', () => {
     // TODO

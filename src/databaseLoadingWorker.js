@@ -6,7 +6,7 @@ import './abortcontroller-polyfill-light.js';
 
 let loadingController;
 
-self.addEventListener('message', function(event) {
+function onMessage(event) {
   console.log('Loading Worker Handling message event:', event);
   let resumeInfo = null;
   switch (event.data.action) {
@@ -54,4 +54,7 @@ self.addEventListener('message', function(event) {
       console.warn('Incorrect Message Received in Loading Worker', event);
       break;
   }
-});
+}
+
+self.addEventListener('message', onMessage);
+export { onMessage };
