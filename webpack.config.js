@@ -57,13 +57,6 @@ const config = {
     new webpack.DefinePlugin({
       VERSION: gitVersion
     }),
-    /*
-    new webpack.optimize.CommonsChunkPlugin({
-      name: 'common'
-    }),
-    new UglifyJSPlugin(),
-    */
-    new webpack.HotModuleReplacementPlugin(),
     new HtmlWebpackPlugin({
       template: './static/index.html',
       VERSION: gitVersion
@@ -71,5 +64,16 @@ const config = {
     new CopyWebpackPlugin([{ from: './static' }])
   ]
 };
+
+if (process.env.NODE_ENV === 'production') {
+  config.plugins.push(
+    new webpack.optimize.CommonsChunkPlugin({
+      name: 'common'
+    })
+  );
+  config.plugins.push(new UglifyJSPlugin());
+} else {
+  config.plugins.push(new webpack.HotModuleReplacementPlugin());
+}
 
 module.exports = config;
