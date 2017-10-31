@@ -245,10 +245,10 @@ document.addEventListener('DOMContentLoaded', () => {
               app.beets_url;
             document.querySelector(
               '#configure_itemCount'
-            ).innerText = itemCount;
+            ).innerText = itemCount.toString();
             document.querySelector(
               '#configure_albumCount'
-            ).innerText = albumCount;
+            ).innerText = albumCount.toString();
 
             dialog.showModal();
             dialog
@@ -365,8 +365,7 @@ document.addEventListener('DOMContentLoaded', () => {
               )
             )
             .catch(e => {
-              console.error(e);
-              throw new Error('Error loading database', e);
+              throw new Error('Error loading database ' + e);
             });
         }
       },
