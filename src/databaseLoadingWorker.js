@@ -7,7 +7,6 @@ import './abortcontroller-polyfill-light.js';
 let loadingController;
 
 function onMessage(event) {
-  console.log('Loading Worker Handling message event:', event);
   let resumeInfo = null;
   switch (event.data.action) {
     case DatabaseLoadingMessages.RESUME_REFRESH_DATABASE:
@@ -44,7 +43,6 @@ function onMessage(event) {
           if (e instanceof DatabaseLoadingAbort) {
             return;
           }
-          console.error(e);
           self.postMessage({
             action: DatabaseLoadingMessages.REFRESH_DATABASE_ERROR,
             payload: e

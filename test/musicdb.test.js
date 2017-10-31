@@ -9,6 +9,8 @@ import { MusicDB, openDatabase, clearObjectStores } from '../src/musicdb';
 import { DatabaseLoadingAbort } from '../src/errors';
 import '../src/abortcontroller-polyfill-light';
 
+import { mockAPIWithTwoAlbums } from './musicdb.fixtures';
+
 describe('Music Database', () => {
   describe('Initialisation / loading tests', () => {
     test('constructor argument is the URL of beet API', () => {
@@ -17,41 +19,8 @@ describe('Music Database', () => {
     });
 
     test('musicdb can be loaded', () => {
-      const musicdb = new MusicDB('http://api.example.com');
-      const api = nock('http://api.example.com')
-        .filteringPath(/[\d,]/g, '')
-        .get('/stats')
-        .reply(200, { items: 3, albums: 2 })
-        .get('/album/')
-        .reply(200, {
-          albums: [{ id: 1, album: 'album1' }, { id: 2, album: 'album2' }]
-        })
-        .get('/item/')
-        .reply(200, {
-          items: [
-            {
-              id: 1,
-              album_id: 1,
-              artist: 'artist1',
-              album: 'album1',
-              title: '1'
-            },
-            {
-              id: 2,
-              album_id: 1,
-              artist: 'artist1',
-              album: 'album1',
-              title: '2'
-            },
-            {
-              id: 3,
-              album_id: 2,
-              artist: 'artist1',
-              album: 'album2',
-              title: '3'
-            }
-          ]
-        });
+      const musicdb = new MusicDB('https://api.example.com');
+      const api = mockAPIWithTwoAlbums('https://api.example.com');
       return musicdb.loadDatabase().then(() => {
         api.done();
         expect.assertions(2);
@@ -69,27 +38,8 @@ describe('Music Database', () => {
     });
 
     test('reports progress during loading', () => {
-      const musicdb = new MusicDB('http://api.example.com');
-      const api = nock('http://api.example.com')
-        .filteringPath(/[\d,]/g, '')
-        .get('/stats')
-        .reply(200, { items: 1, albums: 1 })
-        .get('/album/')
-        .reply(200, {
-          albums: [{ id: 1, album: 'album1' }]
-        })
-        .get('/item/')
-        .reply(200, {
-          items: [
-            {
-              id: 1,
-              album_id: 1,
-              artist: 'artist1',
-              album: 'album1',
-              title: '1'
-            }
-          ]
-        });
+      const musicdb = new MusicDB('https://api.example.com');
+      const api = mockAPIWithTwoAlbums('https://api.example.com');
       const progressReporter = {
         reportProgress: jest.fn()
       };
@@ -103,8 +53,8 @@ describe('Music Database', () => {
     });
 
     test('can resume loading', () => {
-      const musicdb = new MusicDB('http://api.example.com');
-      const api = nock('http://api.example.com')
+      const musicdb = new MusicDB('https://api.example.com');
+      const api = nock('https://api.example.com')
         .filteringPath(/[\d,]/g, '')
         .get('/album/')
         .reply(200, {
@@ -132,8 +82,8 @@ describe('Music Database', () => {
     });
 
     test('can be aborted during loading', () => {
-      const musicdb = new MusicDB('http://api.example.com');
-      const api = nock('http://api.example.com')
+      const musicdb = new MusicDB('https://api.example.com');
+      const api = nock('https://api.example.com')
         .get('/stats')
         .reply(200, { items: 1, albums: 1 });
 
@@ -155,7 +105,7 @@ describe('Music Database', () => {
   describe('database tests', () => {
     let musicdb;
     beforeEach(done => {
-      musicdb = new MusicDB('https://example.org');
+      musicdb = new MusicDB('https://api.example.com');
       const insert = (storeName, objects) => {
         return openDatabase(musicdb, (db, resolve, reject) => {
           const transaction = db.transaction(storeName, 'readwrite');
@@ -221,13 +171,13 @@ describe('Music Database', () => {
     test('getItemSrcUrl', () => {
       expect.assertions(1);
       return expect(musicdb.getItemSrcUrl({ id: '1' })).resolves.toEqual(
-        'https://example.org/item/1/file'
+        'https://api.example.com/item/1/file'
       );
     });
     test('getAlbumCoverUrl', () => {
       expect.assertions(1);
       return expect(musicdb.getAlbumCoverUrl({ id: '1' })).resolves.toEqual(
-        'https://example.org/album/1/art'
+        'https://api.example.com/album/1/art'
       );
     });
     test('getItemsFromAlbum', () => {
@@ -260,7 +210,7 @@ describe('Music Database', () => {
       return musicdb.getItemsFromAlbum('1').then(items => {
         expect(items).toContainEqual(
           expect.objectContaining({
-            item_url: 'https://example.org/item/2/file'
+            item_url: 'https://api.example.com/item/2/file'
           })
         );
       });
