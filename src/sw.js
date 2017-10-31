@@ -31,13 +31,15 @@ self.addEventListener('activate', event => {
 self.addEventListener('install', event => {
   const cachesPromises = [];
   Object.entries(urlsToCache).forEach(([cacheName, urls]) => {
-    return event.waitUntil(
-      caches.open(cacheName).then(cache => {
-        return cache.addAll(urls);
-      })
+    cachesPromises.push(
+      event.waitUntil(
+        caches.open(cacheName).then(cache => {
+          return cache.addAll(urls);
+        })
+      )
     );
   });
-  return Promise.all(urlsToCache);
+  return Promise.all(cachesPromises);
 });
 
 self.addEventListener('fetch', event => {
