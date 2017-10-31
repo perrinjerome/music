@@ -4,7 +4,8 @@
   "version": "0.0.1",
   "scripts": {
     "dev": "webpack-dev-server --progress --inline --colors",
-    "build": "webpack --progress --colors",
+    "build": "NODE_ENV=production webpack --progress --colors",
+    "build:debug": "NODE_ENV=debug webpack --progress --colors",
     "lint": "jshint src/*js && eslint src/*js",
     "flow": "flow",
     "test": "jest --globals='{\"VERSION\": \"TEST\"}'"
