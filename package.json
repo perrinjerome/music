@@ -6,16 +6,16 @@
     "dev": "webpack-dev-server --progress --inline --colors",
     "build": "webpack --progress --colors",
     "lint": "jshint src/*js && eslint src/*js",
+    "flow": "flow",
     "test": "jest --globals='{\"VERSION\": \"TEST\"}'"
   },
   "babel": {
-    "presets": [
-      "env"
-    ]
+    "presets": ["env"]
   },
   "dependencies": {
     "abortcontroller-polyfill": "^1.0.7",
     "dialog-polyfill": "^0.4.9",
+    "flow-bin": "^0.57.3",
     "hammerjs": "^2.0.8",
     "lodash": "^4.17.4",
     "material-design-lite": "^1.3.0",

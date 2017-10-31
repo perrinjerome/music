@@ -1,6 +1,6 @@
+// @flow
 /*jshint esversion: 6 */
 /*globals Vue, navigator, window, setTimeout, MediaMetadata, console, fetch, URL, document, confirm, alert, MusicDB, NoSleep, Worker, localStorage, performance */
-import { _ } from 'lodash';
 import Vue from 'vue/dist/vue.esm.js';
 import NoSleep from 'nosleep.js';
 import 'material-design-lite';

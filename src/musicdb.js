@@ -1,3 +1,4 @@
+// @flow
 /*jshint esversion: 6 */
 /*globals indexedDB, fetch, console, _ */
 
