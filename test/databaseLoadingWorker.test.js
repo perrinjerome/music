@@ -1,7 +1,6 @@
 /*globals require, global, console, window, describe, it, beforeEach */
 
 var nock = require('nock');
-//global.Worker = require('webworker-threads').Worker;
 
 global.fetch = require('node-fetch');
 global.indexedDB = require('fake-indexeddb');
