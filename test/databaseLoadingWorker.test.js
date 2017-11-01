@@ -20,7 +20,6 @@ describe('Database Loading Worker', () => {
   test('refreshs database in background and sends progress messages', () => {
     const api = mockAPIWithTwoAlbums('https://api.example.com');
     global.postMessage = jest.fn();
-    global.performance = { now: () => 0 };
     expect.assertions(2);
     return onMessage({
       data: {
@@ -51,7 +50,6 @@ describe('Database Loading Worker', () => {
     const api = mockAPIWithTwoAlbums('https://api.example.com');
 
     global.postMessage = jest.fn();
-    global.performance = { now: () => 0 };
     const firstLoading = onMessage({
       data: {
         action: DatabaseLoadingMessages.REFRESH_DATABASE,

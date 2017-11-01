@@ -1,6 +1,6 @@
 // @flow
 /*jshint esversion: 6 */
-/*globals Vue, navigator, window, setTimeout, MediaMetadata, console, fetch, URL, document, confirm, alert, MusicDB, NoSleep, Worker, localStorage, performance */
+/*globals Vue, navigator, window, setTimeout, MediaMetadata, console, fetch, URL, document, confirm, alert, MusicDB, NoSleep, Worker, localStorage */
 import Vue from 'vue/dist/vue.common.js';
 import NoSleep from 'nosleep.js';
 import 'material-design-lite';
@@ -346,7 +346,7 @@ document.addEventListener('DOMContentLoaded', () => {
           app.private.dbLoadWorker.postMessage({ action, payload });
         } else {
           console.log('no worker, refreshing in app DB with', app.beets_url);
-          const startTime = performance.now();
+          const startTime = new Date().getTime();
           const progressReporter = {
             reportProgress: progress =>
               app._onDatabaseLoadingWorkerMessageReceived(
@@ -361,7 +361,7 @@ document.addEventListener('DOMContentLoaded', () => {
             .then(() =>
               app._onDatabaseLoadingWorkerMessageReceived(
                 DatabaseLoadingMessages.REFRESH_DATABASE_COMPLETED,
-                performance.now() - startTime
+                new Date().getTime() - startTime
               )
             )
             .catch(e => {

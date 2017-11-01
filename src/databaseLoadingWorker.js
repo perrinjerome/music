@@ -19,7 +19,7 @@ function onMessage(event) {
       }
       loadingController = new AbortController();
 
-      const startTime = performance.now();
+      const startTime = new Date().getTime();
       const musicdb = new MusicDB(event.data.payload.beets_url);
       const progressReporter = {
         reportProgress: progress =>
@@ -37,7 +37,7 @@ function onMessage(event) {
         .then(() =>
           self.postMessage({
             action: DatabaseLoadingMessages.REFRESH_DATABASE_COMPLETED,
-            payload: performance.now() - startTime
+            payload: new Date().getTime() - startTime
           })
         )
         .catch(e => {
