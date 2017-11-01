@@ -66,7 +66,7 @@ describe('Music Database', () => {
             {
               id: 3,
               album_id: 2,
-              artist: 'artist1',
+              albumartist: 'artist1',
               album: 'album2',
               title: '3'
             }
@@ -119,8 +119,8 @@ describe('Music Database', () => {
       return clearObjectStores(musicdb)
         .then(() => {
           return insert('albums', [
-            { id: '1', album: 'album1' },
-            { id: '2', album: 'album2' }
+            { id: '1', album: 'album1', albumartist: 'artist1' },
+            { id: '2', album: 'album2', albumartist: 'artist2' }
           ]);
         })
         .then(() => {
@@ -129,14 +129,14 @@ describe('Music Database', () => {
             {
               id: 1,
               album_id: '1',
-              artist: 'artist1',
+              albumartist: 'artist1',
               album: 'album1',
               title: 'title1'
             },
             {
               id: 2,
               album_id: '1',
-              artist: 'artist1',
+              albumartist: 'artist1',
               album: 'album1',
               title: 'title2'
             }
@@ -149,7 +149,7 @@ describe('Music Database', () => {
             items.push({
               id: i + 2,
               album_id: '2',
-              artist: 'artist2',
+              albumartist: 'artist2',
               album: 'album2',
               title: 'title' + i,
               track: i
@@ -189,7 +189,7 @@ describe('Music Database', () => {
           expect.objectContaining({
             album: 'album1',
             album_id: '1',
-            artist: 'artist1',
+            albumartist: 'artist1',
             id: 2,
             title: 'title2'
           })
@@ -198,7 +198,7 @@ describe('Music Database', () => {
           expect.objectContaining({
             album: 'album1',
             album_id: '1',
-            artist: 'artist1',
+            albumartist: 'artist1',
             id: 2,
             title: 'title2'
           })
