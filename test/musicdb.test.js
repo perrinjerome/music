@@ -233,5 +233,35 @@ describe('Music Database', () => {
         expect(items[11].title).toBe('title12');
       });
     });
+    test('getRandomAlbum', () => {
+      return expect(musicdb.getRandomAlbum()).resolves.toEqual(
+        expect.objectContaining({
+          album: expect.anything(),
+          cover_url: expect.anything()
+        })
+      );
+    });
+
+    test('searchAlbums', () => {
+      return expect(musicdb.searchAlbums('artist1')).resolves.toEqual([
+        expect.objectContaining({
+          album: expect.anything(),
+          cover_url: expect.anything()
+        })
+      ]);
+    });
+    test('searchAlbums partial match', () => {
+      // album matches album1 and album2
+      return expect(musicdb.searchAlbums('album')).resolves.toEqual([
+        expect.objectContaining({
+          album: expect.anything(),
+          cover_url: expect.anything()
+        }),
+        expect.objectContaining({
+          album: expect.anything(),
+          cover_url: expect.anything()
+        })
+      ]);
+    });
   });
 });

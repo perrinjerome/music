@@ -304,6 +304,54 @@ class MusicDB {
       );
   }
 
+  // search albums matching a search string
+  searchAlbums(searchString) {
+    const musicdb = this;
+    const maxResuls = 10;
+    const searchStringLower = searchString.toLowerCase();
+
+    return openDatabase(musicdb, function(db, resolve, reject) {
+      const albumStore = db
+        .transaction('albums', 'readonly')
+        .objectStore('albums');
+      const req = albumStore.index('id').getAll();
+      let i = 0;
+      const results = [];
+      const albumCoverPromises = [];
+      req.onsuccess = () => {
+        const allAlbums = req.result;
+        const isMatching = (record, query) =>
+          (record.albumartist &&
+            record.albumartist.toLowerCase().indexOf(query) > -1) ||
+          (record.album && record.album.toLowerCase().indexOf(query) > -1);
+        try {
+          for (i = 0; i < allAlbums.length; i++) {
+            if (isMatching(allAlbums[i], searchStringLower)) {
+              results.push(allAlbums[i]);
+            }
+            if (results.length > maxResuls) {
+              break;
+            }
+          }
+          results.forEach(album => {
+            albumCoverPromises.push(
+              musicdb.getAlbumCoverUrl(album).then(coverUrl => {
+                album.cover_url = coverUrl;
+                return album;
+              })
+            );
+          });
+          return Promise.all(albumCoverPromises).then(resultWithCovers => {
+            return resolve(resultWithCovers);
+          });
+        } catch (error) {
+          reject(error);
+        }
+      };
+      req.onerror = reject;
+    });
+  }
+
   // return a random album from the music db
   getRandomAlbum() {
     const musicdb = this;

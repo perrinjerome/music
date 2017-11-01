@@ -278,6 +278,17 @@ document.addEventListener('DOMContentLoaded', () => {
     },
 
     methods: {
+      onGlobalSearch: event => {
+        const searchString = event.target.value;
+        const db = app.musicdb;
+        if (db) {
+          db.searchAlbums(searchString).then(albums => {
+            app.random_albums = albums; // XXX not "random_albums"
+          });
+          // hide keyboard on mobile
+          document.activeElement.blur();
+        }
+      },
       get4RandomAlbums: () => {
         const db = app.musicdb;
         if (db) {
