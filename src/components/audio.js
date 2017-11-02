@@ -16,10 +16,8 @@ Vue.component('audio-player', {
         setTimeout(_ => {
           this.pauseCount = 0;
         }, 5000);
-        log('> User clicked "Pause" icon', this.pauseCount);
-        log(this.$refs.audio.paused);
         if (this.pauseCount > 3) {
-          log('cheat code, playing another album');
+          console.log('cheat code, playing another album');
         }
         if (this.$refs.audio.paused) {
           this.$refs.audio.play();
@@ -52,7 +50,6 @@ Vue.component('audio-player', {
             this.$parent.musicdb
               .getAlbumCoverUrl({ id: this.currentItem.album_id })
               .then(cover_url => {
-                log('cover_url', cover_url);
                 navigator.mediaSession.metadata = new MediaMetadata({
                   title: this.currentItem.title,
                   artist: this.currentItem.artist,
