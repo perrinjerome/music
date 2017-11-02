@@ -115,6 +115,7 @@ document.addEventListener('DOMContentLoaded', () => {
       // https://bugs.chromium.org/p/chromium/issues/detail?id=138132
       document.body.addEventListener('click', event => {
         document.getElementById('audio_player').play();
+        document.getElementById('audio_player').pause();
 
         if ('wakeLock' in navigator) {
           navigator.wakeLock.request('system').then(
