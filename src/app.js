@@ -207,6 +207,29 @@ document.addEventListener('DOMContentLoaded', () => {
                 })
                 .catch(e => {
                   const dialog = app.private.dialogs['#dialog-api-login'];
+                  // this is maybe too clever ... wait for user to login in
+                  // another tab and close popup.
+                  dialog.querySelector('a').addEventListener('click', e => {
+                    let retries = 0;
+                    setTimeout(function tryToConnectAndRefresh() {
+                      fetch(beets_url + '/stats', {
+                        mode: 'nocors',
+                        credentials: 'include'
+                      })
+                        .then(r => {
+                          dialog.close();
+                          app.musicdb = new MusicDB(beets_url);
+                          app.get4RandomAlbums(); // XXX
+                        })
+                        .catch(e => {
+                          retries = retries + 1;
+                          if (retries < 5) {
+                            setTimeout(tryToConnectAndRefresh, retries * 500);
+                          }
+                        });
+                    }, 1000);
+                  });
+
                   dialog.showModal();
                   dialog
                     .querySelector('button.action-cancel')
