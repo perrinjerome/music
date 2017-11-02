@@ -190,27 +190,39 @@ document.addEventListener('DOMContentLoaded', () => {
       beets_url: beets_url => {
         if (beets_url) {
           // check we can access it and give a chance to login ( XXX move it to DB )
+          // make a first no-cors request to check if server is up
           return fetch(beets_url + '/stats', {
-            credentials: 'include',
-            mode: 'cors'
+            mode: 'no-cors'
           })
             .then(response => {
-              app.musicdb = new MusicDB(beets_url);
-              app.get4RandomAlbums(); // XXX
+              // if we have response, make another request with credentials to
+              // check we can really access the API or if we need to login.
+              fetch(beets_url + '/stats', {
+                mode: 'cors',
+                credentials: 'include'
+              })
+                .then(r => {
+                  app.musicdb = new MusicDB(beets_url);
+                  app.get4RandomAlbums(); // XXX
+                })
+                .catch(e => {
+                  const dialog = app.private.dialogs['#dialog-api-login'];
+                  dialog.showModal();
+                  dialog
+                    .querySelector('button.action-cancel')
+                    .addEventListener('click', () => {
+                      dialog.close();
+                    });
+                  dialog
+                    .querySelector('button.action-ok')
+                    .addEventListener('click', () => {
+                      dialog.close();
+                    });
+                });
             })
             .catch(e => {
-              const dialog = app.private.dialogs['#dialog-api-login'];
-              dialog.showModal();
-              dialog
-                .querySelector('button.action-cancel')
-                .addEventListener('click', () => {
-                  dialog.close();
-                });
-              dialog
-                .querySelector('button.action-ok')
-                .addEventListener('click', () => {
-                  dialog.close();
-                });
+              /* server did not reply, popup configuration dialog */
+              app.current_page = 'configure';
             });
         }
       },
