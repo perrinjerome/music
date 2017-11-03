@@ -307,7 +307,7 @@ class MusicDB {
   // search albums matching a search string
   searchAlbums(searchString) {
     const musicdb = this;
-    const maxResuls = 10;
+    const maxResuls = 100;
     const searchStringLower = searchString.toLowerCase();
 
     return openDatabase(musicdb, function(db, resolve, reject) {
