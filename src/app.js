@@ -333,6 +333,12 @@ document.addEventListener('DOMContentLoaded', () => {
           document.activeElement.blur();
         }
       },
+      playRandomAlbum: () => {
+        app.musicdb.getRandomAlbum().then(album => {
+          app.random_albums = [album];
+          app.playAlbum(album.id);
+        });
+      },
       get4RandomAlbums: () => {
         const db = app.musicdb;
         if (db) {

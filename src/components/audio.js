@@ -17,7 +17,7 @@ Vue.component('audio-player', {
           this.pauseCount = 0;
         }, 5000);
         if (this.pauseCount > 3) {
-          console.log('cheat code, playing another album');
+          this.$parent.playRandomAlbum();
         }
         if (this.$refs.audio.paused) {
           this.$refs.audio.play();
