@@ -113,10 +113,9 @@ document.addEventListener('DOMContentLoaded', () => {
       // Add event handler for first user interaction
       // On chrome mobile we can only start playing in an event handler.
       // https://bugs.chromium.org/p/chromium/issues/detail?id=138132
-      document.body.addEventListener('click', event => {
+      const firstTouchInitializer = event => {
         document.getElementById('audio_player').play();
         document.getElementById('audio_player').pause();
-
         if ('wakeLock' in navigator) {
           navigator.wakeLock.request('system').then(
             () => {
@@ -131,7 +130,9 @@ document.addEventListener('DOMContentLoaded', () => {
           const noSleep = new NoSleep();
           noSleep.enable();
         }
-      });
+        document.body.removeEventListener('click', firstTouchInitializer);
+      };
+      document.body.addEventListener('click', firstTouchInitializer);
 
       // loading Worker
       app.private.dbLoadWorker = new DataBaseLoadingWorker();
