@@ -209,27 +209,34 @@ document.addEventListener('DOMContentLoaded', () => {
                 })
                 .catch(e => {
                   const dialog = app.private.dialogs['#dialog-api-login'];
-                  // this is maybe too clever ... wait for user to login in
-                  // another tab and close popup.
+                  // Wait for user to login in another tab and come back.
                   dialog.querySelector('a').addEventListener('click', e => {
-                    let retries = 0;
-                    setTimeout(function tryToConnectAndRefresh() {
-                      fetch(beets_url + '/stats', {
-                        mode: 'nocors',
-                        credentials: 'include'
-                      })
-                        .then(r => {
-                          dialog.close();
-                          app.musicdb = new MusicDB(beets_url);
-                          app.get4RandomAlbums(); // XXX
+                    const visibilityHandler = e => {
+                      if (!document.hidden) {
+                        // user is back ... can we access API now ?
+                        fetch(beets_url + '/stats', {
+                          mode: 'nocors',
+                          credentials: 'include'
                         })
-                        .catch(e => {
-                          retries = retries + 1;
-                          if (retries < 5) {
-                            setTimeout(tryToConnectAndRefresh, retries * 500);
-                          }
-                        });
-                    }, 1000);
+                          .then(r => {
+                            // if yes, then close dialog and show albums
+                            dialog.close();
+                            document.removeEventListener(
+                              'visibilitychange',
+                              visibilityHandler
+                            );
+                            app.musicdb = new MusicDB(beets_url);
+                            app.get4RandomAlbums(); // XXX
+                          })
+                          .catch(() => {
+                            /*ignore*/
+                          });
+                      }
+                    };
+                    document.addEventListener(
+                      'visibilitychange',
+                      visibilityHandler
+                    );
                   });
 
                   dialog.showModal();
