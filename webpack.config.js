@@ -7,7 +7,9 @@ const GitRevisionPlugin = require('git-revision-webpack-plugin');
 const UglifyJSPlugin = require('uglifyjs-webpack-plugin');
 const path = require('path');
 
-const gitVersion = JSON.stringify(new GitRevisionPlugin().version());
+const gitVersion = JSON.stringify(
+  new GitRevisionPlugin({ versionCommand: 'log -1 --oneline' }).version()
+);
 
 const config = {
   // Entry points to the project
