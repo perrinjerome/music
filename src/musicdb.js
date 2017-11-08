@@ -116,7 +116,13 @@ class MusicDB {
             zip(itemList, itemSrcUrls).forEach(([item, srcUrl]) => {
               item.item_url = srcUrl;
             });
-            resolve(sortBy(itemList, [item => Number(item.track)]));
+            resolve(
+              sortBy(itemList, [
+                item => item.disc,
+                item => item.album, // XXX for "Take London". TODO: clean my beet database and remove this line
+                item => Number(item.track)
+              ])
+            );
           }, reject);
         } catch (error) {
           reject(error);
