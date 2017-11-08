@@ -8,7 +8,7 @@ import { DatabaseLoadingAbort } from './errors';
 // helper function to open a database and make a promise.
 // callback is called with db, resolve, reject
 function openDatabase(musicdb, callback) {
-  return new Promise(function(resolve, reject) {
+  return new Promise((resolve, reject) => {
     var request = indexedDB.open(musicdb.db_name, musicdb.db_version);
     request.onerror = reject;
 
@@ -55,7 +55,7 @@ function openDatabase(musicdb, callback) {
 
 // clear the database stores
 function clearObjectStores(musicdb) {
-  return openDatabase(musicdb, function(db, resolve, reject) {
+  return openDatabase(musicdb, (db, resolve, reject) => {
     var tx = db.transaction(['items', /* 'artists', */ 'albums'], 'readwrite');
     tx.onerror = reject;
     tx.oncomplete = resolve;
@@ -148,8 +148,8 @@ class MusicDB {
   // refresh database from beets
   loadDatabase(options = {}) {
     const musicdb = this;
-    const albumSet = new Set([]);
-    let { progressReporter, signal, resumeInfo } = options;
+    let { progressReporter, signal, resumeInfo, chunkSize = 200 } = options;
+
     // utility for fetch
     function getJson(response) {
       if (!response.ok) {
@@ -158,62 +158,27 @@ class MusicDB {
       return response.json();
     }
 
-    // insert data in storeName, chunk by chunk
-    // ( XXX but the "chunk by chunk" is not used anymore, now we insert small batches)
-    function populateStore(storeName, data) {
+    // insert data in storeName and resolve to the number of inserted items.
+    function insertInStore(storeName, data) {
       var nbInsertions = data.length;
-      return openDatabase(musicdb, function(db, resolve, reject) {
-        function insertNext(i, store) {
-          if (i === -1) {
-            return resolve(nbInsertions);
-          }
-          var req = store.add(data[i]);
-          req.onsuccess = function(evt) {
-            try {
-              if (i > 0 && i % 200 === 0) {
-                // start a new transaction.
-                console.log('Insertion in ' + storeName + ' successful', i);
-                insertNext(
-                  i - 1,
-                  db.transaction(storeName, 'readwrite').objectStore(storeName)
-                );
-              } else {
-                insertNext(i - 1, store);
-              }
-            } catch (e) {
-              reject(e);
-            }
-          };
-          req.onerror = function(e) {
-            reject(
-              new Error(
-                'Error inserting ' +
-                  JSON.stringify(data[i]) +
-                  '\nerror: ' +
-                  e.target.error
-              )
-            );
-          };
-        }
-        // start inserting
-        insertNext(
-          data.length - 1,
-          db.transaction(storeName, 'readwrite').objectStore(storeName)
-        );
+      return openDatabase(musicdb, (db, resolve, reject) => {
+        const transaction = db.transaction(storeName, 'readwrite');
+        const store = transaction.objectStore(storeName);
+        data.forEach(item => store.add(item));
+        transaction.oncomplete = () => resolve(nbInsertions);
+        transaction.onerror = reject;
       });
     }
 
-    /* why 4 parameters ? */
-    function fetchItems(url, nbItems, start, end, totalItems) {
-      //console.log('fetchItems', nbItems, start, end, totalItems, signal);
-      // fetch from items until we get nbItems.
-      let i;
-      let query = '';
-      for (i = start + 1; i < end; i++) {
-        query = query + i + ',';
-      }
-      query = query + i;
+    /* fetch items from API, between `start` and `end` and keep fetching
+    until we have found `totalItems`. `nbItems` holds the number of items
+    we have already found so far.
 
+    Beets does not allow to get paginated results, the approach used here is to
+    call /items/1,2,3,... with a sequence of incremental ids, handling 404 errors
+    returned by the API and keep progressing until we have have found all items.
+    */
+    function fetchItems(url, nbItems, start, end, totalItems) {
       if (signal && signal.aborted) {
         throw new DatabaseLoadingAbort();
       }
@@ -232,35 +197,56 @@ class MusicDB {
       if (end > 100000) {
         throw new Error('Infinite loop prevented');
       }
-      if (albumSet.size && (albumSet.size > 30 || nbItems === 0)) {
-        // fetch albums and populate album store.
-        // XXX bug: we loose albums if intrrupted. Just query albums each time ?
-
-        // XXX bug: we can query and insert same album if we reset albumSet
-        // in the middle of two items loading.
-        let albumQuery = '';
-        albumSet.forEach(album_id => {
-          albumQuery = albumQuery + album_id + ',';
-        });
-        albumQuery.substring(0, albumQuery.length - 1);
-        return fetch(url + '/album/' + albumQuery, {
+      if (nbItems > 0) {
+        let itemsQuery = '';
+        for (let i = start + 1; i <= end; i++) {
+          itemsQuery = itemsQuery + i + ',';
+        }
+        itemsQuery = itemsQuery.substring(0, itemsQuery.length - 1);
+        return fetch(url + '/item/' + itemsQuery, {
           credentials: 'include',
           signal
         })
           .then(getJson)
-          .then(albumResult => {
-            albumSet.clear(); // reset. XXX is this race cond. safe ?
-            return populateStore('albums', albumResult.albums);
-          })
-          .then(() => fetchItems(url, nbItems, start, end, totalItems));
-      }
-
-      if (nbItems > 0) {
-        return fetch(url + '/item/' + query, { credentials: 'include', signal })
-          .then(getJson)
           .then(function(result) {
+            /* first, insert albums */
+
+            const albumSet = new Set([]);
             result.items.forEach(item => albumSet.add(item.album_id));
-            return populateStore('items', result.items);
+
+            /* filter out albums that we already have loaded  */
+            const checkAlbumExistPromises = [];
+            albumSet.forEach(albumId => {
+              checkAlbumExistPromises.push(
+                musicdb._hasAlbum(albumId).then(hasAlbum => {
+                  return hasAlbum ? null : albumId;
+                })
+              );
+            });
+            return Promise.all(checkAlbumExistPromises).then(missingAlbums => {
+              /* an empty promise for the case where  we don't need to load albums */
+              let insertAlbums = Promise.resolve();
+
+              let albumQuery = '';
+              missingAlbums.forEach(albumId => {
+                if (albumId) albumQuery = albumQuery + albumId + ',';
+              });
+              albumQuery = albumQuery.substring(0, albumQuery.length - 1);
+              if (albumQuery) {
+                insertAlbums = fetch(url + '/album/' + albumQuery, {
+                  credentials: 'include',
+                  signal
+                })
+                  .then(getJson)
+                  .then(albumResult =>
+                    insertInStore('albums', albumResult.albums)
+                  );
+              }
+
+              return insertAlbums.then(() =>
+                insertInStore('items', result.items)
+              );
+            });
           })
           .then(
             function(inserted) {
@@ -277,7 +263,7 @@ class MusicDB {
               if (e.status !== 404) {
                 throw e;
               }
-              // advance
+              // There was no items in this range, advance the "cursor"
               return fetchItems(
                 url,
                 nbItems,
@@ -295,7 +281,7 @@ class MusicDB {
         musicdb.beets_url,
         resumeInfo.totalItems - resumeInfo.currentItem,
         resumeInfo.currentItem,
-        resumeInfo.currentItem + 100,
+        resumeInfo.currentItem + chunkSize, // XXX or save chunkSize in resume info ?
         resumeInfo.totalItems
       );
     }
@@ -306,7 +292,7 @@ class MusicDB {
         }).then(getJson);
       })
       .then(stat =>
-        fetchItems(musicdb.beets_url, stat.items, 0, 100, stat.items)
+        fetchItems(musicdb.beets_url, stat.items, 0, chunkSize, stat.items)
       );
   }
 
@@ -359,6 +345,7 @@ class MusicDB {
   }
 
   // return a random album from the music db
+  // TODO: cleanup
   getRandomAlbum() {
     const musicdb = this;
     function getRandomInt(min, max) {
@@ -366,7 +353,7 @@ class MusicDB {
     }
 
     return this.countAlbums().then(albumCount => {
-      return openDatabase(musicdb, function(db, resolve, reject) {
+      return openDatabase(musicdb, (db, resolve, reject) => {
         var albumStore = db
           .transaction('albums', 'readonly')
           .objectStore('albums');
@@ -384,12 +371,10 @@ class MusicDB {
               }
             }
             if (cursor) {
-              return musicdb
-                .getAlbumCoverUrl(cursor.value)
-                .then(function(cover_url) {
-                  cursor.value.cover_url = cover_url;
-                  return resolve(cursor.value);
-                });
+              return musicdb.getAlbumCoverUrl(cursor.value).then(cover_url => {
+                cursor.value.cover_url = cover_url;
+                return resolve(cursor.value);
+              });
             }
             reject('Error counting albums');
           } catch (error) {
@@ -398,6 +383,20 @@ class MusicDB {
         };
         req.onerror = reject;
       });
+    });
+  }
+
+  /* do we already have an album with this id ?
+  Used during loading */
+  _hasAlbum(albumId) {
+    return openDatabase(this, (db, resolve, reject) => {
+      const transaction = db.transaction('albums', 'readonly');
+      const request = transaction
+        .objectStore('albums')
+        .index('id')
+        .get(albumId);
+      request.onsuccess = () => resolve(request.result !== undefined);
+      transaction.onerror = reject;
     });
   }
 }

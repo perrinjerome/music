@@ -47,6 +47,7 @@ Vue.component('audio-player', {
         this.$refs.audio.src = this.currentItem.item_url;
         this.$refs.audio.play().then(() => {
           if ('mediaSession' in navigator) {
+            // XXX cover url is already known by album. no need to call musicdb
             this.$parent.musicdb
               .getAlbumCoverUrl({ id: this.currentItem.album_id })
               .then(cover_url => {
