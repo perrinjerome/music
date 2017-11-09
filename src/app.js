@@ -445,7 +445,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 'Finised updating in ' +
                 (payload / 1000).toFixed(2) +
                 ' seconds',
-              timeout: 2000
+              timeout: 2000000
             };
             app.private.snackbar.MaterialSnackbar.showSnackbar(data);
             localStorage.removeItem('loadingResumeInfo');
