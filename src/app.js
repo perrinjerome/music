@@ -127,6 +127,8 @@ document.addEventListener('DOMContentLoaded', () => {
           );
         } else {
           // fallback to nosleep
+          // XXX we have re-enable nosleep sometimes
+          // after switching to another tab maybe
           const noSleep = new NoSleep();
           noSleep.enable();
         }
