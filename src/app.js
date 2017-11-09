@@ -54,35 +54,35 @@ document.addEventListener('DOMContentLoaded', () => {
           console.error('unknown frame', frame);
       }
     },
-    mounted: () => {
+    mounted: function() {
       // TODO function for this
       // initialize properties
-      app.beets_url =
+      this.beets_url =
         localStorage.getItem('beets_url') || 'http://localhost:8337/';
 
       // utility
-      app.private = {};
-      app.private.snackbar = document.querySelector('#snackbar');
-      app.private.dialogs = {};
+      this.private = {};
+      this.private.snackbar = document.querySelector('#snackbar');
+      this.private.dialogs = {};
       const dialogSelectors = [
         '#dialog-api-login',
         '#dialog-configure',
         '#dialog-confirm-refresh-database'
       ];
-      for (var selector in dialogSelectors) {
+      for (let selector in dialogSelectors) {
         let dialog = document.querySelector(dialogSelectors[selector]);
         if (!dialog.showModal) {
           dialogPolyfill.registerDialog(dialog);
         }
-        app.private.dialogs[dialogSelectors[selector]] = dialog;
+        this.private.dialogs[dialogSelectors[selector]] = dialog;
       }
 
       const hammer = new Hammer(document);
       hammer.on('swipeleft', ev => {
-        app.showFrame('ALBUMS');
+        this.showFrame('ALBUMS');
       });
       hammer.on('swiperight', ev => {
-        app.showFrame('PLAYLIST');
+        this.showFrame('PLAYLIST');
       });
 
       // setup routing system
@@ -92,19 +92,19 @@ document.addEventListener('DOMContentLoaded', () => {
         if (page.indexOf('album') === 0) {
           //console.log("ok", page.split("/"));
           try {
-            app.playAlbum(parseInt(page.split('/')[1], 10));
+            this.playAlbum(parseInt(page.split('/')[1], 10));
           } catch (e) {
             console.error(e);
           }
         } else {
           if (pages[page]) {
             //console.log("changing page to", page);
-            app.current_page = page;
+            this.current_page = page;
             window.location.hash = '';
           } else {
-            app.current_page = 'front';
+            this.current_page = 'front';
           }
-          // app.current_page = page
+          // this.current_page = page
         }
       };
       window.addEventListener('hashchange', onHashChange);
@@ -135,16 +135,16 @@ document.addEventListener('DOMContentLoaded', () => {
       document.body.addEventListener('click', firstTouchInitializer);
 
       // loading Worker
-      app.private.dbLoadWorker = new DataBaseLoadingWorker();
-      app.private.dbLoadWorker.addEventListener('message', event => {
-        app._onDatabaseLoadingWorkerMessageReceived(
+      this.private.dbLoadWorker = new DataBaseLoadingWorker();
+      this.private.dbLoadWorker.addEventListener('message', event => {
+        this._onDatabaseLoadingWorkerMessageReceived(
           event.data.action,
           event.data.payload
         );
       });
       // are we resuming a load
       if (localStorage.getItem('loadingResumeInfo')) {
-        app.private.dbLoadWorker.postMessage({
+        this.private.dbLoadWorker.postMessage({
           action: DatabaseLoadingMessages.RESUME_REFRESH_DATABASE,
           payload: JSON.parse(localStorage.getItem('loadingResumeInfo'))
         });
@@ -174,7 +174,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         actionText: 'Refresh',
                         timeout: 1000000
                       };
-                      app.private.snackbar.MaterialSnackbar.showSnackbar(data);
+                      this.private.snackbar.MaterialSnackbar.showSnackbar(data);
                     }
                   }
                 };
@@ -366,7 +366,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
       },
       playNext: () => {
-        for (var i = 0; i < app.playlist.length - 1; i++) {
+        for (let i = 0; i < app.playlist.length - 1; i++) {
           if (app.current_item.id == app.playlist[i].id) {
             app.current_item = app.playlist[i + 1];
             return;
@@ -374,7 +374,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
       },
       playPrevious: () => {
-        for (var i = 0; i < app.playlist.length - 1; i++) {
+        for (let i = 0; i < app.playlist.length - 1; i++) {
           if (app.current_item.id == app.playlist[i].id) {
             app.current_item = app.playlist[Math.max(i - 1, 0)];
             return;
@@ -466,7 +466,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // XXX from chrome samples
   function log() {
-    var line = Array.prototype.slice
+    const line = Array.prototype.slice
       .call(arguments)
       .map(function(argument) {
         if (typeof argument !== 'string') argument = JSON.stringify(argument);

@@ -1,6 +1,6 @@
 /*globals require, global, console, window, describe, it, beforeEach */
 
-var nock = require('nock');
+const nock = require('nock');
 
 global.fetch = require('node-fetch');
 global.indexedDB = require('fake-indexeddb');

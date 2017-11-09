@@ -120,10 +120,9 @@ Vue.component('audio-player', {
                 fileData: fileData
               });
               this.flacConversionWorker.onmessage = e => {
-                var fileName, blob, url;
                 if (e.data.reply == 'done') {
-                  for (fileName in e.data.values) {
-                    blob = e.data.values[fileName].blob;
+                  for (let fileName in e.data.values) {
+                    let blob = e.data.values[fileName].blob;
                     if (component.url) {
                       URL.revokeObjectURL(component.url);
                     }

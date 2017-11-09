@@ -9,7 +9,7 @@ import { DatabaseLoadingAbort } from './errors';
 // callback is called with db, resolve, reject
 function openDatabase(musicdb, callback) {
   return new Promise((resolve, reject) => {
-    var request = indexedDB.open(musicdb.db_name, musicdb.db_version);
+    const request = indexedDB.open(musicdb.db_name, musicdb.db_version);
     request.onerror = reject;
 
     request.onupgradeneeded = event => {
@@ -56,7 +56,10 @@ function openDatabase(musicdb, callback) {
 // clear the database stores
 function clearObjectStores(musicdb) {
   return openDatabase(musicdb, (db, resolve, reject) => {
-    var tx = db.transaction(['items', /* 'artists', */ 'albums'], 'readwrite');
+    const tx = db.transaction(
+      ['items', /* 'artists', */ 'albums'],
+      'readwrite'
+    );
     tx.onerror = reject;
     tx.oncomplete = resolve;
     tx.objectStore('items').clear();
@@ -92,7 +95,6 @@ class MusicDB {
 
   // returns all items from album
   getItemsFromAlbum(albumId) {
-    var musicdb = this;
     return openDatabase(this, (db, resolve, reject) => {
       const albumStore = db
         .transaction('items', 'readonly')
@@ -103,14 +105,14 @@ class MusicDB {
       req.onerror = reject;
       req.onsuccess = e => {
         try {
-          var cursor = e.target.result;
+          const cursor = e.target.result;
           if (cursor) {
             itemList.push(cursor.value);
             return cursor.continue();
           }
           const getItemSrcUrlPromises = [];
           itemList.forEach(item => {
-            getItemSrcUrlPromises.push(musicdb.getItemSrcUrl(item));
+            getItemSrcUrlPromises.push(this.getItemSrcUrl(item));
           });
           return Promise.all(getItemSrcUrlPromises).then(itemSrcUrls => {
             zip(itemList, itemSrcUrls).forEach(([item, srcUrl]) => {
@@ -160,7 +162,7 @@ class MusicDB {
 
     // insert data in storeName and resolve to the number of inserted items.
     function insertInStore(storeName, data) {
-      var nbInsertions = data.length;
+      const nbInsertions = data.length;
       return openDatabase(musicdb, (db, resolve, reject) => {
         const transaction = db.transaction(storeName, 'readwrite');
         const store = transaction.objectStore(storeName);
@@ -345,33 +347,31 @@ class MusicDB {
   }
 
   // return a random album from the music db
-  // TODO: cleanup
   getRandomAlbum() {
-    const musicdb = this;
     function getRandomInt(min, max) {
       return Math.floor(Math.random() * (max - min + 1)) + min;
     }
 
     return this.countAlbums().then(albumCount => {
-      return openDatabase(musicdb, (db, resolve, reject) => {
-        var albumStore = db
+      return openDatabase(this, (db, resolve, reject) => {
+        const albumStore = db
           .transaction('albums', 'readonly')
           .objectStore('albums');
-        var req = albumStore.openCursor();
-        var alreadyAdvanced = false;
+        const req = albumStore.openCursor();
+        let alreadyAdvanced = false;
 
         req.onsuccess = e => {
           try {
-            var cursor = e.target.result;
+            let cursor = e.target.result;
             if (!alreadyAdvanced) {
-              var advance = getRandomInt(0, albumCount - 1);
+              let advance = getRandomInt(0, albumCount - 1);
               alreadyAdvanced = true;
               if (advance > 0) {
                 return cursor.advance(advance);
               }
             }
             if (cursor) {
-              return musicdb.getAlbumCoverUrl(cursor.value).then(cover_url => {
+              return this.getAlbumCoverUrl(cursor.value).then(cover_url => {
                 cursor.value.cover_url = cover_url;
                 return resolve(cursor.value);
               });
