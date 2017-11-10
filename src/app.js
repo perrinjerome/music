@@ -29,7 +29,7 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   // app Vue instance
-  const app = new Vue({
+  const theApp = new Vue({
     data: {
       beets_url: '',
       playlist: [],
@@ -40,30 +40,17 @@ document.addEventListener('DOMContentLoaded', () => {
       loading: false,
       current_title: 'Music Player'
     },
-    showFrame(frame) {
-      switch (frame) {
-        case 'PLAYLIST':
-          document.querySelector('.playlist').style.display = '';
-          document.querySelector('.random-albums').style.display = 'none';
-          break;
-        case 'ALBUMS':
-          document.querySelector('.playlist').style.display = 'none';
-          document.querySelector('.random-albums').style.display = '';
-          break;
-        default:
-          console.error('unknown frame', frame);
-      }
-    },
+
     mounted: function() {
-      // TODO function for this
+      const app = this;
       // initialize properties
-      this.beets_url =
+      app.beets_url =
         localStorage.getItem('beets_url') || 'http://localhost:8337/';
 
       // utility
-      this.private = {};
-      this.private.snackbar = document.querySelector('#snackbar');
-      this.private.dialogs = {};
+      app.private = {};
+      app.private.snackbar = document.querySelector('#snackbar');
+      app.private.dialogs = {};
       const dialogSelectors = [
         '#dialog-api-login',
         '#dialog-configure',
@@ -74,15 +61,15 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!dialog.showModal) {
           dialogPolyfill.registerDialog(dialog);
         }
-        this.private.dialogs[dialogSelectors[selector]] = dialog;
+        app.private.dialogs[dialogSelectors[selector]] = dialog;
       }
 
       const hammer = new Hammer(document);
-      hammer.on('swipeleft', ev => {
-        this.showFrame('ALBUMS');
+      hammer.on('panleft', ev => {
+        app.showFrame('ALBUMS');
       });
-      hammer.on('swiperight', ev => {
-        this.showFrame('PLAYLIST');
+      hammer.on('panright', ev => {
+        app.showFrame('PLAYLIST');
       });
 
       // setup routing system
@@ -92,19 +79,19 @@ document.addEventListener('DOMContentLoaded', () => {
         if (page.indexOf('album') === 0) {
           //console.log("ok", page.split("/"));
           try {
-            this.playAlbum(parseInt(page.split('/')[1], 10));
+            app.playAlbum(parseInt(page.split('/')[1], 10));
           } catch (e) {
             console.error(e);
           }
         } else {
           if (pages[page]) {
             //console.log("changing page to", page);
-            this.current_page = page;
+            app.current_page = page;
             window.location.hash = '';
           } else {
-            this.current_page = 'front';
+            app.current_page = 'front';
           }
-          // this.current_page = page
+          // app.current_page = page
         }
       };
       window.addEventListener('hashchange', onHashChange);
@@ -134,19 +121,22 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         document.body.removeEventListener('click', firstTouchInitializer);
       };
-      document.body.addEventListener('click', firstTouchInitializer);
+      document.body.addEventListener(
+        'click',
+        firstTouchInitializer /*{passive: true}*/
+      );
 
       // loading Worker
-      this.private.dbLoadWorker = new DataBaseLoadingWorker();
-      this.private.dbLoadWorker.addEventListener('message', event => {
-        this._onDatabaseLoadingWorkerMessageReceived(
+      app.private.dbLoadWorker = new DataBaseLoadingWorker();
+      app.private.dbLoadWorker.addEventListener('message', event => {
+        app._onDatabaseLoadingWorkerMessageReceived(
           event.data.action,
           event.data.payload
         );
       });
       // are we resuming a load
       if (localStorage.getItem('loadingResumeInfo')) {
-        this.private.dbLoadWorker.postMessage({
+        app.private.dbLoadWorker.postMessage({
           action: DatabaseLoadingMessages.RESUME_REFRESH_DATABASE,
           payload: JSON.parse(localStorage.getItem('loadingResumeInfo'))
         });
@@ -176,7 +166,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         actionText: 'Refresh',
                         timeout: 1000000
                       };
-                      this.private.snackbar.MaterialSnackbar.showSnackbar(data);
+                      app.private.snackbar.MaterialSnackbar.showSnackbar(data);
                     }
                   }
                 };
@@ -191,7 +181,8 @@ document.addEventListener('DOMContentLoaded', () => {
     },
 
     watch: {
-      beets_url: beets_url => {
+      beets_url: function(beets_url) {
+        const app = this;
         if (beets_url) {
           // check we can access it and give a chance to login ( XXX move it to DB )
           // make a first no-cors request to check if server is up
@@ -263,7 +254,8 @@ document.addEventListener('DOMContentLoaded', () => {
       current_item: current_item => {
         document.title = current_item.title + ' ⚡ ' + current_item.artist;
       },
-      current_page: current_page => {
+      current_page: function(current_page) {
+        const app = this;
         // XXX
         if (current_page == 'front') {
           app.current_page = null;
@@ -324,50 +316,67 @@ document.addEventListener('DOMContentLoaded', () => {
     },
 
     methods: {
-      onGlobalSearch: event => {
+      showFrame: function(frame) {
+        switch (frame) {
+          case 'PLAYLIST':
+            document.querySelector('.playlist').style.display = '';
+            document.querySelector('.random-albums').style.display = 'none';
+            break;
+          case 'ALBUMS':
+            document.querySelector('.playlist').style.display = 'none';
+            document.querySelector('.random-albums').style.display = '';
+            break;
+          default:
+            console.error('unknown frame', frame);
+        }
+      },
+      onGlobalSearch: function(event) {
+        const app = this;
         const searchString = event.target.value;
-        const db = app.musicdb;
-        if (db) {
-          db.searchAlbums(searchString).then(albums => {
+        if (app.musicdb) {
+          app.musicdb.searchAlbums(searchString).then(albums => {
             app.random_albums = albums; // XXX not "random_albums"
           });
           // hide keyboard on mobile
           document.activeElement.blur();
         }
       },
-      playRandomAlbum: () => {
+      playRandomAlbum: function() {
+        const app = this;
         app.musicdb.getRandomAlbum().then(album => {
           app.random_albums = [album];
-          app.playAlbum(album.id);
+          theApp.playAlbum(album.id);
         });
       },
-      get4RandomAlbums: () => {
-        const db = app.musicdb;
-        if (db) {
+      get4RandomAlbums: function() {
+        const app = this;
+        if (app.musicdb) {
           return Promise.all([
-            db.getRandomAlbum(),
-            db.getRandomAlbum(),
-            db.getRandomAlbum(),
-            db.getRandomAlbum()
+            app.musicdb.getRandomAlbum(),
+            app.musicdb.getRandomAlbum(),
+            app.musicdb.getRandomAlbum(),
+            app.musicdb.getRandomAlbum()
           ]).then(albums => {
             app.random_albums = albums;
           });
         }
       },
-      playSong: song => {
-        app.current_item = song;
+      playSong: function(song) {
+        this.current_item = song;
       },
       route_playAlbum: album => {
         window.location.hash = 'album/' + album.id;
       },
-      playAlbum: album_id => {
+      playAlbum: function(album_id) {
+        const app = this;
         app.current_page = 'playing.' + album_id;
         app.musicdb.getItemsFromAlbum(album_id).then(items => {
           app.playlist = items;
           app.current_item = items[0];
         });
       },
-      playNext: () => {
+      playNext: function() {
+        const app = this;
         for (let i = 0; i < app.playlist.length - 1; i++) {
           if (app.current_item.id == app.playlist[i].id) {
             app.current_item = app.playlist[i + 1];
@@ -375,7 +384,8 @@ document.addEventListener('DOMContentLoaded', () => {
           }
         }
       },
-      playPrevious: () => {
+      playPrevious: function() {
+        const app = this;
         for (let i = 0; i < app.playlist.length - 1; i++) {
           if (app.current_item.id == app.playlist[i].id) {
             app.current_item = app.playlist[Math.max(i - 1, 0)];
@@ -383,7 +393,8 @@ document.addEventListener('DOMContentLoaded', () => {
           }
         }
       },
-      refreshDatabase: () => {
+      refreshDatabase: function() {
+        const app = this;
         const dialog = app.private.dialogs['#dialog-confirm-refresh-database'];
         dialog.showModal();
         dialog
@@ -404,7 +415,8 @@ document.addEventListener('DOMContentLoaded', () => {
             dialog.close();
           });
       },
-      sendMessageToDatabaseLoadingWorker: (action, payload) => {
+      sendMessageToDatabaseLoadingWorker: function(action, payload) {
+        const app = this;
         if (true) {
           app.private.dbLoadWorker.postMessage({ action, payload });
         } else {
@@ -432,7 +444,8 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
       },
-      _onDatabaseLoadingWorkerMessageReceived: (action, payload) => {
+      _onDatabaseLoadingWorkerMessageReceived: function(action, payload) {
+        const app = this;
         switch (action) {
           case DatabaseLoadingMessages.REFRESH_DATABASE_PROGRESS_REPORT:
             app.loading = true;
@@ -464,7 +477,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  app.$mount('.player');
+  theApp.$mount('.player');
 
   // XXX from chrome samples
   function log() {
