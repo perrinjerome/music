@@ -50,10 +50,11 @@ self.addEventListener('fetch', event => {
         return response;
       }
       if (/\/art$/.test(event.request.url)) {
-        // console.log("SW: fetching image", event.request.url);
         return fetch(event.request).then(response => {
+          if (!response.ok) {
+            return response;
+          }
           return caches.open(IMAGES_CACHE_NAME).then(cache => {
-            // console.log("SW: caching image", event.request.url);
             cache.put(event.request, response.clone());
             return response;
           });

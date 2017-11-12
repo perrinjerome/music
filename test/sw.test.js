@@ -53,16 +53,43 @@ describe('Service Worker', () => {
 
   test('fetch saves album art', () => {
     require('../src/sw.js');
-    const Response = () => ({ clone: jest.fn(() => 'response') });
+    const Response = () => ({ ok: true, clone: jest.fn(() => 'response') });
     global.fetch = jest.fn(() => Promise.resolve(Response()));
-    expect.assertions(1);
+    expect.assertions(2);
     return self
       .trigger('fetch', new Request('./album/123/art'))
       .then(response => {
         return self.caches
           .open(IMAGES_CACHE_NAME)
           .then(cache => cache.match(new Request('./album/123/art')))
-          .then(match => expect(match).toBe('response'));
+          .then(match => expect(match).toBe('response'))
+          .then(() => {
+            // next request uses cache and does not cause another fetch
+            return self
+              .trigger('fetch', new Request('./album/123/art'))
+              .then(() => expect(fetch).toHaveBeenCalledTimes(1));
+          });
+      });
+  });
+
+  test('fetch does not save album art on error', () => {
+    require('../src/sw.js');
+    const Response = () => ({ ok: false, clone: jest.fn(() => 'response') });
+    global.fetch = jest.fn(() => Promise.resolve(Response()));
+    expect.assertions(2);
+    return self
+      .trigger('fetch', new Request('./album/123/art'))
+      .then(response => {
+        return self.caches
+          .open(IMAGES_CACHE_NAME)
+          .then(cache => cache.match(new Request('./album/123/art')))
+          .then(match => expect(match).toBeNull())
+          .then(() => {
+            // next request cause another fetch
+            return self
+              .trigger('fetch', new Request('./album/123/art'))
+              .then(() => expect(fetch).toHaveBeenCalledTimes(2));
+          });
       });
   });
 });
