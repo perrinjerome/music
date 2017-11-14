@@ -317,6 +317,7 @@ class MusicDB {
         const isMatching = (record, query) =>
           (record.albumartist &&
             record.albumartist.toLowerCase().indexOf(query) > -1) ||
+          (record.artist && record.artist.toLowerCase().indexOf(query) > -1) ||
           (record.album && record.album.toLowerCase().indexOf(query) > -1);
         try {
           for (i = 0; i < allAlbums.length; i++) {
