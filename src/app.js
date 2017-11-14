@@ -65,13 +65,14 @@ document.addEventListener('DOMContentLoaded', () => {
       }
 
       const hammer = new Hammer(document);
+      /* 
       hammer.on('panleft', ev => {
         app.showFrame('ALBUMS');
       });
       hammer.on('panright', ev => {
         app.showFrame('PLAYLIST');
       });
-
+*/
       // setup routing system
       const onHashChange = () => {
         const page = window.location.hash.replace(/#\/?/, '');
