@@ -4,14 +4,15 @@
 import Vue from 'vue/dist/vue.common.js';
 import NoSleep from 'nosleep.js';
 import 'material-design-lite';
+
 // import 'material-design-lite/material.css'; TODO
 import dialogPolyfill from 'dialog-polyfill';
 import 'dialog-polyfill/dialog-polyfill.css';
 import 'abortcontroller-polyfill';
 
 import 'material-design-lite/dist/material.indigo-deep_purple.min.css';
-
 import './style.css';
+
 import { MusicDB } from './musicdb.js';
 import { DatabaseLoadingMessages } from './actions.js';
 import DataBaseLoadingWorker from 'worker-loader!./databaseLoadingWorker.js';
