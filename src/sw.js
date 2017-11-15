@@ -16,20 +16,24 @@ self.addEventListener('activate', event => {
     FLAC_WORKER_CACHE_NAME
   ];
   event.waitUntil(
-    caches.keys().then(cacheNames => {
-      return Promise.all(
-        cacheNames.map(cacheName => {
-          if (cacheWhitelist.indexOf(cacheName) === -1) {
-            return caches.delete(cacheName);
-          }
-        })
-      );
-    })
+    Promise.all([
+      event.waitUntil(self.clients.claim()),
+      caches.keys().then(cacheNames => {
+        return Promise.all(
+          cacheNames.map(cacheName => {
+            if (cacheWhitelist.indexOf(cacheName) === -1) {
+              return caches.delete(cacheName);
+            }
+          })
+        );
+      })
+    ])
   );
 });
 
 self.addEventListener('install', event => {
   const cachesPromises = [];
+  self.skipWaiting();
   Object.entries(urlsToCache).forEach(([cacheName, urls]) => {
     cachesPromises.push(
       event.waitUntil(
