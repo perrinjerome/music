@@ -2,7 +2,9 @@
 /*jshint esversion: 6 */
 /*globals indexedDB, fetch, console, _ */
 
-import { sortBy, zip } from 'lodash';
+import sortBy from 'lodash/sortBy';
+import zip from 'lodash/zip';
+
 import { DatabaseLoadingAbort } from './errors';
 
 // helper function to open a database and make a promise.
