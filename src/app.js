@@ -1,7 +1,7 @@
 // @flow
 /*jshint esversion: 6 */
 /*globals Vue, navigator, window, setTimeout, MediaMetadata, console, fetch, URL, document, confirm, alert, MusicDB, NoSleep, Worker, localStorage */
-import Vue from 'vue/dist/vue.common.js';
+import Vue from 'vue/dist/vue.runtime.min.js';
 import NoSleep from 'nosleep.js';
 import 'material-design-lite';
 
