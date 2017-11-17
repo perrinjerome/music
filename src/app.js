@@ -20,7 +20,7 @@ import './components/audio.js';
 
 import registerServiceWorker from 'service-worker-loader?filename=sw.js!./sw.js';
 
-import Hammer from 'hammerjs';
+// import Hammer from 'hammerjs';
 
 document.addEventListener('DOMContentLoaded', () => {
   const pages = {
@@ -65,8 +65,8 @@ document.addEventListener('DOMContentLoaded', () => {
         app.private.dialogs[dialogSelectors[selector]] = dialog;
       }
 
+      /*
       const hammer = new Hammer(document);
-      /* 
       hammer.on('panleft', ev => {
         app.showFrame('ALBUMS');
       });
