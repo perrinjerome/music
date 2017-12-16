@@ -8,10 +8,17 @@
     "build:debug": "NODE_ENV=debug webpack --progress --colors",
     "lint": "jshint src/ test/ && eslint src/ test/",
     "flow": "flow",
-    "test": "jest --globals='{\"VERSION\": \"TEST\"}'"
+    "test": "jest"
   },
   "babel": {
-    "presets": ["env"]
+    "presets": [
+      "env"
+    ]
+  },
+  "jest": {
+    "globals": {
+      "VERSION": "TEST"
+    }
   },
   "dependencies": {
     "abortcontroller-polyfill": "^1.0.7",
