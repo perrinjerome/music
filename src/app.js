@@ -318,6 +318,12 @@ document.addEventListener('DOMContentLoaded', () => {
     },
 
     methods: {
+      back5Seconds: function() {
+        document.getElementById('audio_player').currentTime -= 5;
+      },
+      forward5Seconds: function() {
+        document.getElementById('audio_player').currentTime += 5;
+      },
       showFrame: function(frame) {
         switch (frame) {
           case 'PLAYLIST':
