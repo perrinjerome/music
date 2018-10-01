@@ -1,9 +1,9 @@
 // @flow
 /*globals self, caches, fetch, console */
-import { MusicDB } from './musicdb.js';
-import { DatabaseLoadingMessages } from './actions.js';
-import { DatabaseLoadingAbort } from './errors.js';
-import './abortcontroller-polyfill-light.js';
+import { MusicDB } from "./musicdb.js";
+import { DatabaseLoadingMessages } from "./actions.js";
+import { DatabaseLoadingAbort } from "./errors.js";
+import "./abortcontroller-polyfill-light.js";
 
 let loadingController;
 
@@ -50,10 +50,10 @@ function onMessage(event) {
           });
         });
     default:
-      console.warn('Incorrect Message Received in Loading Worker', event);
+      console.warn("Incorrect Message Received in Loading Worker", event);
       break;
   }
 }
 
-self.addEventListener('message', onMessage);
+self.addEventListener("message", onMessage);
 export { onMessage };

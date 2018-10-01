@@ -2,10 +2,10 @@
 /*jshint esversion: 6 */
 /*globals indexedDB, fetch, console, _ */
 
-import sortBy from 'lodash/sortBy';
-import zip from 'lodash/zip';
+import sortBy from "lodash/sortBy";
+import zip from "lodash/zip";
 
-import { DatabaseLoadingAbort } from './errors';
+import { DatabaseLoadingAbort } from "./errors";
 
 // helper function to open a database and make a promise.
 // callback is called with db, resolve, reject
@@ -17,35 +17,35 @@ function openDatabase(musicdb, callback) {
     request.onupgradeneeded = event => {
       const db = event.target.result;
 
-      if (db.objectStoreNames.contains('items')) {
-        db.deleteObjectStore('items');
+      if (db.objectStoreNames.contains("items")) {
+        db.deleteObjectStore("items");
       }
-      if (db.objectStoreNames.contains('albums')) {
-        db.deleteObjectStore('albums');
+      if (db.objectStoreNames.contains("albums")) {
+        db.deleteObjectStore("albums");
       }
-      if (db.objectStoreNames.contains('artists')) {
-        db.deleteObjectStore('artists');
+      if (db.objectStoreNames.contains("artists")) {
+        db.deleteObjectStore("artists");
       }
-      if (!db.objectStoreNames.contains('items')) {
-        let objectStore = db.createObjectStore('items', {
-          keyPath: '__id',
+      if (!db.objectStoreNames.contains("items")) {
+        let objectStore = db.createObjectStore("items", {
+          keyPath: "__id",
           autoIncrement: true
         });
-        objectStore.createIndex('id', 'id', { unique: false }); // XXX ??? see 1704
-        objectStore.createIndex('album', 'album', { unique: false });
-        objectStore.createIndex('album_id', 'album_id', { unique: false });
-        objectStore.createIndex('albumartist', 'albumartist', {
+        objectStore.createIndex("id", "id", { unique: false }); // XXX ??? see 1704
+        objectStore.createIndex("album", "album", { unique: false });
+        objectStore.createIndex("album_id", "album_id", { unique: false });
+        objectStore.createIndex("albumartist", "albumartist", {
           unique: false
         });
       }
-      if (!db.objectStoreNames.contains('albums')) {
-        let objectStore = db.createObjectStore('albums', {
-          keyPath: '__id',
+      if (!db.objectStoreNames.contains("albums")) {
+        let objectStore = db.createObjectStore("albums", {
+          keyPath: "__id",
           autoIncrement: true
         });
-        objectStore.createIndex('id', 'id', { unique: false }); // XXX ??? see 1704
-        objectStore.createIndex('album', 'album', { unique: false });
-        objectStore.createIndex('albumartist', 'albumartist', {
+        objectStore.createIndex("id", "id", { unique: false }); // XXX ??? see 1704
+        objectStore.createIndex("album", "album", { unique: false });
+        objectStore.createIndex("albumartist", "albumartist", {
           unique: false
         });
       }
@@ -59,13 +59,13 @@ function openDatabase(musicdb, callback) {
 function clearObjectStores(musicdb) {
   return openDatabase(musicdb, (db, resolve, reject) => {
     const tx = db.transaction(
-      ['items', /* 'artists', */ 'albums'],
-      'readwrite'
+      ["items", /* 'artists', */ "albums"],
+      "readwrite"
     );
     tx.onerror = reject;
     tx.oncomplete = resolve;
-    tx.objectStore('items').clear();
-    tx.objectStore('albums').clear();
+    tx.objectStore("items").clear();
+    tx.objectStore("albums").clear();
   });
 }
 
@@ -74,13 +74,13 @@ class MusicDB {
     this.beets_url = url;
 
     this.db_version = 49;
-    this.db_name = 'beets';
+    this.db_name = "beets";
 
     /* dynamically defined methods */
     const _countFromStore = storeName => {
       return () => {
         return openDatabase(this, (db, resolve, reject) => {
-          const transaction = db.transaction(storeName, 'readonly');
+          const transaction = db.transaction(storeName, "readonly");
           transaction.onerror = reject;
           const store = transaction.objectStore(storeName);
           const req = store.count();
@@ -91,17 +91,17 @@ class MusicDB {
         });
       };
     };
-    this.countAlbums = _countFromStore('albums');
-    this.countItems = _countFromStore('items');
+    this.countAlbums = _countFromStore("albums");
+    this.countItems = _countFromStore("items");
   }
 
   // returns all items from album
   getItemsFromAlbum(albumId) {
     return openDatabase(this, (db, resolve, reject) => {
       const albumStore = db
-        .transaction('items', 'readonly')
-        .objectStore('items');
-      const req = albumStore.index('album_id').openCursor(albumId);
+        .transaction("items", "readonly")
+        .objectStore("items");
+      const req = albumStore.index("album_id").openCursor(albumId);
       const itemList = [];
 
       req.onerror = reject;
@@ -138,14 +138,14 @@ class MusicDB {
   // return URL for cover image data
   getAlbumCoverUrl(album) {
     return new Promise((resolve, reject) => {
-      return resolve(this.beets_url + '/album/' + album.id + '/art');
+      return resolve(this.beets_url + "/album/" + album.id + "/art");
     });
   }
 
   // return URL for audio source data
   getItemSrcUrl(item) {
     return new Promise((resolve, reject) => {
-      resolve(this.beets_url + '/item/' + item.id + '/file');
+      resolve(this.beets_url + "/item/" + item.id + "/file");
     });
   }
 
@@ -166,7 +166,7 @@ class MusicDB {
     function insertInStore(storeName, data) {
       const nbInsertions = data.length;
       return openDatabase(musicdb, (db, resolve, reject) => {
-        const transaction = db.transaction(storeName, 'readwrite');
+        const transaction = db.transaction(storeName, "readwrite");
         const store = transaction.objectStore(storeName);
         data.forEach(item => store.add(item));
         transaction.oncomplete = () => resolve(nbInsertions);
@@ -194,21 +194,21 @@ class MusicDB {
             currentItem: end
           },
           beets_url: url,
-          progress: Math.floor((totalItems - nbItems) / totalItems * 100, 100)
+          progress: Math.floor(((totalItems - nbItems) / totalItems) * 100, 100)
         });
       }
 
       if (end > 100000) {
-        throw new Error('Infinite loop prevented');
+        throw new Error("Infinite loop prevented");
       }
       if (nbItems > 0) {
-        let itemsQuery = '';
+        let itemsQuery = "";
         for (let i = start + 1; i <= end; i++) {
-          itemsQuery = itemsQuery + i + ',';
+          itemsQuery = itemsQuery + i + ",";
         }
         itemsQuery = itemsQuery.substring(0, itemsQuery.length - 1);
-        return fetch(url + '/item/' + itemsQuery, {
-          credentials: 'include',
+        return fetch(url + "/item/" + itemsQuery, {
+          credentials: "include",
           signal
         })
           .then(getJson)
@@ -231,24 +231,24 @@ class MusicDB {
               /* an empty promise for the case where  we don't need to load albums */
               let insertAlbums = Promise.resolve();
 
-              let albumQuery = '';
+              let albumQuery = "";
               missingAlbums.forEach(albumId => {
-                if (albumId) albumQuery = albumQuery + albumId + ',';
+                if (albumId) albumQuery = albumQuery + albumId + ",";
               });
               albumQuery = albumQuery.substring(0, albumQuery.length - 1);
               if (albumQuery) {
-                insertAlbums = fetch(url + '/album/' + albumQuery, {
-                  credentials: 'include',
+                insertAlbums = fetch(url + "/album/" + albumQuery, {
+                  credentials: "include",
                   signal
                 })
                   .then(getJson)
                   .then(albumResult =>
-                    insertInStore('albums', albumResult.albums)
+                    insertInStore("albums", albumResult.albums)
                   );
               }
 
               return insertAlbums.then(() =>
-                insertInStore('items', result.items)
+                insertInStore("items", result.items)
               );
             });
           })
@@ -291,8 +291,8 @@ class MusicDB {
     }
     return clearObjectStores(musicdb)
       .then(() => {
-        return fetch(musicdb.beets_url + '/stats', {
-          credentials: 'include'
+        return fetch(musicdb.beets_url + "/stats", {
+          credentials: "include"
         }).then(getJson);
       })
       .then(stat =>
@@ -308,9 +308,9 @@ class MusicDB {
 
     return openDatabase(musicdb, function(db, resolve, reject) {
       const albumStore = db
-        .transaction('albums', 'readonly')
-        .objectStore('albums');
-      const req = albumStore.index('id').getAll();
+        .transaction("albums", "readonly")
+        .objectStore("albums");
+      const req = albumStore.index("id").getAll();
       let i = 0;
       const results = [];
       const albumCoverPromises = [];
@@ -358,8 +358,8 @@ class MusicDB {
     return this.countAlbums().then(albumCount => {
       return openDatabase(this, (db, resolve, reject) => {
         const albumStore = db
-          .transaction('albums', 'readonly')
-          .objectStore('albums');
+          .transaction("albums", "readonly")
+          .objectStore("albums");
         const req = albumStore.openCursor();
         let alreadyAdvanced = false;
 
@@ -379,7 +379,7 @@ class MusicDB {
                 return resolve(cursor.value);
               });
             }
-            reject('Error counting albums');
+            reject("Error counting albums");
           } catch (error) {
             reject(error);
           }
@@ -393,10 +393,10 @@ class MusicDB {
   Used during loading */
   _hasAlbum(albumId) {
     return openDatabase(this, (db, resolve, reject) => {
-      const transaction = db.transaction('albums', 'readonly');
+      const transaction = db.transaction("albums", "readonly");
       const request = transaction
-        .objectStore('albums')
-        .index('id')
+        .objectStore("albums")
+        .index("id")
         .get(albumId);
       request.onsuccess = () => resolve(request.result !== undefined);
       transaction.onerror = reject;

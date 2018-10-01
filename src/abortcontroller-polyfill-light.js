@@ -1,5 +1,5 @@
 (function(self) {
-  'use strict';
+  "use strict";
   if (self.AbortController) {
     return;
   }
@@ -14,4 +14,4 @@
   }
 
   self.AbortController = AbortController;
-})(typeof global !== 'undefined' ? global : this);
+})(typeof global !== "undefined" ? global : this);

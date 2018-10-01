@@ -1,17 +1,17 @@
 // @flow
 
-import Vue from 'vue/dist/vue.common.js';
-Vue.component('audio-player', {
-  template: '#audio-player-template',
+import Vue from "vue/dist/vue.common.js";
+Vue.component("audio-player", {
+  template: "#audio-player-template",
   mounted: function() {
     this.decoded = {};
     this.pauseCount = 0;
-    this.flacConversionWorker = new Worker('worker/EmsWorkerProxy.js');
-    this.$refs.audio.src = './empty.mp3';
-    this.$refs.audio.addEventListener('ended', e => this.$emit('ended'));
+    this.flacConversionWorker = new Worker("worker/EmsWorkerProxy.js");
+    this.$refs.audio.src = "./empty.mp3";
+    this.$refs.audio.addEventListener("ended", e => this.$emit("ended"));
     // try to setup media session controls.
-    if ('mediaSession' in navigator) {
-      navigator.mediaSession.setActionHandler('pause', _ => {
+    if ("mediaSession" in navigator) {
+      navigator.mediaSession.setActionHandler("pause", _ => {
         this.pauseCount += 1;
         setTimeout(_ => {
           this.pauseCount = 0;
@@ -26,11 +26,11 @@ Vue.component('audio-player', {
         }
       });
 
-      navigator.mediaSession.setActionHandler('nexttrack', _ => {
+      navigator.mediaSession.setActionHandler("nexttrack", _ => {
         this.$parent.playNext();
       });
 
-      navigator.mediaSession.setActionHandler('previoustrack', _ => {
+      navigator.mediaSession.setActionHandler("previoustrack", _ => {
         if (this.$refs.audio.currentTime < 3) {
           this.$parent.playPrevious();
         } else {
@@ -46,7 +46,7 @@ Vue.component('audio-player', {
         this.$parent.current_title = this.currentItem.title;
         this.$refs.audio.src = this.currentItem.item_url;
         this.$refs.audio.play().then(() => {
-          if ('mediaSession' in navigator) {
+          if ("mediaSession" in navigator) {
             // XXX cover url is already known by album. no need to call musicdb
             this.$parent.musicdb
               .getAlbumCoverUrl({ id: this.currentItem.album_id })
@@ -58,46 +58,46 @@ Vue.component('audio-player', {
                   artwork: [
                     {
                       src: cover_url,
-                      sizes: '96x96',
-                      type: 'image/png'
+                      sizes: "96x96",
+                      type: "image/png"
                     },
                     {
                       src: cover_url,
-                      sizes: '128x128',
-                      type: 'image/png'
+                      sizes: "128x128",
+                      type: "image/png"
                     },
                     {
                       src: cover_url,
-                      sizes: '192x192',
-                      type: 'image/png'
+                      sizes: "192x192",
+                      type: "image/png"
                     },
                     {
                       src: cover_url,
-                      sizes: '256x256',
-                      type: 'image/png'
+                      sizes: "256x256",
+                      type: "image/png"
                     },
                     {
                       src: cover_url,
-                      sizes: '384x384',
-                      type: 'image/png'
+                      sizes: "384x384",
+                      type: "image/png"
                     },
                     {
                       src: cover_url,
-                      sizes: '512x512',
-                      type: 'image/png'
+                      sizes: "512x512",
+                      type: "image/png"
                     }
                   ]
                 });
               });
           }
         });
-        this.$refs.audio.addEventListener('error', e => {
+        this.$refs.audio.addEventListener("error", e => {
           /* We cannot play this source, it must be a FLAC.
                Let's try to convert it.
             */
           if (component.decoded[component.currentItem.item_url]) {
             /* we could not convert */
-            console.error('already failed');
+            console.error("already failed");
             return;
           }
           // XXX do not keep all failed, just not to retry failed forever ...
@@ -109,25 +109,25 @@ Vue.component('audio-player', {
               const outData = {},
                 fileData = {},
                 item_url = component.currentItem.id;
-              outData[item_url + '.wav'] = { MIME: 'audio/wav' };
-              fileData[item_url + '.flac'] = new Uint8Array(buffer);
+              outData[item_url + ".wav"] = { MIME: "audio/wav" };
+              fileData[item_url + ".flac"] = new Uint8Array(buffer);
               console.log(component.currentItem, outData, fileData);
 
               this.flacConversionWorker.postMessage({
-                command: 'encode',
-                args: ['-d', item_url + '.flac'],
+                command: "encode",
+                args: ["-d", item_url + ".flac"],
                 outData: outData,
                 fileData: fileData
               });
               this.flacConversionWorker.onmessage = e => {
-                if (e.data.reply == 'done') {
+                if (e.data.reply == "done") {
                   for (let fileName in e.data.values) {
                     let blob = e.data.values[fileName].blob;
                     if (component.url) {
                       URL.revokeObjectURL(component.url);
                     }
                     // Are we still playing same song or was it changed ?
-                    if (fileName === component.currentItem.id + '.wav') {
+                    if (fileName === component.currentItem.id + ".wav") {
                       component.url = URL.createObjectURL(blob);
                       component.$refs.audio.src = component.url;
                       component.$refs.audio.play();
@@ -140,5 +140,5 @@ Vue.component('audio-player', {
       }
     }
   },
-  props: ['currentItem']
+  props: ["currentItem"]
 });

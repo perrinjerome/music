@@ -1,15 +1,15 @@
 // @flow
 /*globals self, caches, fetch, console */
-import { MusicDB } from './musicdb.js';
-import { DatabaseLoadingMessages } from './actions.js';
+import { MusicDB } from "./musicdb.js";
+import { DatabaseLoadingMessages } from "./actions.js";
 import {
   APP_CACHE_NAME,
   IMAGES_CACHE_NAME,
   FLAC_WORKER_CACHE_NAME,
   urlsToCache
-} from './swConstants.js';
+} from "./swConstants.js";
 
-self.addEventListener('activate', event => {
+self.addEventListener("activate", event => {
   var cacheWhitelist = [
     APP_CACHE_NAME,
     IMAGES_CACHE_NAME,
@@ -31,7 +31,7 @@ self.addEventListener('activate', event => {
   );
 });
 
-self.addEventListener('install', event => {
+self.addEventListener("install", event => {
   const cachesPromises = [];
   self.skipWaiting();
   Object.entries(urlsToCache).forEach(([cacheName, urls]) => {
@@ -46,7 +46,7 @@ self.addEventListener('install', event => {
   return Promise.all(cachesPromises);
 });
 
-self.addEventListener('fetch', event => {
+self.addEventListener("fetch", event => {
   event.respondWith(
     caches.match(event.request).then(response => {
       if (response) {
