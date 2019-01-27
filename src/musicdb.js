@@ -350,10 +350,9 @@ class MusicDB {
 
   // return a random album from the music db
   getRandomAlbum() {
-    function getRandomInt(min, max) {
-      return Math.floor(Math.random() * (max - min + 1)) + min;
+    function getRandomInt(max) {
+      return Math.floor(Math.random() * Math.floor(max));
     }
-
     return this.countAlbums().then(albumCount => {
       return openDatabase(this, (db, resolve, reject) => {
         const albumStore = db
@@ -366,7 +365,7 @@ class MusicDB {
           try {
             let cursor = e.target.result;
             if (!alreadyAdvanced) {
-              let advance = getRandomInt(0, albumCount - 1);
+              let advance = getRandomInt(albumCount);
               alreadyAdvanced = true;
               if (advance > 0) {
                 return cursor.advance(advance);
