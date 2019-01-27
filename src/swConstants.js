@@ -1,4 +1,3 @@
-// @flow
 const APP_CACHE_NAME = "music-app-" + VERSION;
 const IMAGES_CACHE_NAME = "music-app-images-v1";
 const FLAC_WORKER_CACHE_NAME = "flac-worker-v1";

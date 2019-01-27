@@ -1,4 +1,3 @@
-// @flow
 /*globals self, caches, fetch, console */
 import { MusicDB } from "./musicdb.js";
 import { DatabaseLoadingMessages } from "./actions.js";

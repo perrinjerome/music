@@ -1,4 +1,3 @@
-// @flow
 const DatabaseLoadingMessages = {};
 DatabaseLoadingMessages.REFRESH_DATABASE = "REFRESH_DATABASE";
 DatabaseLoadingMessages.REFRESH_DATABASE_PROGRESS_REPORT =

@@ -1,6 +1,5 @@
-// @flow
-
 import Vue from "vue/dist/vue.common.js";
+
 Vue.component("audio-player", {
   template: "#audio-player-template",
   mounted: function() {
