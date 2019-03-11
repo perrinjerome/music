@@ -14,7 +14,7 @@ import "./style.css";
 
 import { MusicDB } from "./musicdb.js";
 import { DatabaseLoadingMessages } from "./actions.js";
-import DataBaseLoadingWorker from "worker-loader!./databaseLoadingWorker.js";
+import DatabaseLoadingWorker from "worker-loader!./databaseLoadingWorker.js";
 import "./components/audio.js";
 
 import registerServiceWorker from "service-worker-loader?filename=sw.js!./sw.js";
@@ -56,13 +56,13 @@ document.addEventListener("DOMContentLoaded", () => {
         "#dialog-configure",
         "#dialog-confirm-refresh-database"
       ];
-      for (let selector in dialogSelectors) {
-        let dialog = document.querySelector(dialogSelectors[selector]);
+      dialogSelectors.forEach(selector => {
+        let dialog = document.querySelector(selector);
         if (!dialog.showModal) {
           dialogPolyfill.registerDialog(dialog);
         }
-        app.private.dialogs[dialogSelectors[selector]] = dialog;
-      }
+        app.private.dialogs[selector] = dialog;
+      });
 
       /*
       const hammer = new Hammer(document);
@@ -72,13 +72,12 @@ document.addEventListener("DOMContentLoaded", () => {
       hammer.on('panright', ev => {
         app.showFrame('PLAYLIST');
       });
-*/
+      */
+
       // setup routing system
       const onHashChange = () => {
         const page = window.location.hash.replace(/#\/?/, "");
-        //console.log("onHashChange", page);
         if (page.indexOf("album") === 0) {
-          //console.log("ok", page.split("/"));
           try {
             app.playAlbum(parseInt(page.split("/")[1], 10));
           } catch (e) {
@@ -86,18 +85,15 @@ document.addEventListener("DOMContentLoaded", () => {
           }
         } else {
           if (pages[page]) {
-            //console.log("changing page to", page);
             app.current_page = page;
             window.location.hash = "";
           } else {
             app.current_page = "front";
           }
-          // app.current_page = page
         }
       };
-      window.addEventListener("hashchange", onHashChange);
-      // setTimeout(onHashChange, 1);
 
+      window.addEventListener("hashchange", onHashChange);
       // Add event handler for first user interaction
       // On chrome mobile we can only start playing in an event handler.
       // https://bugs.chromium.org/p/chromium/issues/detail?id=138132
@@ -126,14 +122,14 @@ document.addEventListener("DOMContentLoaded", () => {
       );
 
       // loading Worker
-      app.private.dbLoadWorker = new DataBaseLoadingWorker();
+      app.private.dbLoadWorker = new DatabaseLoadingWorker();
       app.private.dbLoadWorker.addEventListener("message", event => {
         app._onDatabaseLoadingWorkerMessageReceived(
           event.data.action,
           event.data.payload
         );
       });
-      // are we resuming a load
+      // are we resuming a load ?
       if (localStorage.getItem("loadingResumeInfo")) {
         app.private.dbLoadWorker.postMessage({
           action: DatabaseLoadingMessages.RESUME_REFRESH_DATABASE,
