@@ -177,6 +177,8 @@ document.addEventListener("DOMContentLoaded", () => {
           );
         });
       }
+      // reveal
+      document.body.style.display = "block";
     },
 
     watch: {
