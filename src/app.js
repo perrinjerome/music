@@ -195,7 +195,7 @@ document.addEventListener("DOMContentLoaded", () => {
               })
                 .then(r => {
                   app.musicdb = new MusicDB(beets_url);
-                  app.get4RandomAlbums(); // XXX
+                  app.getRandomAlbums();
                 })
                 .catch(e => {
                   const dialog = app.private.dialogs["#dialog-api-login"];
@@ -216,7 +216,7 @@ document.addEventListener("DOMContentLoaded", () => {
                               visibilityHandler
                             );
                             app.musicdb = new MusicDB(beets_url);
-                            app.get4RandomAlbums(); // XXX
+                            app.getRandomAlbums();
                           })
                           .catch(() => {
                             /*ignore*/
@@ -253,10 +253,9 @@ document.addEventListener("DOMContentLoaded", () => {
       },
       current_page: function(current_page) {
         const app = this;
-        // XXX
         if (current_page == "front") {
           app.current_page = null;
-          return app.get4RandomAlbums();
+          return app.getRandomAlbums();
         }
         if (current_page == "updateDb") {
           alert("update db start");
@@ -351,10 +350,12 @@ document.addEventListener("DOMContentLoaded", () => {
           theApp.playAlbum(album.id);
         });
       },
-      get4RandomAlbums: function() {
+      getRandomAlbums: function() {
         const app = this;
         if (app.musicdb) {
           return Promise.all([
+            app.musicdb.getRandomAlbum(),
+            app.musicdb.getRandomAlbum(),
             app.musicdb.getRandomAlbum(),
             app.musicdb.getRandomAlbum(),
             app.musicdb.getRandomAlbum(),
