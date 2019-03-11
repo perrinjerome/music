@@ -31,7 +31,8 @@ const config = {
   devtool: "inline-source-map",
   output: {
     path: resolve(__dirname, "public"),
-    filename: "[name].js"
+    filename: "[name].js",
+    globalObject: "this"
   },
   module: {
     rules: [
