@@ -25,8 +25,9 @@ audio {
 .album-card-image {
   margin-top: 1em;
   margin-left: 20px;
-  height: 300px;
-  width: 300px;
+  height: 380px;
+  width: 380px;
+  margin-left: calc((100% - 380px) / 2);
   background-size: contain;
   background-position: center;
   background-repeat: no-repeat;
