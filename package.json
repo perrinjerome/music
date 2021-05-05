@@ -2,6 +2,7 @@
   "name": "musicplayer",
   "description": "a music player for beets.io based on modern web technologies",
   "version": "0.0.1",
+  "license": "MIT",
   "scripts": {
     "dev": "webpack-dev-server --progress --inline --colors",
     "build": "NODE_ENV=production webpack --progress --colors",
