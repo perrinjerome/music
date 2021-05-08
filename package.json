@@ -24,7 +24,7 @@
     "abortcontroller-polyfill": "^1.0.7",
     "dialog-polyfill": "^0.4.9",
     "hammerjs": "^2.0.8",
-    "lodash": "^4.17.13",
+    "lodash": "^4.17.21",
     "material-design-lite": "^1.3.0",
     "nosleep.js": "^0.7.0",
     "vue": "^2.6.8"
